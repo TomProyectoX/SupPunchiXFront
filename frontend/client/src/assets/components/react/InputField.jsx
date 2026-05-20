@@ -1,6 +1,4 @@
 
-
-// react-toastify removed — using inline errors only
 function InputField(  {label,
   type = "text",
   placeholder,
