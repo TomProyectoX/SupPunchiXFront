@@ -1,3 +1,11 @@
+import { NavLink } from "react-router-dom";
+
+const baseLinkClass = "flex items-center gap-4 px-4 py-3 text-sm uppercase font-semibold tracking-wide transition-colors";
+
+function getLinkClass({ isActive }) {
+  return `${baseLinkClass} ${isActive ? "text-[#CCFF00] bg-gray-800 border-l-3 border-[#CCFF00]" : "text-gray-400 hover:text-[#CCFF00]"}`;
+}
+
 export default function AdminSidebar() {
   return (
     <aside className="w-64 bg-[#0A0A0A] border-r border-gray-700 h-screen flex flex-col fixed left-0 top-0">
@@ -14,46 +22,34 @@ export default function AdminSidebar() {
         <ul className="space-y-1">
           {/* Orders */}
           <li>
-            <a
-              href="#"
-              className="flex items-center gap-4 px-4 py-3 text-gray-400 hover:text-[#CCFF00] transition-colors text-sm uppercase font-semibold tracking-wide"
-            >
+            <NavLink to="/admin/inventory" className={getLinkClass}>
               <span className="w-5 h-5 flex items-center justify-center">▢</span>
-              <span>Orders</span>
-            </a>
+              <span>Inventario</span>
+            </NavLink>
           </li>
 
-          {/* Products - Active */}
+          {/* Products */}
           <li>
-            <a
-              href="#"
-              className="flex items-center gap-4 px-4 py-3 text-[#CCFF00] bg-gray-800 transition-colors border-l-3 border-[#CCFF00] text-sm uppercase font-semibold tracking-wide"
-            >
+            <NavLink to="/admin/products" className={getLinkClass}>
               <span className="w-5 h-5 flex items-center justify-center">▢</span>
               <span>Products</span>
-            </a>
+            </NavLink>
           </li>
 
           {/* Customers */}
           <li>
-            <a
-              href="#"
-              className="flex items-center gap-4 px-4 py-3 text-gray-400 hover:text-[#CCFF00] transition-colors text-sm uppercase font-semibold tracking-wide"
-            >
+            <div className="flex items-center gap-4 px-4 py-3 text-gray-600 text-sm uppercase font-semibold tracking-wide cursor-default">
               <span className="w-5 h-5 flex items-center justify-center">◉</span>
               <span>Customers</span>
-            </a>
+            </div>
           </li>
 
           {/* Settings */}
           <li>
-            <a
-              href="#"
-              className="flex items-center gap-4 px-4 py-3 text-gray-400 hover:text-[#CCFF00] transition-colors text-sm uppercase font-semibold tracking-wide"
-            >
+            <div className="flex items-center gap-4 px-4 py-3 text-gray-600 text-sm uppercase font-semibold tracking-wide cursor-default">
               <span className="w-5 h-5 flex items-center justify-center">⚙</span>
               <span>Settings</span>
-            </a>
+            </div>
           </li>
         </ul>
       </nav>

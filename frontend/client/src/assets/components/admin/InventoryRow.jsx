@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export default function ProductRow({ producto, variante, handleDelete, handleEdit }) {
+export default function InventoryRow({ producto, variante, handleDelete, handleEdit }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -22,26 +22,21 @@ export default function ProductRow({ producto, variante, handleDelete, handleEdi
       document.removeEventListener("keydown", handleKey);
     };
   }, []);
+
   return (
     <tr className="border-b border-gray-700 hover:bg-gray-900/30 transition-colors">
-      {/* Product Name */}
       <td className="px-6 py-4">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-gray-800 rounded flex items-center justify-center text-lg font-black text-gray-400">
             ◻
           </div>
           <div>
-            <p className="text-sm font-bold text-white">
-              {producto.nombre}
-            </p>
-            <p className="text-xs text-gray-500 uppercase mt-1">
-              {producto.descripcion}
-            </p>
+            <p className="text-sm font-bold text-white">{producto.nombre}</p>
+            <p className="text-xs text-gray-500 uppercase mt-1">{producto.descripcion}</p>
           </div>
         </div>
       </td>
 
-      {/* Category */}
       <td className="px-6 py-4">
         <span className="text-xs font-semibold text-gray-300 uppercase">
           {producto.categoria?.description || "Sin categoría"}
@@ -50,18 +45,14 @@ export default function ProductRow({ producto, variante, handleDelete, handleEdi
 
       <td className="px-6 py-4">
         <span className="text-xs font-semibold text-gray-300 uppercase">
-          {variante.sabor.nombre || "Sin categoría"}
+          {variante.sabor?.nombre || "Sin sabor"}
         </span>
       </td>
 
-      {/* Price */}
       <td className="px-6 py-4">
-        <span className="text-sm font-bold text-white">
-          ${producto.precio}
-        </span>
+        <span className="text-sm font-bold text-white">${producto.precio}</span>
       </td>
 
-      {/* Stock Level */}
       <td className="px-6 py-4">
         <div>
           <div className="w-32 h-2 bg-gray-800 rounded overflow-hidden mb-2">
@@ -69,35 +60,34 @@ export default function ProductRow({ producto, variante, handleDelete, handleEdi
               className={`h-full ${
                 variante.stock <= 0
                   ? "bg-red-500"
-                  :  variante.stock <= 25
+                  : variante.stock <= 25
                   ? "bg-yellow-500"
                   : "bg-[#CCFF00]"
               }`}
               style={{
-                width: `${Math.min(( variante.stock / 100) * 100, 100)}%`
+                width: `${Math.min((variante.stock / 100) * 100, 100)}%`,
               }}
             />
           </div>
-          <p className={`text-xs font-bold uppercase ${
-             variante.stock <= 0
-              ? "text-red-500"
-              :  variante.stock <= 25
-              ? "text-yellow-500"
-              : "text-[#CCFF00]"
-          }`}>
-            { variante.stock <= 0
+          <p
+            className={`text-xs font-bold uppercase ${
+              variante.stock <= 0
+                ? "text-red-500"
+                : variante.stock <= 25
+                ? "text-yellow-500"
+                : "text-[#CCFF00]"
+            }`}
+          >
+            {variante.stock <= 0
               ? "STOCK DEPLETED"
-              : variante.stock<= 25
-              ? `${ variante.stock}% CAPACITY`
-              : `${ variante.stock}% CAPACITY`}
+              : variante.stock <= 25
+              ? `${variante.stock}% CAPACITY`
+              : `${variante.stock}% CAPACITY`}
           </p>
-          <p className="text-xs text-gray-500 mt-1">
-            { variante.stock} UNITS
-          </p>
+          <p className="text-xs text-gray-500 mt-1">{variante.stock} UNITS</p>
         </div>
       </td>
 
-     {/* Actions */}
       <td className="px-6 py-4 overflow-visible">
         <div ref={ref} className="relative inline-block text-left overflow-visible">
           <button
@@ -120,9 +110,9 @@ export default function ProductRow({ producto, variante, handleDelete, handleEdi
                 type="button"
                 className="block w-full text-left px-3 py-2 text-sm text-gray-200 hover:bg-gray-800 rounded-lg transition-colors"
                 role="menuitem"
-                onClick={() => handleEdit(producto)}
+                onClick={() => handleEdit(producto, variante)}
               >
-                Editar
+                Editar stock
               </button>
 
               <button

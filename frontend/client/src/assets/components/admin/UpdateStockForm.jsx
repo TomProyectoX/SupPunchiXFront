@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export default function UpdateProductForm({ producto, marcas = [], categorias = [], onSaved, onClose }) {
+export default function UpdateStockForm({ producto, marcas = [], categorias = [] }) {
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [precio, setPrecio] = useState(0);
@@ -17,34 +17,8 @@ export default function UpdateProductForm({ producto, marcas = [], categorias = 
     setMarcaid(producto.marca?.idMarca ?? "");
   }, [producto]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!producto?.idProducto) {
-      return;
-    }
-
-    const response = await fetch(`http://localhost:4002/productos/${producto.idProducto}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        nombre,
-        descripcion,
-        precio,
-        categoriaid,
-        marcaid,
-      }),
-    });
-
-    if (response.ok) {
-      onSaved?.();
-      onClose?.();
-    }
-  };
   return (
-    <form id="update-product-form" onSubmit={handleSubmit} className="w-full max-w-none rounded-2xl border border-emerald-400/20 bg-[#050505] p-8 shadow-[0_0_0_1px_rgba(163,230,53,0.08),0_0_40px_rgba(163,230,53,0.08)]">
+    <form id="update-product-form" className="w-full max-w-none rounded-2xl border border-emerald-400/20 bg-[#050505] p-8 shadow-[0_0_0_1px_rgba(163,230,53,0.08),0_0_40px_rgba(163,230,53,0.08)]">
       <div className="mb-6 border-b border-gray-700/80 pb-5">
         <p className="text-xs font-semibold uppercase tracking-[0.35em] text-gray-500">Editar producto</p>
         <h3 className="mt-2 text-3xl font-black tracking-tight text-white">{producto?.nombre}</h3>
@@ -122,9 +96,10 @@ export default function UpdateProductForm({ producto, marcas = [], categorias = 
       </label>
 
       <div className="mt-6 flex gap-3 border-t border-gray-700/80 pt-5">
-        <button type="submit" className="rounded-md bg-[#CCFF00] px-4 py-2 text-sm font-black text-black transition-colors hover:bg-white">Guardar</button>
+        <button type="submit" className="rounded-md bg-[#CCFF00] px-4 py-2 text-sm font-black text-black transition-colors hover:bg-white">
+          Guardar
+        </button>
       </div>
     </form>
   );
 }
-

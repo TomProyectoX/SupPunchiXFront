@@ -1,12 +1,9 @@
+import { useEffect, useState } from "react";
 import AdminSidebar from "../../assets/components/admin/AdminSidebar";
 import AdminHeader from "../../assets/components/admin/AdminHeader";
 import StatCard from "../../assets/components/admin/StatCard";
-import FilterBar from "../../assets/components/admin/FilterBar";
-import ProductTable from "../../assets/components/admin/ProductTable";
-import Pagination from "../../assets/components/admin/Pagination";
-import UpdateProductForm from "../../assets/components/admin/UpdateProductForm";
-import { useEffect, useState } from "react";
-import { data } from "react-router-dom";
+import InventoryTable from "../../assets/components/admin/InventoryTable";
+import UpdateStockForm from "../../assets/components/admin/UpdateStockForm";
 
 export default function AdminProducts() {
 
@@ -166,7 +163,7 @@ return productosactualizados /// devuelve el nuevo ARRAY con los objetos que hic
         {/* <FilterBar /> */}
 
         {/* Product Table */}
-        <ProductTable productos={productos} handleDelete={handleDelete} handleEdit={handleEdit} /> 
+        <InventoryTable productos={productos} handleDelete={handleDelete} handleEdit={handleEdit} /> 
         {/* Y SI O SI QUE QUEDE CLARO ESTO MUY CLARO LE TENEMOS 
         QUE PASAR TODAS LAS FUNCIONES QUE VA A UTILIZAR EL HIJO MEDIANTE PROPS OSEA MEDIANTE PARAMETROS, SI TENES 
         50 COMPONENTES ENTRE MEDIO SE LO PASAS, SPOILER ALERT: PARA ESTO FUNCIONA REDUX Q LO VAMOS A VER EN 2 SEMANAS
@@ -183,7 +180,7 @@ return productosactualizados /// devuelve el nuevo ARRAY con los objetos que hic
               </button>
 
               <div className="rounded-2xl border border-gray-700 bg-[#0A0A0A] shadow-[0_0_60px_rgba(0,0,0,0.65)]">
-                <UpdateProductForm producto={productoEditandoId} marcas={marcas} categorias={categorias} />
+                <UpdateStockForm producto={productoEditandoId} marcas={marcas} categorias={categorias} />
               </div>
             </div>
           </div>
