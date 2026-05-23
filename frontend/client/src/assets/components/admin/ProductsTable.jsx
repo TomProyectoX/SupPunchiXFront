@@ -1,6 +1,6 @@
 import ProductsRow from "./ProductsRow";
 
-export default function ProductsTable({ productos, handleEdit}) {
+export default function ProductsTable({ productos, handleEdit, handleDelete }) {
   return (
     <div className="border border-gray-700 rounded overflow-hidden">
       <table className="w-full">
@@ -11,13 +11,19 @@ export default function ProductsTable({ productos, handleEdit}) {
             <th className="px-6 py-4 text-left text-xs font-black text-gray-300 uppercase tracking-wide">Descripción</th>
             <th className="px-6 py-4 text-left text-xs font-black text-gray-300 uppercase tracking-wide">Precio</th>
             <th className="px-6 py-4 text-left text-xs font-black text-gray-300 uppercase tracking-wide">Categoría</th>
+            <th className="px-6 py-4 text-left text-xs font-black text-gray-300 uppercase tracking-wide">Tamaño</th>
             <th className="px-6 py-4 text-left text-xs font-black text-gray-300 uppercase tracking-wide"></th>
           </tr>
         </thead>
         <tbody>
           {productos.length > 0 ? (
             productos.map((producto) => (
-              <ProductsRow key={producto.idProducto} producto={producto} handleEdit={handleEdit} />
+              <ProductsRow
+                key={producto.idProducto}
+                producto={producto}
+                handleEdit={handleEdit}
+                handleDelete={handleDelete}
+              />
             ))
           ) : (
             <tr className="border-b border-gray-700 hover:bg-gray-900/30 transition-colors">

@@ -1,4 +1,4 @@
-export default function ProductsRow({ producto, handleEdit }) {
+export default function ProductsRow({ producto, handleEdit, handleDelete }) {
   return (
     <tr className="border-b border-gray-700 hover:bg-gray-900/30 transition-colors">
       <td className="px-6 py-4">
@@ -28,6 +28,12 @@ export default function ProductsRow({ producto, handleEdit }) {
       </td>
 
       <td className="px-6 py-4">
+        <span className="text-sm font-semibold text-gray-300 uppercase">
+          {producto.tamano || "N/A"}
+        </span>
+      </td>
+
+      <td className="px-6 py-4">
         <button
           type="button"
           onClick={() => {handleEdit(producto)
@@ -35,6 +41,17 @@ export default function ProductsRow({ producto, handleEdit }) {
           className="rounded-md border border-gray-700 px-3 py-1 text-xs font-bold uppercase tracking-wide text-gray-200 transition-colors hover:border-[#CCFF00] hover:text-[#CCFF00]"
         >
           Editar
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            console.log(producto)
+            handleDelete(producto)
+            
+          }}
+          className="ml-2 rounded-md border border-red-600 px-3 py-1 text-xs font-bold uppercase tracking-wide text-red-300 transition-colors hover:bg-red-600 hover:text-white"
+        >
+          Eliminar
         </button>
       </td>
     </tr>

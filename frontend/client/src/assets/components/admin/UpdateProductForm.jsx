@@ -4,6 +4,7 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [precio, setPrecio] = useState(0);
+  const [tamano, setTamano] = useState("");
   const [marcaid, setMarcaid] = useState("");
   const [categoriaid, setCategoriaid] = useState("");
   const [showSabores, setShowSabores] = useState(false);
@@ -18,6 +19,7 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
     setNombre(producto.nombre);
     setDescripcion(producto.descripcion);
     setPrecio(producto.precio);
+    setTamano(producto.tamano || "");
     setCategoriaid(producto.categoria.id);
     setMarcaid(producto.marca.idMarca);
     setSabores(saboresProp);
@@ -47,6 +49,7 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
         nombre,
         descripcion,
         precio,
+        tamano: tamano,
         disponible: producto.disponible ?? true,
         imagen: producto.imagen ?? "url",
         idMarca: marcaid,
@@ -83,6 +86,7 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
           nombre,
           descripcion,
           precio,
+          tamano,
           disponible: producto.disponible ?? true,
           imagen: producto.imagen ?? "url",
           marca: marcaCompleta,
@@ -105,7 +109,7 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
       (s) => s.idSabor === sabor.idSabor
     );
     if (yaSeleccionado) {
-      const nuevosSabores = saboresActuales.filter(
+      const nuevosSabores = saboresActuales.filter( /// si encuentra algun sabor que cumpla con la condicion, lo filtra (q es lo mismo q sacarlo)
         (s) => s.idSabor !== sabor.idSabor
       );
       return nuevosSabores;
@@ -161,6 +165,18 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
           value={precio}
           onChange={(e) => setPrecio(Number(e.target.value))}
           className="mt-1 block w-full rounded-md border border-gray-700 bg-[#0B1220] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#CCFF00]"
+        />
+      </label>
+
+      <label className="block mb-4">
+        <span className="text-xs text-gray-400 uppercase">Tamaño</span>
+        <input
+          name="tamano"
+          type="text"
+          value={tamano}
+          onChange={(e) => setTamano(e.target.value)}
+          placeholder="Ej: Grande, Mediano, Pequeño"
+          className="mt-1 block w-full rounded-md border border-gray-700 bg-[#0B1220] px-3 py-2 text-sm text-white outline-none transition-colors placeholder:text-gray-600 focus:border-[#CCFF00]"
         />
       </label>
 

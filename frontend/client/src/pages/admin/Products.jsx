@@ -84,6 +84,44 @@ export default function Products() {
     setIsEditing(false);
   };
 
+
+const handleDelete = async (producto) => {
+    try{
+        console.log(producto)
+        const res = await fetch(
+           `http://127.0.0.1:4002/productos/${producto.idProducto}`
+        ,{
+            method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBwdW5jaGkuY29tIiwiaWF0IjoxNzc5NTUxNjgwLCJleHAiOjE3Nzk2MzgwODB9._dkcLHfXiCh1LvCmMt3NrM4PAHS_L2dZng2Pbdu17mehU_bFeYpX_mBvAD11tntIHAVeQg1Ri2sOrAxUuvlWIw'
+                }
+        }
+        )
+        if (!res.ok){
+            throw new Error()
+        }
+        deleteproductofromestado(producto)
+
+    } catch (e){
+        console.log(e)
+    }
+}
+
+
+
+function deleteproductofromestado (product) {
+    setProductos((productosantiguos) => {
+        const nuevosprodcutos = productosantiguos.filter((producto) =>  producto.idProducto !== product.idProducto)
+        return nuevosprodcutos
+    })
+
+
+
+
+}
+
+
   return (
     <div className="bg-[#0A0A0A] text-white min-h-screen">
       <AdminSidebar />
@@ -111,7 +149,7 @@ export default function Products() {
           />
         </div>
 
-        <ProductsTable productos={productos} handleEdit={handleEdit} />
+        <ProductsTable productos={productos} handleEdit={handleEdit} handleDelete={handleDelete} />
 
         {isEditing && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm px-4">

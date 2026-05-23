@@ -65,12 +65,6 @@ export default function AdminProducts() {
 
   }
 }
-   
-
-
-
-
-
 const handleDelete = async (variantid, productid) => {
 
     try {
