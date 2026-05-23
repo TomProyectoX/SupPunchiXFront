@@ -1,48 +1,125 @@
 import { useEffect, useState } from "react";
 
-export default function UpdateProductForm({ producto, marcas = [], categorias = [], onSaved, onClose }) {
+export default function UpdateProductForm({ producto, marcas, categorias, sabores: saboresProp, onSaved, onClose }) {
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [precio, setPrecio] = useState(0);
   const [marcaid, setMarcaid] = useState("");
   const [categoriaid, setCategoriaid] = useState("");
+  const [showSabores, setShowSabores] = useState(false);
+  const [selectedSabores, setSelectedSabores] = useState([]);
+  const [sabores, setSabores] = useState([])
+  
+  
 
   useEffect(() => {
     if (!producto) return;
 
-    setNombre(producto.nombre ?? "");
-    setDescripcion(producto.descripcion ?? "");
-    setPrecio(producto.precio ?? 0);
-    setCategoriaid(producto.categoria?.id ?? "");
-    setMarcaid(producto.marca?.idMarca ?? "");
-  }, [producto]);
+    setNombre(producto.nombre);
+    setDescripcion(producto.descripcion);
+    setPrecio(producto.precio);
+    setCategoriaid(producto.categoria.id);
+    setMarcaid(producto.marca.idMarca);
+    setSabores(saboresProp);
+    
+    // Inicializar selectedSabores como objetos { idSabor, stock }
+    const saboresIniciales = (producto.variantes || []).map((variante) => ({
+      idSabor: variante.sabor?.idSabor || variante.idSabor,
+      stock: variante.stock || 0
+    }));
+    setSelectedSabores(saboresIniciales);
+  
+  }, [producto, saboresProp]);
+  // Segunda inicialización removida — el primer useEffect ya maneja todo
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    try{
+      console.log("[DEBUG] Form submitted");
+      e.preventDefault();
+      
+      console.log("[DEBUG] Producto ID:", producto?.idProducto);
+      if (!producto?.idProducto) {
+        console.error("[ERROR] No hay idProducto");
+        return;
+      }
 
-    if (!producto?.idProducto) {
-      return;
-    }
-
-    const response = await fetch(`http://localhost:4002/productos/${producto.idProducto}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+      const bodyData = {
         nombre,
         descripcion,
         precio,
-        categoriaid,
-        marcaid,
-      }),
-    });
+        disponible: producto.disponible ?? true,
+        imagen: producto.imagen ?? "url",
+        idMarca: marcaid,
+        idCategoria: categoriaid,
+        variantes: selectedSabores
+      };
+   
 
-    if (response.ok) {
-      onSaved?.();
-      onClose?.();
+      const response = await fetch(`http://localhost:4002/productos/${producto.idProducto}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBwdW5jaGkuY29tIiwiaWF0IjoxNzc5NTUxNjgwLCJleHAiOjE3Nzk2MzgwODB9._dkcLHfXiCh1LvCmMt3NrM4PAHS_L2dZng2Pbdu17mehU_bFeYpX_mBvAD11tntIHAVeQg1Ri2sOrAxUuvlWIw',
+
+        },
+        body: JSON.stringify(bodyData),
+      });
+
+      
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("[ERROR] Response error:", errorData);
+      }
+
+      if (response.ok) {
+        console.log("[DEBUG] Save successful, updating parent state");
+        // Encontrar la marca y categoría completas desde las props
+        const marcaCompleta = marcas?.find((m) => m.idMarca === marcaid) || { idMarca: marcaid, nombre: "" };
+        const categoriaCompleta = categorias?.find((c) => c.id === categoriaid) || { id: categoriaid, description: "" };
+        
+        const productoActualizado = {
+          ...producto,
+          nombre,
+          descripcion,
+          precio,
+          disponible: producto.disponible ?? true,
+          imagen: producto.imagen ?? "url",
+          marca: marcaCompleta,
+          categoria: categoriaCompleta,
+          variantes: selectedSabores
+        };
+        console.log("[DEBUG] productoActualizado structure:", productoActualizado);
+        onSaved?.(productoActualizado);
+        onClose?.();
+      }
+    } catch(e) {
+      console.error("[ERROR] handleSubmit error:", e);
+      console.error("[ERROR] Stack:", e.stack);
     }
   };
+
+   const toggleSabor = (sabor) => {
+  setSelectedSabores((saboresActuales) => {
+    const yaSeleccionado = saboresActuales.some(
+      (s) => s.idSabor === sabor.idSabor
+    );
+    if (yaSeleccionado) {
+      const nuevosSabores = saboresActuales.filter(
+        (s) => s.idSabor !== sabor.idSabor
+      );
+      return nuevosSabores;
+    }
+    const nuevosSabores = [
+      ...saboresActuales,
+      {
+        idSabor: sabor.idSabor,
+        stock: 0
+      }
+    ];
+    return nuevosSabores;
+  });
+};
   return (
     <form id="update-product-form" onSubmit={handleSubmit} className="w-full max-w-none rounded-2xl border border-emerald-400/20 bg-[#050505] p-8 shadow-[0_0_0_1px_rgba(163,230,53,0.08),0_0_40px_rgba(163,230,53,0.08)]">
       <div className="mb-6 border-b border-gray-700/80 pb-5">
@@ -122,8 +199,58 @@ export default function UpdateProductForm({ producto, marcas = [], categorias = 
       </label>
 
       <div className="mt-6 flex gap-3 border-t border-gray-700/80 pt-5">
-        <button type="submit" className="rounded-md bg-[#CCFF00] px-4 py-2 text-sm font-black text-black transition-colors hover:bg-white">Guardar</button>
+        <button
+          type="button"
+          className="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white"
+          onClick={() => setShowSabores((v) => !v)}
+        >
+          {showSabores ? "Ocultar sabores" : "Actualizar sabores"}
+        </button>
+
+        <button type="submit" onClick={handleSubmit}    className="rounded-md bg-[#CCFF00] px-4 py-2 text-sm font-black text-black transition-colors hover:bg-white">Guardar</button>
       </div>
+
+    
+      {showSabores && (
+        <div className="mt-4 border border-gray-700 rounded-lg p-4 bg-[#050505]">
+   
+          <div className="overflow-auto max-h-48">
+            <table className="w-full text-left text-sm">
+              <thead>
+  
+                <tr className="text-xs text-gray-500 uppercase">
+                  <th className="py-2 px-3">ID</th>
+                  <th className="py-2 px-3">Nombre</th>
+                  <th className="py-2 px-3">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sabores.map((sabor, index) => {
+                  const saborId = sabor.idSabor ?? index;
+                  const selected = selectedSabores.some((s) => s.idSabor === saborId);
+                  return (
+                    <tr key={saborId} className="border-t border-gray-700">
+                      <td className="py-2 px-3 text-gray-300">{saborId}</td>
+                      <td className="py-2 px-3 text-white">{sabor.nombre}</td>
+                      <td className="py-2 px-3">
+                        <button
+                          type="button"
+                          className={`px-3 py-1 rounded text-sm ${selected ? 'bg-red-600 text-white' : 'bg-emerald-600 text-black'}`}
+                          onClick={() => toggleSabor({ idSabor: saborId, nombre: sabor.nombre })}
+                        >
+                          {selected ? 'Quitar' : 'Agregar'}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <input type="hidden" name="saboresSelected" value={selectedSabores.map((s) => s.idSabor).join(',')} />
+          <p className="text-xs text-gray-500 mt-2">IDs seleccionados: {selectedSabores.map((s) => s.idSabor).join(', ') || 'ninguno'}</p>
+        </div>
+      )}
     </form>
   );
 }

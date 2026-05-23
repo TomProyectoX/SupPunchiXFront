@@ -3,15 +3,12 @@ import AdminSidebar from "../../assets/components/admin/AdminSidebar";
 import AdminHeader from "../../assets/components/admin/AdminHeader";
 import StatCard from "../../assets/components/admin/StatCard";
 import InventoryTable from "../../assets/components/admin/InventoryTable";
-import UpdateStockForm from "../../assets/components/admin/UpdateStockForm";
+
 
 export default function AdminProducts() {
 
     const [productos, setProductos] = useState([])
-    const [productoEditandoId, setProductoEditandoId] = useState(null); //estado del producto q esta editando para q react lo recuerde
-    const [isEditing, setIsEditing] = useState(false); //controla si se muestra o no el formulario nasi
-    const [categorias, setCategorias] = useState([]);
-    const [marcas, setMarcas] = useState([]);
+
 
     useEffect(() => {
     const fetchproductos = async () => {
@@ -19,45 +16,62 @@ export default function AdminProducts() {
                 method : 'GET',
                 headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwYW5jaGl0b0BnbWFpbC5jb20iLCJpYXQiOjE3Nzk0NzIxNTcsImV4cCI6MTc3OTU1ODU1N30.nLkxCU2v0lDuEiF7aaEg94lo--wIVh-GRu94W4coSYKb86VKdRumk9M7NFtFvpbVI-sR4t1ebiuTnYuOC0dhUA',
+        'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBwdW5jaGkuY29tIiwiaWF0IjoxNzc5NTUxNjgwLCJleHAiOjE3Nzk2MzgwODB9._dkcLHfXiCh1LvCmMt3NrM4PAHS_L2dZng2Pbdu17mehU_bFeYpX_mBvAD11tntIHAVeQg1Ri2sOrAxUuvlWIw',
       },});
       const data = await response.json()
       setProductos(data)
         }
-    const fetchcategorias = async () => {
-            const response1 = await fetch('http://localhost:4002/categories', {
-                method : 'GET',
-                headers: {
-        'Content-Type': 'application/json',
-      },});
-
-      const data1 = await response1.json()
-      console.log(data1)
-      setCategorias(data1)
-        }
-         const fetchmarcas = async () => {
-            const response2 = await fetch('http://localhost:4002/marcas', {
-                method : 'GET',
-                headers: {
-        'Content-Type': 'application/json',
-      },});
-      const data2 = await response2.json()
-      setMarcas(data2)
-        }
-        fetchproductos();
-        fetchcategorias();
-        console.log(categorias)
-        fetchmarcas();
+   
+      
+  
+      fetchproductos();
 
 
     }, [])
 
-    const handleEdit = async (productid) => {
-    setProductoEditandoId(productid);
-    setIsEditing(true);
+    const handleEdit = async (productoid ,varianteedit, stocknuevo) => {
+      try{
+        console.log(JSON.stringify(
+          {
+            id: Number(varianteedit.id),
+            stock: Number(stocknuevo)
+          }
+        ))
 
+
+      const response = await fetch('http://localhost:4002/variantes/stock',{
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBwdW5jaGkuY29tIiwiaWF0IjoxNzc5NTUxNjgwLCJleHAiOjE3Nzk2MzgwODB9._dkcLHfXiCh1LvCmMt3NrM4PAHS_L2dZng2Pbdu17mehU_bFeYpX_mBvAD11tntIHAVeQg1Ri2sOrAxUuvlWIw',
+        },
+        body: JSON.stringify(
+          {
+            id: Number(varianteedit.id),
+            stock: Number(stocknuevo)
+          }
+        ),
+      }
+    );
+    if (!response.ok){
+      throw new Error("error")
+    }
+    editarstockenelestado(productoid ,varianteedit.id, stocknuevo)
+
+
+
+  } catch(e){
+    console.log(e)
+
+  }
 }
-    const handleDelete = async (variantid, productid) => {
+   
+
+
+
+
+
+const handleDelete = async (variantid, productid) => {
 
     try {
         console.log(variantid)
@@ -126,6 +140,30 @@ return productosactualizados /// devuelve el nuevo ARRAY con los objetos que hic
 }// y aca termina la funcion q engloba todo
 
 
+function editarstockenelestado (productoedit,varianteedit, stock){
+
+setProductos((productosanteriores)=>{
+
+  const productosactualizados = productosanteriores.map((producto)=>
+  {
+    if(producto.id == productoedit){
+      producto.variantes.map((vari) => {
+        if (vari.id == varianteedit){
+          vari.stock = stock
+        }
+        return vari
+      })
+  }
+  return producto
+})
+return productosactualizados
+
+
+})
+
+
+}
+
 
 
 
@@ -168,23 +206,6 @@ return productosactualizados /// devuelve el nuevo ARRAY con los objetos que hic
         QUE PASAR TODAS LAS FUNCIONES QUE VA A UTILIZAR EL HIJO MEDIANTE PROPS OSEA MEDIANTE PARAMETROS, SI TENES 
         50 COMPONENTES ENTRE MEDIO SE LO PASAS, SPOILER ALERT: PARA ESTO FUNCIONA REDUX Q LO VAMOS A VER EN 2 SEMANAS
         EL CONOCIMIENTO ES PODER. ANASHEII */}
-        {isEditing && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm px-4">
-            <div className="relative w-full max-w-2xl">
-              <button
-                type="button"
-                onClick={() => setIsEditing(false)}
-                className="absolute -top-10 right-0 text-sm text-gray-300 hover:text-white"
-              >
-                Cerrar
-              </button>
-
-              <div className="rounded-2xl border border-gray-700 bg-[#0A0A0A] shadow-[0_0_60px_rgba(0,0,0,0.65)]">
-                <UpdateStockForm producto={productoEditandoId} marcas={marcas} categorias={categorias} />
-              </div>
-            </div>
-          </div>
-        )}
         
         {/* Pagination */}
         {/* <Pagination /> */}

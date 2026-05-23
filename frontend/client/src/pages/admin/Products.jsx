@@ -11,14 +11,13 @@ export default function Products() {
   const [isEditing, setIsEditing] = useState(false);
   const [categorias, setCategorias] = useState([]);
   const [marcas, setMarcas] = useState([]);
-
+  const [flavours, setFlavours] = useState([]);
     useEffect(() => {
     const fetchproductos = async () => {
             const response = await fetch('http://localhost:4002/productos', {
                 method : 'GET',
                 headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwYW5jaGl0b0BnbWFpbC5jb20iLCJpYXQiOjE3Nzk0NzIxNTcsImV4cCI6MTc3OTU1ODU1N30.nLkxCU2v0lDuEiF7aaEg94lo--wIVh-GRu94W4coSYKb86VKdRumk9M7NFtFvpbVI-sR4t1ebiuTnYuOC0dhUA',
       },});
       const data = await response.json()
       setProductos(data)
@@ -31,7 +30,6 @@ export default function Products() {
       },});
 
       const data1 = await response1.json()
-      console.log(data1)
       setCategorias(data1)
         }
          const fetchmarcas = async () => {
@@ -43,11 +41,23 @@ export default function Products() {
       const data2 = await response2.json()
       setMarcas(data2)
         }
+        const fetchsabores= async () => {
+            const response3 = await fetch('http://localhost:4002/sabores', {
+                method : 'GET',
+                headers: {
+        'Content-Type': 'application/json',
+      },});
+      const data3 = await response3.json()
+      setFlavours(data3)
+      
+      
+        }
         fetchproductos();
         fetchcategorias();
-        console.log(categorias)
         fetchmarcas();
-
+        fetchsabores();
+       
+        
 
     }, [])
 
@@ -56,17 +66,21 @@ export default function Products() {
     setIsEditing(true);
   };
 
-  const handleSaved = async () => {
-    const response = await fetch("http://localhost:4002/productos", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwYW5jaGl0b0BnbWFpbC5jb20iLCJpYXQiOjE3Nzk0NzIxNTcsImV4cCI6MTc3OTU1ODU1N30.nLkxCU2v0lDuEiF7aaEg94lo--wIVh-GRu94W4coSYKb86VKdRumk9M7NFtFvpbVI-sR4t1ebiuTnYuOC0dhUA",
-      },
+  const onSaved = (productoActualizado) => {
+    console.log("[DEBUG] onSaved called with:", productoActualizado);
+    console.log("[DEBUG] Current productos before update:", productos);
+    
+    setProductos((productosAnteriores) => {
+      const productosActualizados = productosAnteriores.map((producto) => {
+        if (producto.idProducto === productoActualizado.idProducto) {
+          console.log("[DEBUG] Found matching product, replacing");
+          return productoActualizado;
+        }
+        return producto;
+      });
+      console.log("[DEBUG] Updated productos state:", productosActualizados);
+      return productosActualizados;
     });
-
-    const data = await response.json();
-    setProductos(data);
     setIsEditing(false);
   };
 
@@ -111,11 +125,13 @@ export default function Products() {
               </button>
 
               <div className="rounded-2xl border border-gray-700 bg-[#0A0A0A] shadow-[0_0_60px_rgba(0,0,0,0.65)]">
+               
                 <UpdateProductForm
                   producto={productoEditando}
                   marcas={marcas}
                   categorias={categorias}
-                  onSaved={handleSaved}
+                  sabores={flavours}
+                  onSaved={onSaved}
                   onClose={() => setIsEditing(false)}
                 />
               </div>

@@ -30,7 +30,8 @@ export default function ProductsRow({ producto, handleEdit }) {
       <td className="px-6 py-4">
         <button
           type="button"
-          onClick={() => handleEdit?.(producto)}
+          onClick={() => {handleEdit(producto)
+          }}
           className="rounded-md border border-gray-700 px-3 py-1 text-xs font-bold uppercase tracking-wide text-gray-200 transition-colors hover:border-[#CCFF00] hover:text-[#CCFF00]"
         >
           Editar

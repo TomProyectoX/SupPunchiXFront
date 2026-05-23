@@ -7,9 +7,7 @@ export default function InventoryTable({ productos = [], handleDelete, handleEdi
         <thead>
           <tr className="border-b border-gray-700 bg-gray-900">
             <th className="px-6 py-4 text-left text-xs font-black text-gray-300 uppercase tracking-wide">Product</th>
-            <th className="px-6 py-4 text-left text-xs font-black text-gray-300 uppercase tracking-wide">Categoria</th>
             <th className="px-6 py-4 text-left text-xs font-black text-gray-300 uppercase tracking-wide">Sabor</th>
-            <th className="px-6 py-4 text-left text-xs font-black text-gray-300 uppercase tracking-wide">Price</th>
             <th className="px-6 py-4 text-left text-xs font-black text-gray-300 uppercase tracking-wide">Stock Level</th>
             <th className="px-6 py-4 text-left text-xs font-black text-gray-300 uppercase tracking-wide">Actions</th>
           </tr>
@@ -19,6 +17,7 @@ export default function InventoryTable({ productos = [], handleDelete, handleEdi
             productos.flatMap((producto) =>
               (producto.variantes ?? []).map((variante) => ( // el  && es un and, y basicamente si productos.length > 0 devuelve true se ejecuta la segunda condicion
                // asi es como funcionan los and en react al parecer (op)
+               /// ademas esta re chetado porque se crea con los datos de cada productovariante y ademas le pasamos los datos de producto y de su variante y ya los podemos controlar ahi de una
                 <InventoryRow
                   key={variante.id}
                   producto={producto}
