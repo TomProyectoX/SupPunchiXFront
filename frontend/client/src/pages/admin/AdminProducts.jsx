@@ -16,7 +16,7 @@ export default function AdminProducts() {
                 method : 'GET',
                 headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBwdW5jaGkuY29tIiwiaWF0IjoxNzc5NTUxNjgwLCJleHAiOjE3Nzk2MzgwODB9._dkcLHfXiCh1LvCmMt3NrM4PAHS_L2dZng2Pbdu17mehU_bFeYpX_mBvAD11tntIHAVeQg1Ri2sOrAxUuvlWIw',
+        'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBwdW5jaGkuY29tIiwiaWF0IjoxNzc5NjY0NjA0LCJleHAiOjE3Nzk3NTEwMDR9.9fIxkkQVhJPCc78xu35r2fj4VRKwWeI_mfSR3Z2wwh33PqyVzGBvxEBzNBWsOV05BZ1TE68mKByt4mK3UPTG-Q',
       },});
       const data = await response.json()
       setProductos(data)

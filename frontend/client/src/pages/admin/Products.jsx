@@ -9,6 +9,7 @@ export default function Products() {
   const [productos, setProductos] = useState([])
   const [productoEditando, setProductoEditando] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
   const [categorias, setCategorias] = useState([]);
   const [marcas, setMarcas] = useState([]);
   const [flavours, setFlavours] = useState([]);
@@ -84,6 +85,16 @@ export default function Products() {
     setIsEditing(false);
   };
 
+  const savenewproducto = (productoNuevo) => {
+    console.log("[DEBUG] savenewproducto called with:", productoNuevo);
+    setProductos((productosAnteriores) => {
+      const productosActualizados = [...productosAnteriores, productoNuevo];
+      console.log("[DEBUG] Updated productos state:", productosActualizados);
+      return productosActualizados;
+    });
+    setIsAdding(false);
+  };
+
 
 const handleDelete = async (producto) => {
     try{
@@ -149,6 +160,16 @@ function deleteproductofromestado (product) {
           />
         </div>
 
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-white">Productos</h2>
+          <button
+            onClick={() => setIsAdding(true)}
+            className="rounded-md bg-[#CCFF00] px-4 py-2 text-sm font-black text-black transition-colors hover:bg-white"
+          >
+            + Add New Product
+          </button>
+        </div>
+
         <ProductsTable productos={productos} handleEdit={handleEdit} handleDelete={handleDelete} />
 
         {isEditing && (
@@ -171,6 +192,31 @@ function deleteproductofromestado (product) {
                   sabores={flavours}
                   onSaved={onSaved}
                   onClose={() => setIsEditing(false)}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isAdding && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm px-4">
+            <div className="relative w-full max-w-2xl">
+              <button
+                type="button"
+                onClick={() => setIsAdding(false)}
+                className="absolute -top-10 right-0 text-sm text-gray-300 hover:text-white"
+              >
+                Cerrar
+              </button>
+
+              <div className="rounded-2xl border border-gray-700 bg-[#0A0A0A] shadow-[0_0_60px_rgba(0,0,0,0.65)]">
+               
+                <UpdateProductForm
+                  marcas={marcas}
+                  categorias={categorias}
+                  sabores={flavours}
+                  onSaved={savenewproducto}
+                  onClose={() => setIsAdding(false)}
                 />
               </div>
             </div>

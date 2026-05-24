@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 
 export default function UpdateProductForm({ producto, marcas, categorias, sabores: saboresProp, onSaved, onClose }) {
+  const isEditing = !!producto;
+  
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [precio, setPrecio] = useState(0);
@@ -14,7 +16,10 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
   
 
   useEffect(() => {
-    if (!producto) return;
+    if (!isEditing) {
+      setSabores(saboresProp || []);
+      return;
+    }
 
     setNombre(producto.nombre);
     setDescripcion(producto.descripcion);
@@ -24,82 +29,143 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
     setMarcaid(producto.marca.idMarca);
     setSabores(saboresProp);
     
-    // Inicializar selectedSabores como objetos { idSabor, stock }
+    
     const saboresIniciales = (producto.variantes || []).map((variante) => ({
       idSabor: variante.sabor?.idSabor || variante.idSabor,
       stock: variante.stock || 0
     }));
     setSelectedSabores(saboresIniciales);
   
-  }, [producto, saboresProp]);
-  // Segunda inicialización removida — el primer useEffect ya maneja todo
-
+  }, [producto, saboresProp, isEditing]);
+ 
   const handleSubmit = async (e) => {
-    try{
-      console.log("[DEBUG] Form submitted");
-      e.preventDefault();
-      
-      console.log("[DEBUG] Producto ID:", producto?.idProducto);
-      if (!producto?.idProducto) {
-        console.error("[ERROR] No hay idProducto");
-        return;
+    e.preventDefault();
+
+    if (isEditing) {
+      // LÓGICA DE EDICIÓN
+      try{
+        console.log("[DEBUG] Form submitted");
+        
+        console.log("[DEBUG] Producto ID:", producto?.idProducto);
+        if (!producto?.idProducto) {
+          console.error("[ERROR] No hay idProducto");
+          return;
+        }
+
+        const bodyData = {
+          nombre,
+          descripcion,
+          precio,
+          tamano: tamano,
+          disponible: producto.disponible ?? true,
+          imagen: producto.imagen ?? "url",
+          idMarca: marcaid,
+          idCategoria: categoriaid,
+          variantes: selectedSabores
+        };
+     
+        console.log(bodyData)
+        const response = await fetch(`http://localhost:4002/productos/${producto.idProducto}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBwdW5jaGkuY29tIiwiaWF0IjoxNzc5NjY0NjA0LCJleHAiOjE3Nzk3NTEwMDR9.9fIxkkQVhJPCc78xu35r2fj4VRKwWeI_mfSR3Z2wwh33PqyVzGBvxEBzNBWsOV05BZ1TE68mKByt4mK3UPTG-Q',
+
+          },
+          body: JSON.stringify(bodyData),
+        });
+
+        
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("[ERROR] Response error:", errorData);
+        }
+
+        if (response.ok) {
+          console.log("[DEBUG] Save successful, updating parent state");
+       
+          const marcaCompleta = marcas?.find((m) => m.idMarca === marcaid) || { idMarca: marcaid, nombre: "" };
+          const categoriaCompleta = categorias?.find((c) => c.id === categoriaid) || { id: categoriaid, description: "" };
+          
+          const productoActualizado = {
+            ...producto,
+            nombre,
+            descripcion,
+            precio,
+            tamano,
+            disponible: producto.disponible ?? true,
+            imagen: producto.imagen ?? "url",
+            marca: marcaCompleta,
+            categoria: categoriaCompleta,
+            variantes: selectedSabores
+          };
+          console.log("[DEBUG] productoActualizado structure:", productoActualizado);
+          onSaved?.(productoActualizado);
+          onClose?.();
+        }
+      } catch(e) {
+        console.error("[ERROR] handleSubmit error:", e);
+        console.error("[ERROR] Stack:", e.stack);
       }
+    } else {
+      try {
+        console.log("[DEBUG] Creating new product");
 
-      const bodyData = {
-        nombre,
-        descripcion,
-        precio,
-        tamano: tamano,
-        disponible: producto.disponible ?? true,
-        imagen: producto.imagen ?? "url",
-        idMarca: marcaid,
-        idCategoria: categoriaid,
-        variantes: selectedSabores
-      };
-   
+        const bodyData = {
+          nombre,
+          descripcion,
+          precio,
+          tamano: tamano,
+          disponible: true,
+          imagen: "url",
+          idMarca: marcaid,
+          idCategoria: categoriaid,
+          variantes: selectedSabores
+        };
+          console.log(bodyData)
 
-      const response = await fetch(`http://localhost:4002/productos/${producto.idProducto}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBwdW5jaGkuY29tIiwiaWF0IjoxNzc5NTUxNjgwLCJleHAiOjE3Nzk2MzgwODB9._dkcLHfXiCh1LvCmMt3NrM4PAHS_L2dZng2Pbdu17mehU_bFeYpX_mBvAD11tntIHAVeQg1Ri2sOrAxUuvlWIw',
+        const response = await fetch(`http://localhost:4002/productos`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBwdW5jaGkuY29tIiwiaWF0IjoxNzc5NjY0NjA0LCJleHAiOjE3Nzk3NTEwMDR9.9fIxkkQVhJPCc78xu35r2fj4VRKwWeI_mfSR3Z2wwh33PqyVzGBvxEBzNBWsOV05BZ1TE68mKByt4mK3UPTG-Q',
+          },
+          body: JSON.stringify(bodyData),
+        });
 
-        },
-        body: JSON.stringify(bodyData),
-      });
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("[ERROR] Response error:", errorData);
+          return;
+        }
 
-      
+        const responseData = await response.json();
+        console.log("[DEBUG] New product response:", responseData);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("[ERROR] Response error:", errorData);
-      }
-
-      if (response.ok) {
-        console.log("[DEBUG] Save successful, updating parent state");
-        // Encontrar la marca y categoría completas desde las props
         const marcaCompleta = marcas?.find((m) => m.idMarca === marcaid) || { idMarca: marcaid, nombre: "" };
         const categoriaCompleta = categorias?.find((c) => c.id === categoriaid) || { id: categoriaid, description: "" };
         
-        const productoActualizado = {
-          ...producto,
+        const productoNuevo = {
+          idProducto: responseData.idProducto || responseData.id,
           nombre,
           descripcion,
           precio,
           tamano,
-          disponible: producto.disponible ?? true,
-          imagen: producto.imagen ?? "url",
+          disponible: true,
+          imagen: "url",
           marca: marcaCompleta,
           categoria: categoriaCompleta,
           variantes: selectedSabores
         };
-        console.log("[DEBUG] productoActualizado structure:", productoActualizado);
-        onSaved?.(productoActualizado);
+
+        console.log("[DEBUG] Producto nuevo structure:", productoNuevo);
+        onSaved?.(productoNuevo);
         onClose?.();
+      } catch (e) {
+        console.error("[ERROR] handleSubmit error:", e);
+        console.error("[ERROR] Stack:", e.stack);
       }
-    } catch(e) {
-      console.error("[ERROR] handleSubmit error:", e);
-      console.error("[ERROR] Stack:", e.stack);
     }
   };
 
@@ -125,14 +191,22 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
   });
 };
   return (
-    <form id="update-product-form" onSubmit={handleSubmit} className="w-full max-w-none rounded-2xl border border-emerald-400/20 bg-[#050505] p-8 shadow-[0_0_0_1px_rgba(163,230,53,0.08),0_0_40px_rgba(163,230,53,0.08)]">
+    <form id="product-form" onSubmit={handleSubmit} className="w-full max-w-none rounded-2xl border border-emerald-400/20 bg-[#050505] p-8 shadow-[0_0_0_1px_rgba(163,230,53,0.08),0_0_40px_rgba(163,230,53,0.08)]">
       <div className="mb-6 border-b border-gray-700/80 pb-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.35em] text-gray-500">Editar producto</p>
-        <h3 className="mt-2 text-3xl font-black tracking-tight text-white">{producto?.nombre}</h3>
-        <p className="mt-2 text-sm text-gray-400">Editá nombre, descripción, precio, categoría y marca</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.35em] text-gray-500">
+          {isEditing ? "Editar producto" : "Nuevo producto"}
+        </p>
+        <h3 className="mt-2 text-3xl font-black tracking-tight text-white">
+          {isEditing ? producto?.nombre : "Agregar Producto"}
+        </h3>
+        <p className="mt-2 text-sm text-gray-400">
+          {isEditing 
+            ? "Editá nombre, descripción, precio, categoría y marca" 
+            : "Completá los datos para crear un nuevo producto"}
+        </p>
       </div>
 
-      <input type="hidden" name="productoId" value={producto?.idProducto ?? ""} />
+      {isEditing && <input type="hidden" name="productoId" value={producto?.idProducto ?? ""} />}
 
       <label className="block mb-4">
         <span className="text-xs text-gray-400 uppercase">Nombre</span>
@@ -217,13 +291,18 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
       <div className="mt-6 flex gap-3 border-t border-gray-700/80 pt-5">
         <button
           type="button"
-          className="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white"
+          className="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white hover:bg-gray-700 transition-colors"
           onClick={() => setShowSabores((v) => !v)}
         >
-          {showSabores ? "Ocultar sabores" : "Actualizar sabores"}
+          {showSabores ? "Ocultar sabores" : isEditing ? "Actualizar sabores" : "Agregar sabores"}
         </button>
 
-        <button type="submit" onClick={handleSubmit}    className="rounded-md bg-[#CCFF00] px-4 py-2 text-sm font-black text-black transition-colors hover:bg-white">Guardar</button>
+        <button 
+          type="submit" 
+          className="rounded-md bg-[#CCFF00] px-4 py-2 text-sm font-black text-black transition-colors hover:bg-white"
+        >
+          {isEditing ? "Guardar" : "Crear Producto"}
+        </button>
       </div>
 
     
