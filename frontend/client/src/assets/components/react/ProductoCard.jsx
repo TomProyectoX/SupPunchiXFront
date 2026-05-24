@@ -1,49 +1,87 @@
-import { useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react";
 
-const ProductoCard = ({ producto }) => {
+const ProductoCard = ({ producto, view }) => {
+  const [imagenBase64, setImagenBase64] = useState(null);
 
-  const navigate = useNavigate()
+  if (!producto) return null;
+
+  const isGrid = view === "grid";
+
+  useEffect(() => {
+    if (producto.imagen) {
+      fetch(`http://localhost:4002/images?id=${producto.imagen}`)
+        .then((res) => {
+          if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
+          return res.json();
+        })
+        .then((data) => {
+          if (data && data.file) {
+            setImagenBase64(data.file);
+          }
+        })
+        .catch((err) => {
+          console.error(`Error cargando imagen del producto ${producto.nombre}:`, err);
+        });
+    }
+  }, [producto.imagen]);
+
+  const imageSrc = imagenBase64
+    ? `data:image/avif;base64,${imagenBase64}`
+    : "";
 
   return (
-
-    <div
-      onClick={() => navigate(`/product/${producto.idProducto}`)}
-      className="bg-[#141414] border border-[#262626] group hover:border-[#CCFF00] transition-colors cursor-pointer"
+    <div 
+      className={`bg-[#111111] border border-[#262626] rounded-xl overflow-hidden flex hover:border-gray-700 transition-all text-left w-full
+        ${isGrid ? "flex-col h-auto" : "flex-row h-[155px]"}`} 
     >
-      <div className="relative aspect-square overflow-hidden bg-[#1f1f1f]">
-
+      
+      {/* Contenedor de Imagen */}
+      <div className={`bg-white p-4 flex items-center justify-center relative shrink-0
+        ${isGrid ? "w-full h-48" : "w-[30%] h-full"}`}
+      >
+        <span className="absolute top-2 left-2 bg-[#CCFF00] text-black text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider z-10">
+          🚚 Gratis
+        </span>
         <img
-          src={producto.imagen || "https://placehold.co/600x600"}
+          src={imageSrc}
           alt={producto.nombre}
-          className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
+          className="max-h-full max-w-full object-contain"
+          onError={(e) => {
+            e.target.src = "https://static.vecteezy.com/system/resources/previews/015/656/605/non_2x/prohibited-flat-greyscale-icon-vector.jpg";
+          }}
         />
       </div>
 
-      <div className="p-6">
-        <div className="flex justify-between items-start mb-2">
-
-          <h3 className="text-xl font-bold text-white uppercase">
+      {/* Contenedor de Textos */}
+      <div className={`p-4 flex flex-col justify-between bg-[#111111] flex-grow
+        ${isGrid ? "gap-3" : "h-full w-[70%]"}`}
+      >
+        <div>
+          <h3 className="text-white font-black text-xs uppercase tracking-wide line-clamp-2 leading-tight min-h-[32px]">
             {producto.nombre}
           </h3>
+          
+          <p className="text-white text-base font-black mt-1">
+            ${Number(producto.precio || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+          </p>
 
-          <span className="text-[#CCFF00] text-2xl font-black">
-            ${producto.precio}
-          </span>
+          <div className="bg-[#CCFF00] text-black text-[8px] font-black px-1.5 py-0.5 rounded mt-1.5 inline-block uppercase tracking-wider whitespace-nowrap">
+            ${Math.round((producto.precio || 0) * 0.85).toLocaleString('es-AR')} POR TRANSFERENCIA
+          </div>
         </div>
 
-        <p className="text-gray-400 text-sm mb-6">
-          {producto.descripcion}
-        </p>
+        <div>
+          <div className="text-[10px] text-gray-400 leading-tight mb-2">
+            <p>En <span className="font-bold text-white">6 cuotas sin interés</span> de ${Math.round((producto.precio || 0) / 6).toLocaleString('es-AR')}</p>
+          </div>
 
-        <button
-          onClick={(e) => e.stopPropagation()}
-          className="w-full border-2 border-white/20 text-white py-3 font-bold uppercase hover:border-[#CCFF00] hover:bg-[#CCFF00] hover:text-black transition-all"
-        >
-          Agregar al carrito
-        </button>
+          <button className="w-full bg-[#CCFF00] hover:bg-[#bce500] text-black text-xs font-black uppercase py-2 rounded transition-colors tracking-wider">
+            Comprar
+          </button>
+        </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ProductoCard
+export default ProductoCard;

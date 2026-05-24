@@ -3,26 +3,26 @@ const Benefits = () => {
   const beneficios = [
 
     {
-      titulo: "Fast Shipping",
-      descripcion: "Next-day delivery on all orders.",
+      titulo: "Envío Rápido",
+      descripcion: "Entrega en 24-48 horas.",
       icono: "🚚"
     },
 
     {
-      titulo: "Trusted Brands",
-      descripcion: "Lab tested premium ingredients.",
+      titulo: "Marcas de Confianza",
+      descripcion: "Ingredientes premium probados en laboratorio.",
       icono: "✔️"
     },
 
     {
-      titulo: "Expert Support",
-      descripcion: "24/7 nutrition assistance.",
+      titulo: "Atención al Cliente",
+      descripcion: "Asistencia nutricional las 24hs.",
       icono: "🎧"
     },
 
     {
-      titulo: "Secure Checkout",
-      descripcion: "100% safe transactions.",
+      titulo: "Pago Seguro",
+      descripcion: "Transacciones 100% seguras.",
       icono: "🔒"
     }
 

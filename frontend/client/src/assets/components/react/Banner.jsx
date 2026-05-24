@@ -8,15 +8,15 @@ const Banner = () => {
 
         <div className="flex items-center gap-10 text-black font-black text-3xl uppercase px-10">
 
-          <span>20% OFF ALL PRE-WORKOUTS</span>
+          <span>20% OFF EN TODOS LOS SUPLEMENTOS</span>
 
           <span>⚡</span>
 
-          <span>USE CODE: IRON20</span>
+          <span>CÓDIGO: IRON20</span>
 
           <span>⚡</span>
 
-          <span>LIMITED TIME ONLY</span>
+          <span>POR TIEMPO LIMITADO</span>
 
           <span>⚡</span>
 
@@ -24,15 +24,15 @@ const Banner = () => {
 
         <div className="flex items-center gap-10 text-black font-black text-3xl uppercase px-10">
 
-          <span>20% OFF ALL PRE-WORKOUTS</span>
+          <span>20% OFF EN TODOS LOS SUPLEMENTOS</span>
 
           <span>⚡</span>
 
-          <span>USE CODE: IRON20</span>
+          <span>CÓDIGO: IRON20</span>
 
           <span>⚡</span>
 
-          <span>LIMITED TIME ONLY</span>
+          <span>POR TIEMPO LIMITADO</span>
 
           <span>⚡</span>
 

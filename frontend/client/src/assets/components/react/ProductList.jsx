@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import ProductoCard from "../assets/components/react/ProductoCard"
+import ProductoCard from "../components/react/ProductoCard"
 
 const ProductList = () => {
   const [productos, setProductos] = useState([])
@@ -212,7 +212,7 @@ const productosFiltrados = categoriaSeleccionada
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {productosFiltrados.map((producto) => (
               <ProductoCard
-                key={producto.id}
+                key={producto.idProducto}
                 producto={producto}
                 view="grid"
               />

@@ -1,105 +1,73 @@
+import { Link } from "react-router-dom"
+
 const Footer = () => {
-
   return (
-
-    <footer className="bg-black border-t border-[#262626] px-6 py-16">
-
-      <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
-
-        <div className="md:col-span-2">
-
-          <h2 className="text-4xl font-black text-[#CCFF00] italic uppercase mb-6">
-            IRON ARCH
+    <footer className="bg-[#050505] text-gray-400 py-16 px-6 md:px-12 border-t border-[#1A1A1A] w-full text-left">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
+        
+        {/* COLUMNA 1: LOGO Y REDES */}
+        <div className="flex flex-col gap-4">
+          <h2 className="text-[#CCFF00] text-3xl font-black italic tracking-wider uppercase">
+            SUPLEMENTOS PUNCHI
           </h2>
-
-          <p className="text-gray-400 max-w-md mb-8">
-            Forging elite athletes through science-backed supplementation.
+          <p className="text-sm leading-relaxed max-w-sm text-gray-400">
+            Formando atletas de élite mediante suplementos respaldados por la ciencia. Llevá tu rendimiento al siguiente nivel.
           </p>
-
-          <div className="flex gap-4">
-
-            <button className="w-10 h-10 border border-[#262626] hover:bg-[#CCFF00] hover:text-black transition-all">
-              X
-            </button>
-
-            <button className="w-10 h-10 border border-[#262626] hover:bg-[#CCFF00] hover:text-black transition-all">
-              IG
-            </button>
-
-            <button className="w-10 h-10 border border-[#262626] hover:bg-[#CCFF00] hover:text-black transition-all">
-              FB
-            </button>
-
+          
+          {/* Iconos de Redes Sociales */}
+          <div className="flex gap-4 mt-2">
+            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="hover:text-[#CCFF00] transition-colors text-xs font-bold uppercase tracking-wider">
+              Instagram
+            </a>
+            <a href="https://tiktok.com" target="_blank" rel="noreferrer" className="hover:text-[#CCFF00] transition-colors text-xs font-bold uppercase tracking-wider">
+              TikTok
+            </a>
+            <a href="https://wa.me/tu-numero" target="_blank" rel="noreferrer" className="hover:text-[#CCFF00] transition-colors text-xs font-bold uppercase tracking-wider">
+              WhatsApp
+            </a>
           </div>
-
         </div>
 
-        <div>
-
-          <h3 className="text-white font-bold uppercase mb-6">
-            Quick Links
+        {/* COLUMNA 2: NAVEGACIÓN */}
+        <div className="flex flex-col gap-4">
+          <h3 className="text-white font-black uppercase text-sm tracking-widest border-b border-[#1A1A1A] pb-2">
+            Explorá
           </h3>
-
-          <ul className="space-y-4 text-gray-400">
-
-            <li className="hover:text-[#CCFF00] cursor-pointer">
-              Shop All
+          <ul className="flex flex-col gap-2 text-sm">
+            <li>
+              <Link to="/" className="hover:text-[#CCFF00] transition-colors">Inicio</Link>
             </li>
-
-            <li className="hover:text-[#CCFF00] cursor-pointer">
-              Bundles
+            <li>
+              <Link to="/Shop" className="hover:text-[#CCFF00] transition-colors">Catálogo</Link>
             </li>
-
-            <li className="hover:text-[#CCFF00] cursor-pointer">
-              Lab Results
+            <li>
+              <Link to="/Shop" className="hover:text-[#CCFF00] transition-colors">Combos Destacados</Link>
             </li>
-
-            <li className="hover:text-[#CCFF00] cursor-pointer">
-              Ambassadors
-            </li>
-
           </ul>
-
         </div>
 
-        <div>
-
-          <h3 className="text-white font-bold uppercase mb-6">
-            Support
+        {/* COLUMNA 3: SOPORTE Y LEGALES */}
+        <div className="flex flex-col gap-4">
+          <h3 className="text-white font-black uppercase text-sm tracking-widest border-b border-[#1A1A1A] pb-2">
+            Soporte
           </h3>
-
-          <ul className="space-y-4 text-gray-400">
-
-            <li className="hover:text-[#CCFF00] cursor-pointer">
-              Contact Us
+          <ul className="flex flex-col gap-2 text-sm">
+            <li>
+              <Link to="/faq" className="hover:text-[#CCFF00] transition-colors">Preguntas Frecuentes</Link>
             </li>
-
-            <li className="hover:text-[#CCFF00] cursor-pointer">
-              Shipping Policy
+            <li>
+              <Link to="/envios" className="hover:text-[#CCFF00] transition-colors">Políticas de Envío</Link>
             </li>
-
-            <li className="hover:text-[#CCFF00] cursor-pointer">
-              Refund Policy
-            </li>
-
-            <li className="hover:text-[#CCFF00] cursor-pointer">
-              FAQ
-            </li>
-
           </ul>
-
         </div>
 
       </div>
 
-      <div className="border-t border-[#262626] mt-12 pt-8 text-center text-gray-500 text-sm">
-
-        © 2026 IRON ARCH PERFORMANCE
-
+      {/* BARRA INFERIOR DE CRÉDITOS */}
+      <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-[#1A1A1A] flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500">
+        <p>© {new Date().getFullYear()} Suplementos Punchi. Todos los derechos reservados.</p>
       </div>
-
     </footer>
-
   )
 }
 

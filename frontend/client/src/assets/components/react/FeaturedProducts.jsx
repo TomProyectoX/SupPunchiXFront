@@ -1,62 +1,56 @@
+// FeaturedProducts.jsx
 import { useEffect, useState } from "react"
-import ProductoCard from "./ProductoCard"
 import { Link } from "react-router-dom" 
-
+// IMPORTANTE: Importamos el diseño reutilizable de la tarjeta
+import ProductoCard from "./ProductoCard" 
 
 const FeaturedProducts = () => {
-
   const [productos, setProductos] = useState([])
 
   useEffect(() => {
-
     fetch("http://localhost:4002/productos")
       .then((response) => response.json())
       .then((data) => {
-
-        // mostramos solo 3 productos en el home
+        // Traemos los 3 productos de la base de datos
         setProductos(data.slice(0, 3))
       })
-
       .catch((error) => {
         console.error("Error al cargar productos", error)
       })
-
   }, [])
 
   return (
-
-    <section className="py-24 px-6 bg-[#0A0A0A]">
-      <div className="container mx-auto">
-        <div className="flex justify-between items-end mb-16 border-l-4 border-[#CCFF00] pl-6">
+    <section className="py-12 px-4 md:px-8 bg-[#0A0A0A] w-full">
+      <div className="max-w-full w-full">
+        
+        {/* CABECERA (Se mantiene igual) */}
+        <div className="flex justify-between items-end mb-8 border-l-4 border-[#CCFF00] pl-4">
           <div>
-            <h2 className="text-5xl font-black text-white uppercase">
-              Featured Products
+            <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-wider">
+              Productos Destacados
             </h2>
-
-            <p className="text-gray-400 mt-3">
-              Bestselling formulas for peak performance.
-            </p>
           </div>
-
           <Link
             to="/Shop"
-            className="text-[#CCFF00] font-bold border-b border-[#CCFF00]"
+            className="text-[#CCFF00] font-bold border-b border-[#CCFF00] text-sm hover:text-white hover:border-white transition-colors"
           >
-            VIEW ALL
+            Ver todo
           </Link>
-
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-      
-          {productos.map((producto) => (
 
-            <ProductoCard
-              key={producto.idProducto}
-              producto={producto}
+        {/* CONTENEDOR HORIZONTAL GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full">
+          {productos.map((producto) => (
+            
+            /* REUTILIZACIÓN: Llamamos a la tarjeta general y le inyectamos el producto del backend */
+            <ProductoCard 
+              key={producto.idProducto} 
+              producto={producto} 
             />
 
           ))}
         </div>
+
       </div>
     </section>
   )
