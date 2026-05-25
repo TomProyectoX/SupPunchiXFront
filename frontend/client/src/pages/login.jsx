@@ -1,86 +1,171 @@
+import './Register.css';
+import InputField from '../assets/components/react/InputField';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+
 function Login() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
-const [password, setPassword] = useState('')
+  const [password, setPassword] = useState('');
 
- const checkemail = () => {
+  const checkemail = () => {
+    if (email.trim() === '') {
+      setError('El campo de correo electrónico no puede estar vacío.');
+      return false;
+    }
 
-  if (email.trim() === '') {
-    setError('El campo de correo electrónico no puede estar vacío.');
-    return false;
-  }
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setError('Por favor, ingresa un correo electrónico válido.');
+      return false;
+    }
 
-  if (!/^\S+@\S+\.\S+$/.test(email)) {
-    setError('Por favor, ingresa un correo electrónico válido.');
-    return false;
-  }
+    setError('');
+    return true;
+  };
 
-  setError('');
-
-  return true;
-};
   const handleLogin = async () => {
-const response = await fetch('http://localhost:4002/auth/authenticate', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      email,
-      password,
-    }),
-  });
+    const response = await fetch('http://localhost:4002/auth/authenticate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
 
-  const data = await response.json();
-
-  console.log(data);
-};
+    const data = await response.json();
+    console.log(data);
+  };
 
   return (
-    <div className="flex h-screen">
-
-      <div className="left-panel w-1/2 flex ">
-       <div className="bg-black/60 w-full h-full flex items-center">
-        <div className="w-full flex flex-col justify-center px-16">
-  
-  <p className="text-6xl font-black italic uppercase text-lime-400 leading-none">
-    SUPLEMENTOS <br /> PUNCHIS
-  </p>
-
-  <p className="text-left text-white text-3xl font-bold mt-6">
-    TRANSFORMÁ <br /> TU CUERPO
-  </p>
-
-</div>
-      </div>
-      </div>
+    <div className="bg-[#0A0A0A] text-[#e5e2e1] min-h-screen flex flex-col font-body-md selection:bg-[#CCFF00] selection:text-black">
       
-      <div className="w-1/2 bg-black flex flex-col justify-center px-20">
-        <h1 className='text-white text-5x1 font-black uppercase'>Sign in</h1>
-        <div className='mt-10'>
-          <input type="text" placeholder='Username' 
-          value={email}
-          onChange={(evento) =>{
-            const value = evento.target.value;
-            setEmail(value);
-                     }}
-          className='w-full p-4 rounded-lg bg-gray-800 text-white mb-4' />
-          {error && <p className="text-red-500 mt-2">{error}</p>}
-          <input type="password" placeholder='Password' className='w-full p-4 rounded-lg bg-gray-800 text-white mb-6' onChange={(evento) => {
-            setPassword(evento.target.value)
-          }}></input>
-          <button 
-          onClick={() => {
-            if (checkemail()) {
-              handleLogin();
-            }
-          }}
-          className='w-full p-4 bg-lime-400 text-black font-bold rounded-lg hover:bg-lime-500 transition-colors'>Iniciar Sesión</button>
-          <Link to="/register"className='text-center text-gray-300 mt-6 hover:text-lime-400 cursor-pointer transition-colors'>Registrate</Link>
-        </div>
+      {/* Top Navigation Anchor */}
+      <div className="w-full flex items-center px-6 h-16 z-50">
+        <Link 
+          to="/" 
+          className="inline-flex items-center gap-2 text-[#CCFF00] font-headline-md text-xs uppercase tracking-[0.2em] hover:text-white transition-colors group"
+        >
+          <span className="material-symbols-outlined text-sm transition-transform group-hover:-translate-x-1">
+            chevron_left
+          </span> 
+          VOLVER AL INICIO
+        </Link>
       </div>
+
+      {/* Main Login Canvas */}
+      <main className="flex-grow flex items-center justify-center pb-16 px-6">
+        <div className="max-w-screen-xl w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+          
+          {/* Left Side: Branding & Energy */}
+          <div className="lg:col-span-5 flex flex-col justify-center space-y-8 pr-0 lg:pr-8">
+            <div className="space-y-4">
+              <span className="bg-[#CCFF00] text-black font-label-bold text-xs px-3 py-1 inline-block uppercase tracking-wider font-bold">
+                FUN. 2026
+              </span>
+              <h1 className="text-5xl md:text-6xl lg:text-[76px] text-white uppercase italic leading-none font-black tracking-tighter">
+                BIENVENIDO<br />
+              </h1>
+              <p className="font-body-lg text-[16px] leading-relaxed text-[#c4c9ac] max-w-md opacity-90">
+                Accedé a tu cuenta para gestionar pedidos, explorar suplementos y seguir formando parte de la comunidad Punchis.
+              </p>
+            </div>
+
+            {/* Bento Metric Highlighting Elite Performance */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-[#141414] border-l-4 border-[#CCFF00] p-6">
+                <span className="font-label-bold text-xs text-[#CCFF00] block mb-1 uppercase tracking-widest font-bold">ENERGIA</span>
+                <div className="text-3xl font-extrabold text-white tracking-tight">100%</div>
+              </div>
+              <div className="bg-[#141414] border-l-4 border-[#CCFF00] p-6">
+                <span className="font-label-bold text-xs text-[#CCFF00] block mb-1 uppercase tracking-widest font-bold">PODER</span>
+                <div className="text-3xl font-extrabold text-white tracking-tight">24/7</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Side: Login Form */}
+          <div className="lg:col-span-7">
+            <div className="bg-[#141414] p-8 lg:p-12 border border-[#262626] relative overflow-hidden shadow-2xl">
+              
+              {/* Decorative Background Element */}
+              <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                <span className="material-symbols-outlined text-[140px] text-[#CCFF00]">fitness_center</span>
+              </div>
+
+              {/* Header inside Form Container */}
+              <header className="mb-10">
+                <h1 className="text-3xl font-black uppercase italic tracking-tight text-white">
+                  INICIAR SESIÓN
+                </h1>
+                <p className="text-sm text-[#c4c9ac] mt-2">Ingresá tus datos para acceder a tu cuenta.</p>
+              </header>
+
+              <form 
+                className="relative z-10 space-y-6" 
+                noValidate 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (checkemail()) {
+                    handleLogin();
+                  }
+                }}
+              >
+                {/* Email Input */}
+                <div className="space-y-2">
+                  <label className="font-label-bold text-xs text-[#CCFF00] uppercase tracking-widest block font-bold" htmlFor="email">Correo Electrónico</label>
+                  <InputField
+                    type="email"
+                    placeholder="CORREO ELECTRÓNICO"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    error={error}
+                  />
+                </div>
+
+                {/* Password Input */}
+                <div className="space-y-2">
+                  <label className="font-label-bold text-xs text-[#CCFF00] uppercase tracking-widest block font-bold" htmlFor="password">Contraseña</label>
+                  <InputField
+                    type="password"
+                    placeholder="CONTRASEÑA"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+
+                <div className="pt-4 space-y-6">
+                  {/* Submit Button */}
+                  <button 
+                    className="w-full bg-[#CCFF00] text-black font-bold py-5 uppercase tracking-[0.2em] hover:bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 group text-sm" 
+                    type="submit"
+                  >
+                    INGRESAR
+                    <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">bolt</span>
+                  </button>
+
+                  {/* Register Link */}
+                  <div className="text-center">
+                    <p className="text-sm text-[#c4c9ac]">
+                      ¿NO TENÉS UNA CUENTA? 
+                      <Link 
+                        to="/register" 
+                        className="text-white font-bold border-b border-[#CCFF00] ml-2 hover:text-[#CCFF00] transition-colors"
+                      >
+                        REGISTRATE
+                      </Link>
+                    </p>
+                  </div>
+                </div>
+              </form>
+
+            </div>
+          </div>
+
+        </div>
+      </main>
     </div>
   );
 }
