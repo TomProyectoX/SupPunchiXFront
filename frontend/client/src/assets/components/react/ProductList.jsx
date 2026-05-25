@@ -1,24 +1,33 @@
 import { useEffect, useState } from "react"
-import ProductoCard from "../components/react/ProductoCard"
+import { useNavigate } from "react-router-dom"
+import { useAuth } from "../../../hooks/useAuth"
+import { fetchWithAuth } from "../../../utils/fetchWithAuth"
+import ProductoCard from "./ProductoCard"
 
 const ProductList = () => {
   const [productos, setProductos] = useState([])
-  // filtro seleccionado
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("")
   const [price, setPrice] = useState(250);
+  const { token } = useAuth();
+  const navigate = useNavigate();
 
   const URL = "http://localhost:4002/productos"
 
   useEffect(() => {
-    fetch(URL)
-      .then((response) => response.json())
-      .then((data) => {
-        setProductos(data)
-      })
-      .catch((error) => {
-        console.error("Error al cargar productos", error)
-      })
-  }, [])
+    if (!token) return;
+
+    const cargarProductos = async () => {
+      try {
+        const response = await fetchWithAuth(URL, {}, () => token, navigate);
+        const data = await response.json();
+        setProductos(data);
+      } catch (error) {
+        console.error("Error al cargar productos", error);
+      }
+    };
+
+    cargarProductos();
+  }, [token, navigate])
 
   // productos filtrados
 const productosFiltrados = categoriaSeleccionada

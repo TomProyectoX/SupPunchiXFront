@@ -1,23 +1,32 @@
 // FeaturedProducts.jsx
 import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { useAuth } from "../../../hooks/useAuth"
+import { fetchWithAuth } from "../../../utils/fetchWithAuth"
 import { Link } from "react-router-dom" 
 // IMPORTANTE: Importamos el diseño reutilizable de la tarjeta
 import ProductoCard from "./ProductoCard" 
 
 const FeaturedProducts = () => {
   const [productos, setProductos] = useState([])
+  const { token } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:4002/productos")
-      .then((response) => response.json())
-      .then((data) => {
-        // Traemos los 3 productos de la base de datos
-        setProductos(data.slice(0, 3))
-      })
-      .catch((error) => {
-        console.error("Error al cargar productos", error)
-      })
-  }, [])
+    if (!token) return;
+
+    const cargarProductos = async () => {
+      try {
+        const response = await fetchWithAuth("http://localhost:4002/productos", {}, () => token, navigate);
+        const data = await response.json();
+        setProductos(data.slice(0, 3));
+      } catch (error) {
+        console.error("Error al cargar productos", error);
+      }
+    };
+
+    cargarProductos();
+  }, [token, navigate])
 
   return (
     <section className="py-12 px-4 md:px-8 bg-[#0A0A0A] w-full">

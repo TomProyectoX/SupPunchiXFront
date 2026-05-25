@@ -1,29 +1,35 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../hooks/useAuth";
+import { fetchWithAuth } from "../../../utils/fetchWithAuth";
 
 const ProductoCard = ({ producto, view }) => {
   const [imagenBase64, setImagenBase64] = useState(null);
+  const navigate = useNavigate();
+  const { token } = useAuth();
 
   if (!producto) return null;
 
   const isGrid = view === "grid";
 
   useEffect(() => {
-    if (producto.imagen) {
-      fetch(`http://localhost:4002/images?id=${producto.imagen}`)
-        .then((res) => {
-          if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
-          return res.json();
-        })
-        .then((data) => {
-          if (data && data.file) {
-            setImagenBase64(data.file);
-          }
-        })
-        .catch((err) => {
-          console.error(`Error cargando imagen del producto ${producto.nombre}:`, err);
-        });
-    }
-  }, [producto.imagen]);
+    if (!token || !producto.imagen) return;
+
+    const cargarImagen = async () => {
+      try {
+        const res = await fetchWithAuth(`http://localhost:4002/images?id=${producto.imagen}`, {}, () => token, navigate);
+        if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
+        const data = await res.json();
+        if (data && data.file) {
+          setImagenBase64(data.file);
+        }
+      } catch (err) {
+        console.error(`Error cargando imagen del producto ${producto.nombre}:`, err);
+      }
+    };
+
+    cargarImagen();
+  }, [producto.imagen, token, navigate]);
 
   const imageSrc = imagenBase64
     ? `data:image/avif;base64,${imagenBase64}`

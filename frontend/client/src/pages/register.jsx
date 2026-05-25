@@ -44,30 +44,36 @@ function Register() {
             
             
             try {
+              console.log('Registrando con:', { firstName, lastName, email, password, role });
+              const response = await fetch('http://localhost:4002/auth/register', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  firstName,
+                  lastName,
+                  email,
+                  password,
+                  role,
+                }),
+              });
 
-    {
-    const response = await fetch('http://localhost:4002/auth/register', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-    firstName,
-    lastName,
-    email,
-    password,
-    role,
-    }),
-    });
+              console.log('Status:', response.status);
+              const data = await response.json();
+              console.log('Response:', data);
 
-  const data = await response.json();
+              if (!response.ok) {
+                setEmailError(data.message || data.error || 'Error al registrarse');
+                return;
+              }
 
-  console.log(data);
-}
-
-                
+              // Si el registro es exitoso, redirigir a login o logear automáticamente
+              alert('Registro exitoso. Redirigiendo a login...');
+              // Aquí puedes agregar navegación a login si necesitas
             } catch (error) {
-                
+              console.error('Error:', error);
+              setEmailError('Error al conectar con el servidor');
             }
 
         };

@@ -1,27 +1,26 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../hooks/useAuth";
+import { fetchWithAuth } from "../../../utils/fetchWithAuth";
 
 function FilterCategories({type}) {
   const [opciones, setOpciones] = useState([]);
+  const { token } = useAuth();
+  const navigate = useNavigate();
 
   const getcategorias = async () => {
-    const response = await fetch('http://localhost:4002/categories', {
+    const response = await fetchWithAuth('http://localhost:4002/categories', {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    }, () => token, navigate);
     const data = await response.json();
     const categories = data.map(categorie => categorie.description);
     setOpciones(categories);
   };
 
   const getmarcas = async () => {
-    const response = await fetch("http://localhost:4002/marcas", {
+    const response = await fetchWithAuth("http://localhost:4002/marcas", {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    }, () => token, navigate);
     const data = await response.json();
     const marques = data.map(mark => mark.nombre);
     setOpciones(marques);
@@ -29,13 +28,15 @@ function FilterCategories({type}) {
 
   // ✅ useEffect ÚNICO que ejecuta según el type
   useEffect(() => {
+    if (!token) return;
+
     if (type === "categoria") {
       getcategorias();
     }
     if (type === "marca") {
       getmarcas();
     }
-  }, [type]); // Dependencia: si cambia type, ejecuta de nuevo
+  }, [type, token, navigate]); // Dependencia: si cambia type, ejecuta de nuevo
 
   return (
     <div className="space-y-4">

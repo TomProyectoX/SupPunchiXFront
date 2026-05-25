@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { fetchWithAuth } from "../../utils/fetchWithAuth";
 import AdminSidebar from "../../assets/components/admin/AdminSidebar";
 import AdminHeader from "../../assets/components/admin/AdminHeader";
 import StatCard from "../../assets/components/admin/StatCard";
@@ -8,26 +11,25 @@ import InventoryTable from "../../assets/components/admin/InventoryTable";
 export default function AdminProducts() {
 
     const [productos, setProductos] = useState([])
-
+    const { token } = useAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
-    const fetchproductos = async () => {
-            const response = await fetch('http://localhost:4002/productos', {
-                method : 'GET',
-                headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBwdW5jaGkuY29tIiwiaWF0IjoxNzc5NjY0NjA0LCJleHAiOjE3Nzk3NTEwMDR9.9fIxkkQVhJPCc78xu35r2fj4VRKwWeI_mfSR3Z2wwh33PqyVzGBvxEBzNBWsOV05BZ1TE68mKByt4mK3UPTG-Q',
-      },});
-      const data = await response.json()
-      setProductos(data)
-        }
-   
-      
-  
+      if (!token) {
+        console.log('No hay token en AdminProducts');
+        return;
+      }
+
+      const fetchproductos = async () => {
+        try {
+          const response = await fetchWithAuth('http://localhost:4002/productos', { method: 'GET' }, () => token, navigate);
+          const data = await response.json()
+          setProductos(data)
+        } catch (e) { console.error('Error fetchproductos:', e) }
+      }
+
       fetchproductos();
-
-
-    }, [])
+    }, [token, navigate])
 
     const handleEdit = async (productoid ,varianteedit, stocknuevo) => {
       try{
@@ -38,27 +40,20 @@ export default function AdminProducts() {
           }
         ))
 
-
-      const response = await fetch('http://localhost:4002/variantes/stock',{
+      const response = await fetchWithAuth('http://localhost:4002/variantes/stock',{
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBwdW5jaGkuY29tIiwiaWF0IjoxNzc5NTUxNjgwLCJleHAiOjE3Nzk2MzgwODB9._dkcLHfXiCh1LvCmMt3NrM4PAHS_L2dZng2Pbdu17mehU_bFeYpX_mBvAD11tntIHAVeQg1Ri2sOrAxUuvlWIw',
-        },
         body: JSON.stringify(
           {
             id: Number(varianteedit.id),
             stock: Number(stocknuevo)
           }
         ),
-      }
-    );
+      }, () => token, navigate);
+      
     if (!response.ok){
       throw new Error("error")
     }
     editarstockenelestado(productoid ,varianteedit.id, stocknuevo)
-
-
 
   } catch(e){
     console.log(e)
@@ -70,15 +65,13 @@ const handleDelete = async (variantid, productid) => {
     try {
         console.log(variantid)
 
-        const res = await fetch(
+        const res = await fetchWithAuth(
             `http://localhost:4002/variantes/${variantid}`,
             {
                 method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBwdW5jaGkuY29tIiwiaWF0IjoxNzc5NDk1NzgzLCJleHAiOjE3Nzk1ODIxODN9.u00VnW2W16ckgvRc0OWMvdQTcMkwnVxvCnWg1aGAkstgvkWsG6UKl8mdeWsr1c_W0mSlfYbJrrOUQBR6xTd2tg'
-                }
-            }
+            },
+            () => token,
+            navigate
         );
 
         if(res.ok){

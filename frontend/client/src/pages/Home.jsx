@@ -24,7 +24,7 @@ const Home = () => {
         <ToBar />
         <Navbar />
       </header>
-
+      {/* watafak */}
       {/* CONTENIDO DE LA PÁGINA */}
       <div className="pt-[100px] md:pt-[30px]">
         <Hero />
