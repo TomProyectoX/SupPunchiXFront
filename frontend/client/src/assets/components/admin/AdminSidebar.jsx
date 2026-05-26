@@ -36,6 +36,14 @@ export default function AdminSidebar() {
             </NavLink>
           </li>
 
+          {/* Catalog Configuration */}
+          <li>
+            <NavLink to="/admin/catalog" className={getLinkClass}>
+              <span className="w-5 h-5 flex items-center justify-center">⚙</span>
+              <span>Catálogo</span>
+            </NavLink>
+          </li>
+
           {/* Customers */}
           <li>
             <div className="flex items-center gap-4 px-4 py-3 text-gray-600 text-sm uppercase font-semibold tracking-wide cursor-default">
