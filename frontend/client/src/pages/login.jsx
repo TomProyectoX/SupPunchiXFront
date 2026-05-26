@@ -29,7 +29,7 @@ function Login() {
     try {
       setLoading(true);
       setError('');
-      console.log('Intentando login con:', { email, password });
+      console.log('Intentando login con email:', email);
       
       const response = await fetch('http://localhost:4002/auth/authenticate', {
         method: 'POST',

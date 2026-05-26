@@ -44,7 +44,7 @@ function Register() {
             
             
             try {
-              console.log('Registrando con:', { firstName, lastName, email, password, role });
+              console.log('Registrando usuario:', { firstName, lastName, email, role });
               const response = await fetch('http://localhost:4002/auth/register', {
                 method: 'POST',
                 headers: {

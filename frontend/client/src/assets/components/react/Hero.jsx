@@ -44,7 +44,7 @@ const Hero = () => {
 
         {/* Botones de Acción */}
         <div className="flex flex-wrap gap-4 mt-8">
-          <Link to="/catalogo">
+          <Link to="/Shop">
             <button className="bg-[#CCFF00] text-black px-8 py-3.5 text-sm font-extrabold uppercase tracking-wider hover:bg-[#b2df00] transition-colors duration-300">
               Ver Catálogo
             </button>
