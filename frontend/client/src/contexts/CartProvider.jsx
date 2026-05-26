@@ -34,7 +34,7 @@ export const CartProvider = ({ children }) => {
           nombre: item.productoVariante?.producto?.nombre ?? '',
           idSabor: item.productoVariante?.sabor?.idSabor ?? null,
           cantidad: item.cantidad ?? 0,
-          precio: item.precio ?? 0,
+          precio: item.productoVariante?.producto?.precio ?? 0,
           sabor: item.productoVariante?.sabor?.nombre ?? '',
           stock: item.productoVariante?.stock ?? null,
         }));
