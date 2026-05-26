@@ -11,6 +11,7 @@ import AdminProducts from './pages/admin/AdminProducts.jsx';
 import Products from './pages/admin/Products.jsx';
 import Cart from './pages/Cart.jsx';
 import Checkout from './pages/Checkout.jsx';
+import ProductDetails from './assets/components/react/ProductDetails.jsx';
 
 function App() {
   return (
@@ -32,9 +33,13 @@ function App() {
             <Route 
               path="/shop" 
               element={
-                <ProtectedRoute>
                   <ProductList />
-                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/shop/:id" 
+              element={
+                  <ProductDetails />
               } 
             />
             <Route 
