@@ -121,7 +121,12 @@ const Cart = () => {
               </div>
               <button
                 onClick={() => navigate('/checkout')}
-                className="mt-5 w-full bg-[#CCFF00] text-black font-black uppercase py-3 rounded-lg hover:bg-white transition-colors"
+                disabled={cartItems.length === 0}
+                className={`mt-5 w-full font-black uppercase py-3 rounded-lg transition-colors ${
+                  cartItems.length === 0
+                    ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                    : 'bg-[#CCFF00] text-black hover:bg-white'
+                }`}
               >
                 Proceed to Checkout
               </button>
