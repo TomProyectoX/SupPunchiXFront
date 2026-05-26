@@ -4,11 +4,9 @@ import FilterBrand from "./FilterBrand";
 import FilterFlavour from "./FilterFlavour";
 import FilterPrice from "./FilterPrice";
 
-export default function Sidebar({ productos, onFilteredProductosChange }) {
+export default function Sidebar({ productos, selectedBrands, onSelectedBrandsChange, selectedCategories, onSelectedCategoriesChange, onFilteredProductosChange }) {
 
   // FILTROS
-  const [selectedCategories, setSelectedCategories] = useState([]);
-  const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedFlavours, setSelectedFlavours] = useState([]);
   const [priceRange, setPriceRange] = useState(100000);
 
@@ -106,17 +104,17 @@ export default function Sidebar({ productos, onFilteredProductosChange }) {
 
             {/* CATEGORY */}
             <div className="space-y-4">
-              <FilterCategory
-                selectedCategories={selectedCategories}
-                onCategoryChange={setSelectedCategories}
-              />
+                <FilterCategory
+                  selectedCategories={selectedCategories}
+                  onCategoryChange={onSelectedCategoriesChange}
+                />
             </div>
 
             {/* BRAND */}
             <div className="space-y-4">
               <FilterBrand
                 selectedBrands={selectedBrands}
-                onBrandChange={setSelectedBrands}
+                onBrandChange={onSelectedBrandsChange}
               />
             </div>
 

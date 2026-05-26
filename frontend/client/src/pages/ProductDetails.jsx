@@ -39,23 +39,8 @@ const ProductDetails = () => {
 
   const handleAddToCart = async () => {
     if (!producto) return;
-    
 
-    try {
-        const payload = {
-                idproducto: producto.idProducto,
-                idsabor: varianteSeleccionada.sabor.idSabor,
-                cantidad: cantidad
-                }
-        const response = await  fetchWithAuth(`http://localhost:4002/carritos`, {
-             method: "POST",
-             body: JSON.stringify(payload)
-        }, () => token, navigate)
-
-        if (!response.ok){
-            throw new Error 
-        }
-        addItem({
+    await addItem({
       idProducto: producto.idProducto,
       nombre: producto.nombre,
       precio: producto.precio,
@@ -68,16 +53,6 @@ const ProductDetails = () => {
     setAgregado(true);
     openCart();
     setTimeout(() => setAgregado(false), 2000);
-
-        
-    } catch (error) {
-        console.log(error)
-    }
-
-
-
-
-    
   };
 
   if (!producto) {

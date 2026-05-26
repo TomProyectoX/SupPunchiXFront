@@ -12,21 +12,24 @@ const FeaturedProducts = () => {
   const { token } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!token) return;
+// FeaturedProducts.jsx
+useEffect(() => {
+  const cargarProductos = async () => {
+    try {
+      // Usamos fetch normal en lugar de fetchWithAuth si no necesitas el token
+      const response = await fetch("http://localhost:4002/productos");
+      const data = await response.json();
+      
+      // Aseguramos que data sea un array antes de hacer slice
+      const productosArray = Array.isArray(data) ? data : [];
+      setProductos(productosArray.slice(0, 3));
+    } catch (error) {
+      console.error("Error al cargar productos destacados", error);
+    }
+  };
 
-    const cargarProductos = async () => {
-      try {
-        const response = await fetchWithAuth("http://localhost:4002/productos", {}, () => token, navigate);
-        const data = await response.json();
-        setProductos(data.slice(0, 3));
-      } catch (error) {
-        console.error("Error al cargar productos", error);
-      }
-    };
-
-    cargarProductos();
-  }, [token, navigate])
+  cargarProductos();
+}, []); // Quitamos token y navigate de las dependencias
 
   return (
     <section className="py-12 px-4 md:px-8 bg-[#0A0A0A] w-full">

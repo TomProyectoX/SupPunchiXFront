@@ -57,7 +57,9 @@ const Popup = ({ isOpen, onClose }) => {
             />
 
             {/* BUTTON - Cambié el color de fondo al #CCFF00 original para seguir la marca */}
-            <button className="bg-[#CCFF00] text-black py-2 rounded-lg font-bold hover:opacity-90 transition uppercase tracking-wider text-xs">
+            <button 
+              onClick={onClose}
+              className="bg-[#CCFF00] text-black py-2 rounded-lg font-bold hover:opacity-90 transition uppercase tracking-wider text-xs">
               ¡Sí, Quiero!
             </button>
           </div>

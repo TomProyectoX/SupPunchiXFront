@@ -9,10 +9,14 @@ export default function ProductList() {
 
   const [productos, setProductos] = useState([])
   const [productosFiltrados, setProductosFiltrados] = useState([])
+  const [selectedBrands, setSelectedBrands] = useState([])
+  const [selectedCategories, setSelectedCategories] = useState([])
   const [ordenPrecio, setOrdenPrecio] = useState("default")
 
   const [searchParams] = useSearchParams()
   const searchTerm = searchParams.get("search") || ""
+  const brandFilter = searchParams.get("brand") || ""
+  const categoryFilter = searchParams.get("category") || ""
 
   const URL = "http://localhost:4002/productos"
 
@@ -27,9 +31,38 @@ export default function ProductList() {
         console.log("PRODUCTOS:", data)
 
         const productosArray = Array.isArray(data) ? data : []
+        let initialFiltered = productosArray
+
+        if (brandFilter) {
+          initialFiltered = initialFiltered.filter((producto) => {
+            const marcaNombre = String(producto.marca?.nombre || producto.marca || "").toLowerCase()
+            return marcaNombre === brandFilter.toLowerCase()
+          })
+          const matchingBrandIds = initialFiltered
+            .map((producto) => producto.marca?.idMarca || producto.marca?.id || null)
+            .filter(Boolean)
+
+          if (matchingBrandIds.length > 0) {
+            setSelectedBrands(Array.from(new Set(matchingBrandIds)))
+          }
+        }
+
+        if (categoryFilter) {
+          initialFiltered = initialFiltered.filter((producto) => {
+            const categoriaNombre = String(producto.categoria?.description || producto.categoria?.nombre || producto.categoria || "").toLowerCase()
+            return categoriaNombre === categoryFilter.toLowerCase()
+          })
+          const matchingCategoryIds = initialFiltered
+            .map((producto) => producto.categoria?.id || producto.categoria?.idCategoria || null)
+            .filter(Boolean)
+
+          if (matchingCategoryIds.length > 0) {
+            setSelectedCategories(Array.from(new Set(matchingCategoryIds)))
+          }
+        }
 
         setProductos(productosArray)
-        setProductosFiltrados(productosArray)
+        setProductosFiltrados(initialFiltered)
 
       })
 
@@ -42,7 +75,7 @@ export default function ProductList() {
 
       })
 
-  }, [])
+  }, [brandFilter, categoryFilter])
 
   const handleFilteredProductos = (filtrados) => {
 
@@ -111,6 +144,10 @@ export default function ProductList() {
 
           <Sidebar
             productos={productos}
+            selectedBrands={selectedBrands}
+            onSelectedBrandsChange={setSelectedBrands}
+            selectedCategories={selectedCategories}
+            onSelectedCategoriesChange={setSelectedCategories}
             onFilteredProductosChange={handleFilteredProductos}
           />
 

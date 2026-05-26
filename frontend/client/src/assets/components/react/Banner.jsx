@@ -12,7 +12,7 @@ const Banner = () => {
 
           <span>⚡</span>
 
-          <span>CÓDIGO: IRON20</span>
+          <span>CÓDIGO: SP2018</span>
 
           <span>⚡</span>
 
@@ -28,7 +28,7 @@ const Banner = () => {
 
           <span>⚡</span>
 
-          <span>CÓDIGO: IRON20</span>
+          <span>CÓDIGO: SP2018</span>
 
           <span>⚡</span>
 
