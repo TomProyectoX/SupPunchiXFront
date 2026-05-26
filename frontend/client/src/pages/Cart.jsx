@@ -49,50 +49,56 @@ const Cart = () => {
                   Tu carrito esta vacio.
                 </div>
               ) : (
-                cartItems.map((item) => (
-                  <div
-                    key={`${item.idProducto}-${item.idSabor ?? 0}`}
-                    className="rounded-2xl border border-[#262626] bg-[#111111] p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="h-16 w-16 bg-[#141414] border border-[#262626]" />
-                      <div>
-                        <p className="text-[10px] uppercase text-gray-400">{item.sabor || 'Flavor'}</p>
-                        <h3 className="text-lg font-black uppercase">{item.nombre || 'Producto'}</h3>
-                        <p className="text-xs text-gray-500">ID Producto: {item.idProducto}</p>
-                      </div>
-                    </div>
+                cartItems.map((item) => {
+                  const precioUnitario = Number(item.precio || 0);
+                  const cantidad = Number(item.cantidad || 1);
+                  const subtotalItem = precioUnitario * cantidad;
 
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center border border-[#262626] bg-[#0A0A0A]">
-                        <button
-                          onClick={() => handleEdit(item, (item.cantidad || 1) - 1)}
-                          className="px-3 py-1 text-[#CCFF00] text-lg"
-                        >
-                          -
-                        </button>
-                        <span className="px-4 text-sm font-bold">{item.cantidad || 1}</span>
-                        <button
-                          onClick={() => handleEdit(item, (item.cantidad || 1) + 1)}
-                          className="px-3 py-1 text-[#CCFF00] text-lg"
-                        >
-                          +
-                        </button>
+                  return (
+                    <div
+                      key={`${item.idProducto}-${item.idSabor ?? 0}`}
+                      className="rounded-2xl border border-[#262626] bg-[#111111] p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="h-16 w-16 bg-[#141414] border border-[#262626]" />
+                        <div>
+                          <p className="text-[10px] uppercase text-gray-400">{item.sabor || 'Flavor'}</p>
+                          <h3 className="text-lg font-black uppercase">{item.nombre || 'Producto'}</h3>
+                          <p className="text-xs text-gray-500">ID Producto: {item.idProducto}</p>
+                        </div>
                       </div>
 
-                      <span className="text-lg font-black text-[#CCFF00]">
-                        ${Number(item.precio || 0).toLocaleString('es-AR')}
-                      </span>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center border border-[#262626] bg-[#0A0A0A]">
+                          <button
+                            onClick={() => handleEdit(item, (item.cantidad || 1) - 1)}
+                            className="px-3 py-1 text-[#CCFF00] text-lg"
+                          >
+                            -
+                          </button>
+                          <span className="px-4 text-sm font-bold">{item.cantidad || 1}</span>
+                          <button
+                            onClick={() => handleEdit(item, (item.cantidad || 1) + 1)}
+                            className="px-3 py-1 text-[#CCFF00] text-lg"
+                          >
+                            +
+                          </button>
+                        </div>
 
-                      <button
-                        onClick={() => handleDelete(item)}
-                        className="text-xs text-gray-400 hover:text-red-400"
-                      >
-                        Eliminar
-                      </button>
+                        <span className="text-lg font-black text-[#CCFF00]">
+                          ${subtotalItem.toLocaleString('es-AR')}
+                        </span>
+
+                        <button
+                          onClick={() => handleDelete(item)}
+                          className="text-xs text-gray-400 hover:text-red-400"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>

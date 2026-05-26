@@ -34,7 +34,7 @@ export const CartProvider = ({ children }) => {
           nombre: item.productoVariante?.producto?.nombre ?? '',
           idSabor: item.productoVariante?.sabor?.idSabor ?? null,
           cantidad: item.cantidad ?? 0,
-          precio: item.precio ?? 0,
+          precio: item.productoVariante?.producto?.precio ?? 0,
           sabor: item.productoVariante?.sabor?.nombre ?? '',
           stock: item.productoVariante?.stock ?? null,
         }));
@@ -69,13 +69,14 @@ export const CartProvider = ({ children }) => {
 
   const updateItemQuantity = async (item, cantidad) => {
     try {
+      const normalizedCantidad = Math.max(1, Number(cantidad) || 1);
       const idCartItem = item.idCartItem ?? item.idProducto; // fallback si no viene idCartItem
       const bodydata = {
         idproductcart: idCartItem,
-        nuevoStock: cantidad,
+        nuevoStock: normalizedCantidad,
       };
 
-      await fetchWithAuth(
+      const response = await fetchWithAuth(
         'http://localhost:4002/carritos/stock',
         {
           method: 'PUT',
@@ -85,12 +86,16 @@ export const CartProvider = ({ children }) => {
         navigate
       );
 
+      if (!response.ok) {
+        throw new Error('Error actualizando stock del carrito');
+      }
+
       // Actualizamos el estado local si el backend respondió ok
       setCartItems((prev) =>
         prev
           .map((p) =>
             p.idProducto === item.idProducto && (p.idSabor ?? null) === (item.idSabor ?? null)
-              ? { ...p, cantidad }
+              ? { ...p, cantidad: normalizedCantidad }
               : p
           )
           .filter((p) => (p.cantidad || 0) > 0)
