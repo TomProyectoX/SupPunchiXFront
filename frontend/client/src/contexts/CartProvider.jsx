@@ -87,7 +87,7 @@ export const CartProvider = ({ children }) => {
       );
 
       if (!response.ok) {
-        throw new Error('Error actualizando stock del carrito');
+        throw new Error(`Error actualizando stock del carrito: ${response.status}`);
       }
 
       // Actualizamos el estado local si el backend respondió ok
