@@ -3,8 +3,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartProvider';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import Login from "./pages/login.jsx";
-import Register from "./pages/register.jsx";
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
 import Home from "./pages/Home.jsx";
 import ProductList from './pages/ProductList.jsx';
 import AdminProducts from './pages/admin/AdminProducts.jsx';
@@ -30,7 +30,7 @@ function App() {
               } 
             />
             <Route 
-              path="/products" 
+              path="/shop" 
               element={
                 <ProtectedRoute>
                   <ProductList />

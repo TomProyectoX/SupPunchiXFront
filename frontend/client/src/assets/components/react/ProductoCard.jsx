@@ -1,92 +1,135 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../../hooks/useAuth";
-import { fetchWithAuth } from "../../../utils/fetchWithAuth";
+import { Link } from "react-router-dom";
 
-const ProductoCard = ({ producto, view }) => {
-  const [imagenBase64, setImagenBase64] = useState(null);
-  const navigate = useNavigate();
-  const { token } = useAuth();
-
+const ProductoCard = ({ producto, featured = false }) => {
   if (!producto) return null;
 
-  const isGrid = view === "grid";
+  // ===== PROMO =====
+  const tienePromo =
+    producto.promo !== null &&
+    producto.promo !== undefined;
 
-  useEffect(() => {
-    if (!token || !producto.imagen) return;
+  const descuento = tienePromo
+    ? Number(producto.promo.discount || 0)
+    : 0;
 
-    const cargarImagen = async () => {
-      try {
-        const res = await fetchWithAuth(`http://localhost:4002/images?id=${producto.imagen}`, {}, () => token, navigate);
-        if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
-        const data = await res.json();
-        if (data && data.file) {
-          setImagenBase64(data.file);
-        }
-      } catch (err) {
-        console.error(`Error cargando imagen del producto ${producto.nombre}:`, err);
-      }
-    };
+  const precioOriginal = Number(producto.precio || 0);
 
-    cargarImagen();
-  }, [producto.imagen, token, navigate]);
+  const precioFinal = tienePromo
+    ? precioOriginal - (precioOriginal * descuento) / 100
+    : precioOriginal;
 
-  const imageSrc = imagenBase64
-    ? `data:image/avif;base64,${imagenBase64}`
-    : "";
+  // ===== CATEGORIA =====
+  const categoria =
+    producto.categoria?.description || "Sin categoría";
+
+  // ===== SABORES =====
+  const sabores =
+    producto.variantes?.map(
+      (variante) => variante.sabor?.nombre
+    ) || [];
 
   return (
-    <div 
-      className={`bg-[#111111] border border-[#262626] rounded-xl overflow-hidden flex hover:border-gray-700 transition-all text-left w-full
-        ${isGrid ? "flex-col h-auto" : "flex-row h-[155px]"}`} 
+    <Link
+      to={`/product/${producto.idProducto}`}
+      className="block w-full"
     >
-      
-      {/* Contenedor de Imagen */}
-      <div className={`bg-white p-4 flex items-center justify-center relative shrink-0
-        ${isGrid ? "w-full h-48" : "w-[30%] h-full"}`}
-      >
-        <span className="absolute top-2 left-2 bg-[#CCFF00] text-black text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider z-10">
-          🚚 Gratis
-        </span>
-        <img
-          src={imageSrc}
-          alt={producto.nombre}
-          className="max-h-full max-w-full object-contain"
-          onError={(e) => {
-            e.target.src = "https://static.vecteezy.com/system/resources/previews/015/656/605/non_2x/prohibited-flat-greyscale-icon-vector.jpg";
-          }}
-        />
-      </div>
+      <div className={`bg-[#141414] border-l-2 ${tienePromo ? "border-[#CCFF00]" : "border-[#3a3a3a]"} flex flex-col group cursor-pointer transition-all duration-300 hover:bg-[#1F1F1F] overflow-hidden h-full`}>
 
-      {/* Contenedor de Textos */}
-      <div className={`p-4 flex flex-col justify-between bg-[#111111] flex-grow
-        ${isGrid ? "gap-3" : "h-full w-[70%]"}`}
-      >
-        <div>
-          <h3 className="text-white font-black text-xs uppercase tracking-wide line-clamp-2 leading-tight min-h-[32px]">
+        {/* IMAGEN */}
+        <div className="relative overflow-hidden bg-[#0A0A0A] h-[220px]">
+
+          <img
+            src={
+              producto.imagen ||
+              "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/nrx/nrx02992/y/8.jpg"
+            }
+            alt={producto.nombre}
+            className="w-full h-full object-contain p-6 grayscale group-hover:grayscale-0 transition-all duration-500"
+            onError={(e) => {
+              e.target.src =
+                "https://static.vecteezy.com/system/resources/previews/015/656/605/non_2x/prohibited-flat-greyscale-icon-vector.jpg";
+            }}
+          />
+
+          {/* ETIQUETA PROMO */}
+          {tienePromo && (
+            <div className="absolute top-4 left-0 bg-[#CCFF00] text-black px-3 py-1 font-black text-[10px] uppercase tracking-wider">
+              {descuento}% OFF
+            </div>
+          )}
+
+          {/* BOTON */}
+          <button className="absolute bottom-4 right-4 bg-white p-3 rounded-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <span className="material-symbols-outlined text-black">
+              shopping_bag
+            </span>
+          </button>
+
+        </div>
+
+        {/* INFO */}
+        <div className="p-6 space-y-4 flex flex-col flex-grow">
+
+          {/* CATEGORIA + PRECIO */}
+          <div className="flex justify-between items-start gap-4">
+
+            <div>
+              <p className="text-[10px] text-[#CCFF00] uppercase font-black tracking-widest">
+                {categoria}
+              </p>
+            </div>
+
+            <div className="text-right">
+
+              {tienePromo && (
+                <p className="text-sm text-gray-500 line-through font-bold">
+                  $
+                  {precioOriginal.toLocaleString("es-AR", {
+                    minimumFractionDigits: 2,
+                  })}
+                </p>
+              )}
+
+              <p className="text-2xl text-white font-black tracking-tight">
+                $
+                {precioFinal.toLocaleString("es-AR", {
+                  minimumFractionDigits: 2,
+                })}
+              </p>
+
+            </div>
+
+          </div>
+
+          {/* NOMBRE */}
+          <h3 className="text-xl uppercase leading-tight text-white font-black tracking-tight">
             {producto.nombre}
           </h3>
-          
-          <p className="text-white text-base font-black mt-1">
-            ${Number(producto.precio || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-          </p>
 
-          <div className="bg-[#CCFF00] text-black text-[8px] font-black px-1.5 py-0.5 rounded mt-1.5 inline-block uppercase tracking-wider whitespace-nowrap">
-            ${Math.round((producto.precio || 0) * 0.85).toLocaleString('es-AR')} POR TRANSFERENCIA
+          {/* SABORES */}
+          <div className="flex flex-wrap gap-2 mt-auto">
+
+            {sabores.length > 0 ? (
+              sabores.map((sabor, index) => (
+                <span
+                  key={index}
+                  className="font-black text-[10px] uppercase bg-black border border-[#262626] text-white px-2 py-1 tracking-wide"
+                >
+                  {sabor}
+                </span>
+              ))
+            ) : (
+              <span className="font-black text-[10px] uppercase bg-black border border-[#262626] text-gray-400 px-2 py-1">
+                SIN SABOR
+              </span>
+            )}
+
           </div>
+
         </div>
 
-        <div>
-          <div className="text-[10px] text-gray-400 leading-tight mb-2">
-            <p>En <span className="font-bold text-white">6 cuotas sin interés</span> de ${Math.round((producto.precio || 0) / 6).toLocaleString('es-AR')}</p>
-          </div>
-
-          <button className="w-full bg-[#CCFF00] hover:bg-[#bce500] text-black text-xs font-black uppercase py-2 rounded transition-colors tracking-wider">
-            Comprar
-          </button>
-        </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
