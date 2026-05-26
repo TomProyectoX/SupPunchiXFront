@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { useAuth } from "../../../hooks/useAuth"
-import { useCart } from "../../../hooks/useCart"
-import { useCartWidget } from "../../../hooks/useCartWidget"
-import { fetchWithAuth } from "../../../utils/fetchWithAuth"
+import { useAuth } from "../hooks/useAuth"
+import { useCart } from "../hooks/useCart"
+import { useCartWidget } from "../hooks/useCartWidget"
+import { fetchWithAuth } from "../utils/fetchWithAuth"
 
 const ProductDetails = () => {
 
@@ -37,10 +37,25 @@ const ProductDetails = () => {
     cargarProducto();
   }, [id, token, navigate])
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!producto) return;
     
-    addItem({
+
+    try {
+        const payload = {
+                idproducto: producto.idProducto,
+                idsabor: varianteSeleccionada.sabor.idSabor,
+                cantidad: cantidad
+                }
+        const response = await  fetchWithAuth(`http://localhost:4002/carritos`, {
+             method: "POST",
+             body: JSON.stringify(payload)
+        }, () => token, navigate)
+
+        if (!response.ok){
+            throw new Error 
+        }
+        addItem({
       idProducto: producto.idProducto,
       nombre: producto.nombre,
       precio: producto.precio,
@@ -53,6 +68,16 @@ const ProductDetails = () => {
     setAgregado(true);
     openCart();
     setTimeout(() => setAgregado(false), 2000);
+
+        
+    } catch (error) {
+        console.log(error)
+    }
+
+
+
+
+    
   };
 
   if (!producto) {

@@ -30,7 +30,7 @@ const ProductoCard = ({ producto, featured = false }) => {
 
   return (
     <Link
-      to={`/shop/${producto.idProducto}`}
+      to={`/product/${producto.idProducto}`}
       className="block w-full"
     >
       <div className={`bg-[#141414] border-l-2 ${tienePromo ? "border-[#CCFF00]" : "border-[#3a3a3a]"} flex flex-col group cursor-pointer transition-all duration-300 hover:bg-[#1F1F1F] overflow-hidden h-full`}>

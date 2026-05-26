@@ -13,7 +13,7 @@ import Products from './pages/admin/Products.jsx';
 import CatalogConfiguration from './pages/admin/CatalogConfiguration.jsx';
 import Cart from './pages/Cart.jsx';
 import Checkout from './pages/Checkout.jsx';
-import ProductDetails from './assets/components/react/ProductDetails.jsx';
+import ProductDetails from './pages/ProductDetails.jsx';
 import ConditionalCartWidget from './assets/components/react/ConditionalCartWidget.jsx';
 import CartToggleButton from './assets/components/react/CartToggleButton.jsx';
 
