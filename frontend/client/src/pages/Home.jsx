@@ -34,7 +34,7 @@ const Home = () => {
         <Benefits />
       </div>
 
-      <CartWidget />
+     
 
     </div>
   )

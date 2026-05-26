@@ -7,7 +7,6 @@ const CartWidget = ({ className = '' }) => {
 
   const handleEdit = async (item, nextCantidad) => {
     try {
-      // NOTE: If you have a backend endpoint for cart updates, call it here first.
       updateItemQuantity(item, Number(nextCantidad));
     } catch (e) {
       console.error('Error actualizando cantidad:', e);
@@ -17,7 +16,6 @@ const CartWidget = ({ className = '' }) => {
   const handleDelete = async (item) => {
 
     try {
-      // NOTE: If you have a backend endpoint for cart delete, call it here first.
       removeItem(item);
     } catch (e) {
       console.error('Error eliminando item:', e);

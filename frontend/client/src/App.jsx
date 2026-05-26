@@ -10,6 +10,7 @@ import ProductList from './pages/ProductList.jsx';
 import AdminProducts from './pages/admin/AdminProducts.jsx';
 import Products from './pages/admin/Products.jsx';
 import Cart from './pages/Cart.jsx';
+import Checkout from './pages/Checkout.jsx';
 
 function App() {
   return (
@@ -59,6 +60,14 @@ function App() {
                   <Cart />
                 </ProtectedRoute>
               } 
+            />
+            <Route
+              path="/checkout"
+              element={
+                <ProtectedRoute>
+                  <Checkout />
+                </ProtectedRoute>
+              }
             />
           </Routes>
         </CartProvider>
