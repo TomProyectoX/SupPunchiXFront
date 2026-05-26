@@ -2,18 +2,56 @@ import { createContext, useState, useEffect } from 'react';
 
 const isJwtLike = (value) => typeof value === 'string' && value.split('.').length === 3;
 
+const tokenKeys = ['token', 'jwtToken', 'accessToken'];
+
+const cleanTokenString = (value) => value.trim().replace(/^"|"$/g, '').replace(/^'|'$/g, '').replace(/\s+/g, '');
+
+const findTokenValue = (value, visited = new Set()) => {
+  if (!value) return null;
+
+  if (typeof value === 'string') {
+    const cleaned = cleanTokenString(value);
+    return isJwtLike(cleaned) ? cleaned : null;
+  }
+
+  if (typeof value !== 'object') {
+    return null;
+  }
+
+  if (visited.has(value)) {
+    return null;
+  }
+
+  visited.add(value);
+
+  for (const key of tokenKeys) {
+    const candidate = findTokenValue(value[key], visited);
+    if (candidate) {
+      return candidate;
+    }
+  }
+
+  for (const nestedValue of Object.values(value)) {
+    const candidate = findTokenValue(nestedValue, visited);
+    if (candidate) {
+      return candidate;
+    }
+  }
+
+  return null;
+};
+
 // Normaliza el token recibido: extrae strings válidos y descarta objetos o basura.
 const normalizeToken = (value) => {
   if (!value) return null;
 
   if (typeof value === 'string') {
-    const cleaned = value.trim().replace(/^"|"$/g, '').replace(/^'|'$/g, '').replace(/\s+/g, '');
+    const cleaned = cleanTokenString(value);
     return isJwtLike(cleaned) ? cleaned : null;
   }
 
   if (typeof value === 'object') {
-    const candidate = value.token || value.jwtToken || value.accessToken || null;
-    return normalizeToken(candidate);
+    return findTokenValue(value);
   }
 
   return null;
