@@ -81,7 +81,7 @@ const Cart = () => {
                       </div>
 
                       <span className="text-lg font-black text-[#CCFF00]">
-                        ${Number(item.precio || 0).toLocaleString('es-AR')}
+                        ${Number((item.productoVariante?.producto?.precio || item.precio || 0) * (item.cantidad || 0)).toLocaleString('es-AR')}
                       </span>
 
                       <button

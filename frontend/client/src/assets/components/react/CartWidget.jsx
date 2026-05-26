@@ -43,7 +43,7 @@ const CartWidget = () => {
 
       {/* SIDEBAR */}
       <div
-        className={`fixed right-0 top-0 h-screen z-40 w-full sm:w-[500px] bg-gradient-to-br from-[#0A0A0A] via-[#050505] to-[#0A0A0A] border-l border-[#262626] shadow-2xl shadow-[#CCFF00]/5 flex flex-col transition-transform duration-300 ease-out ${
+        className={`fixed right-0 top-0 h-screen z-50 w-full sm:w-[500px] bg-gradient-to-br from-[#0A0A0A] via-[#050505] to-[#0A0A0A] border-l border-[#262626] shadow-2xl shadow-[#CCFF00]/5 flex flex-col transition-transform duration-300 ease-out ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >

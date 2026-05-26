@@ -44,6 +44,43 @@ export const CartProvider = ({ children }) => {
   };
 
   useEffect(() => {
+<<<<<<< HEAD
+=======
+    const loadCart = async () => {
+      if (!token) return;
+
+      try {
+        // TODO: Reemplazar URL si tu endpoint de carrito es distinto.
+        const response = await fetchWithAuth(
+          'http://localhost:4002/carritos',
+          { method: 'GET' },
+          () => token,
+          navigate
+        );
+        const data = await response.json();
+        const productos = Array.isArray(data?.productos) ? data.productos : [];
+
+        const normalized = productos.map((item) => ({
+          // id del item en el carrito (para delete/update en backend)
+          idCartItem: item.id,
+          // id real del producto (para UI y keys)
+          idProducto: item.productoVariante?.producto?.idProducto ?? item.id,
+          nombre: item.productoVariante?.producto?.nombre ?? '',
+          idSabor: item.productoVariante?.sabor?.idSabor ?? null,
+          cantidad: item.cantidad ?? 0,
+          precio: item.productoVariante?.producto?.precio ?? 0,
+          sabor: item.productoVariante?.sabor?.nombre ?? '',
+          stock: item.productoVariante?.stock ?? null,
+        }));
+
+        setCartItems(normalized);
+        console.log(data)
+      } catch (error) {
+        console.error('Error cargando carrito:', error);
+      }
+    };
+
+>>>>>>> f5959d82854f164a5873a1b9974e492247f267c5
     loadCart();
   }, [token, navigate]);
 
