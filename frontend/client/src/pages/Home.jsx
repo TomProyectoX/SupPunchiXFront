@@ -1,6 +1,7 @@
 import { useState } from "react"
 
 import Navbar from "./Navbar"
+import CartWidget from "../assets/components/react/CartWidget"
 import Hero from "../assets/components/react/Hero"
 import FeaturedProducts from "../assets/components/react/FeaturedProducts"
 import Benefits from "../assets/components/react/Benefits"
@@ -24,7 +25,7 @@ const Home = () => {
         <ToBar />
         <Navbar />
       </header>
-
+      {/* watafak */}
       {/* CONTENIDO DE LA PÁGINA */}
       <div className="pt-[100px] md:pt-[30px]">
         <Hero />
@@ -32,6 +33,8 @@ const Home = () => {
         <FeaturedProducts />
         <Benefits />
       </div>
+
+      <CartWidget />
 
     </div>
   )

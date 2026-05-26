@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
+import { useAuth } from "../../../hooks/useAuth"
+import { fetchWithAuth } from "../../../utils/fetchWithAuth"
 
 const ProductDetails = () => {
 
   const { id } = useParams()
+  const navigate = useNavigate()
+  const { token } = useAuth()
 
   const [producto, setProducto] = useState(null)
 
@@ -12,13 +16,20 @@ const ProductDetails = () => {
 
 
   useEffect(() => {
+    if (!token) return;
 
-    fetch(`http://localhost:4002/productos/${id}`)
-      .then((response) => response.json())
-      .then((data) => setProducto(data))
-      .catch((error) => console.error("Error al cargar producto", error))
+    const cargarProducto = async () => {
+      try {
+        const response = await fetchWithAuth(`http://localhost:4002/productos/${id}`, {}, () => token, navigate)
+        const data = await response.json()
+        setProducto(data)
+      } catch (error) {
+        console.error("Error al cargar producto", error)
+      }
+    }
 
-  }, [id])
+    cargarProducto();
+  }, [id, token, navigate])
 
   if (!producto) {
     return (

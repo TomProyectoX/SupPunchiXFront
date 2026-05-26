@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../hooks/useAuth";
+import { fetchWithAuth } from "../../../utils/fetchWithAuth";
 
 export default function UpdateProductForm({ producto, marcas, categorias, sabores: saboresProp, onSaved, onClose }) {
   const isEditing = !!producto;
+  const { token } = useAuth();
+  const navigate = useNavigate();
   
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
@@ -65,15 +70,10 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
         };
      
         console.log(bodyData)
-        const response = await fetch(`http://localhost:4002/productos/${producto.idProducto}`, {
+        const response = await fetchWithAuth(`http://localhost:4002/productos/${producto.idProducto}`, {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBwdW5jaGkuY29tIiwiaWF0IjoxNzc5NjY0NjA0LCJleHAiOjE3Nzk3NTEwMDR9.9fIxkkQVhJPCc78xu35r2fj4VRKwWeI_mfSR3Z2wwh33PqyVzGBvxEBzNBWsOV05BZ1TE68mKByt4mK3UPTG-Q',
-
-          },
           body: JSON.stringify(bodyData),
-        });
+        }, () => token, navigate);
 
         
 
@@ -125,14 +125,10 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
         };
           console.log(bodyData)
 
-        const response = await fetch(`http://localhost:4002/productos`, {
+        const response = await fetchWithAuth(`http://localhost:4002/productos`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBwdW5jaGkuY29tIiwiaWF0IjoxNzc5NjY0NjA0LCJleHAiOjE3Nzk3NTEwMDR9.9fIxkkQVhJPCc78xu35r2fj4VRKwWeI_mfSR3Z2wwh33PqyVzGBvxEBzNBWsOV05BZ1TE68mKByt4mK3UPTG-Q',
-          },
           body: JSON.stringify(bodyData),
-        });
+        }, () => token, navigate);
 
         if (!response.ok) {
           const errorData = await response.json();

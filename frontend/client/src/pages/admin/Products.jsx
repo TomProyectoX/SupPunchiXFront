@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { fetchWithAuth } from "../../utils/fetchWithAuth";
 import AdminSidebar from "../../assets/components/admin/AdminSidebar";
 import AdminHeader from "../../assets/components/admin/AdminHeader";
 import StatCard from "../../assets/components/admin/StatCard";
@@ -13,54 +16,50 @@ export default function Products() {
   const [categorias, setCategorias] = useState([]);
   const [marcas, setMarcas] = useState([]);
   const [flavours, setFlavours] = useState([]);
-    useEffect(() => {
+  const { token } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!token) {
+      console.log('No hay token en Products');
+      return;
+    }
+
     const fetchproductos = async () => {
-            const response = await fetch('http://localhost:4002/productos', {
-                method : 'GET',
-                headers: {
-        'Content-Type': 'application/json',
-      },});
-      const data = await response.json()
-      setProductos(data)
-        }
+      try {
+        const response = await fetchWithAuth('http://localhost:4002/productos', { method: 'GET' }, () => token, navigate);
+        const data = await response.json()
+        setProductos(data)
+      } catch (e) { console.error('Error fetchproductos:', e) }
+    }
     const fetchcategorias = async () => {
-            const response1 = await fetch('http://localhost:4002/categories', {
-                method : 'GET',
-                headers: {
-        'Content-Type': 'application/json',
-      },});
-
-      const data1 = await response1.json()
-      setCategorias(data1)
-        }
-         const fetchmarcas = async () => {
-            const response2 = await fetch('http://localhost:4002/marcas', {
-                method : 'GET',
-                headers: {
-        'Content-Type': 'application/json',
-      },});
-      const data2 = await response2.json()
-      setMarcas(data2)
-        }
-        const fetchsabores= async () => {
-            const response3 = await fetch('http://localhost:4002/sabores', {
-                method : 'GET',
-                headers: {
-        'Content-Type': 'application/json',
-      },});
-      const data3 = await response3.json()
-      setFlavours(data3)
-      
-      
-        }
-        fetchproductos();
-        fetchcategorias();
-        fetchmarcas();
-        fetchsabores();
-       
-        
-
-    }, [])
+      try {
+        const response1 = await fetchWithAuth('http://localhost:4002/categories', { method: 'GET' }, () => token, navigate);
+        const data1 = await response1.json()
+        setCategorias(data1)
+      } catch (e) { console.error('Error fetchcategorias:', e) }
+    }
+    const fetchmarcas = async () => {
+      try {
+        const response2 = await fetchWithAuth('http://localhost:4002/marcas', { method: 'GET' }, () => token, navigate);
+        const data2 = await response2.json()
+        setMarcas(data2)
+      } catch (e) { console.error('Error fetchmarcas:', e) }
+    }
+    const fetchsabores = async () => {
+      try {
+        const response3 = await fetchWithAuth('http://localhost:4002/sabores', { method: 'GET' }, () => token, navigate);
+        const data3 = await response3.json()
+        setFlavours(data3)
+      } catch (e) { console.error('Error fetchsabores:', e) }
+    }
+    
+    fetchproductos();
+    fetchcategorias();
+    fetchmarcas();
+    fetchsabores();
+  }, [token, navigate]) /// si cambia el token volvemos a ejecutar el use effect, 
+  // lo de navigate se pone ahi porque es una regla de los hooks y para evitar bug es un estandar
 
   const handleEdit = (producto) => {
     setProductoEditando(producto);
@@ -99,15 +98,13 @@ export default function Products() {
 const handleDelete = async (producto) => {
     try{
         console.log(producto)
-        const res = await fetch(
-           `http://127.0.0.1:4002/productos/${producto.idProducto}`
-        ,{
-            method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBwdW5jaGkuY29tIiwiaWF0IjoxNzc5NTUxNjgwLCJleHAiOjE3Nzk2MzgwODB9._dkcLHfXiCh1LvCmMt3NrM4PAHS_L2dZng2Pbdu17mehU_bFeYpX_mBvAD11tntIHAVeQg1Ri2sOrAxUuvlWIw'
-                }
-        }
+        const res = await fetchWithAuth(
+           `http://127.0.0.1:4002/productos/${producto.idProducto}`,
+            {
+                method: 'DELETE',
+            },
+            () => token,
+            navigate
         )
         if (!res.ok){
             throw new Error()

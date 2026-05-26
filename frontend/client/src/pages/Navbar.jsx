@@ -58,9 +58,12 @@ const Navbar = () => {
 
         {/* Columna Derecha: Iconos */}
         <div className="flex justify-end items-center gap-6">
-          <button className="text-white hover:text-[#CCFF00] transition-colors text-lg">
+          <NavLink
+            to="/cart"
+            className="text-white hover:text-[#CCFF00] transition-colors text-lg"
+          >
             🛒
-          </button>
+          </NavLink>
 
           <NavLink
             to="/login"
