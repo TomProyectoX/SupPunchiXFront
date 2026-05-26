@@ -1,6 +1,7 @@
 import { useState } from "react"
 
 import Navbar from "./Navbar"
+import CartWidget from "../assets/components/react/CartWidget"
 import Hero from "../assets/components/react/Hero"
 import FeaturedProducts from "../assets/components/react/FeaturedProducts"
 import Benefits from "../assets/components/react/Benefits"
@@ -32,6 +33,8 @@ const Home = () => {
         <FeaturedProducts />
         <Benefits />
       </div>
+
+      <CartWidget />
 
     </div>
   )

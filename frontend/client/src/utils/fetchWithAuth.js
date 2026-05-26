@@ -32,8 +32,7 @@ export const fetchWithAuth = async (url, options = {}, getToken, navigate) => {
   headers['Authorization'] = `Bearer ${cleanToken}`;
 
   try {
-    console.log(`[fetchWithAuth] ${options.method || 'GET'} ${url}`);
-    console.log(`[fetchWithAuth] Token length: ${String(cleanToken).length}`);
+    console.log(`[fetchWithAuth] ${options.method || 'GET'} ${url}`); /// usamos el metodo que nos pasa el padre o si no nos pasa ninguno, usamos get
     
     const response = await fetch(url, {
       ...options,

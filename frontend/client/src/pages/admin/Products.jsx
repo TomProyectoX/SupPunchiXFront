@@ -58,7 +58,8 @@ export default function Products() {
     fetchcategorias();
     fetchmarcas();
     fetchsabores();
-  }, [token, navigate])
+  }, [token, navigate]) /// si cambia el token volvemos a ejecutar el use effect, 
+  // lo de navigate se pone ahi porque es una regla de los hooks y para evitar bug es un estandar
 
   const handleEdit = (producto) => {
     setProductoEditando(producto);

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { useAuth } from "../hooks/useAuth"
 import { fetchWithAuth } from "../utils/fetchWithAuth"
 import ProductoCard from "../assets/components/react/ProductoCard"
+import CartWidget from "../assets/components/react/CartWidget"
 
 const ProductList = () => {
   const [productos, setProductos] = useState([])
@@ -233,6 +234,7 @@ const productosFiltrados = categoriaSeleccionada
           </div>
         </section>
       </div>
+      <CartWidget />
     </div>
   )
 }
