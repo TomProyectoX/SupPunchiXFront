@@ -1,6 +1,6 @@
 // Checkout.jsx
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useCart } from '../hooks/useCart';
 import CheckoutAddressForm from '../assets/components/react/CheckoutAddressForm';
 import CheckoutPayment from '../assets/components/react/CheckoutPayment';
@@ -9,11 +9,64 @@ import { useAuth } from "../hooks/useAuth";
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 import { useNavigate } from "react-router-dom";
 
+const getProductoIdFromDetalle = (productoValue) => {
+  if (productoValue == null) return null;
+  if (typeof productoValue === 'object') {
+    return productoValue.idProducto ?? productoValue.id ?? productoValue.productoId ?? null;
+  }
+  return productoValue;
+};
+
+const getSaborIdFromDetalle = (saborValue) => {
+  if (saborValue == null) return null;
+  if (typeof saborValue === 'object') {
+    return saborValue.idSabor ?? saborValue.id ?? null;
+  }
+  return saborValue;
+};
+
+const mapOrdenToResumenItems = (orden, cartItems = []) =>
+  Array.isArray(orden?.detalles)
+    ? orden.detalles.map((detalle) => {
+        const productoRef = detalle.productoVariante?.producto;
+        const saborRef = detalle.productoVariante?.sabor;
+        const idProducto = getProductoIdFromDetalle(productoRef);
+        const idSabor = getSaborIdFromDetalle(saborRef);
+        const productMatch = cartItems.find((item) => item.idProducto === idProducto);
+        const cartMatch = cartItems.find(
+          (item) => item.idProducto === idProducto && (item.idSabor ?? null) === (idSabor ?? null)
+        );
+
+        return {
+          idDetalle: detalle.id,
+          idProducto,
+          nombre:
+            (typeof productoRef === 'object' ? productoRef?.nombre : null) ||
+            productMatch?.nombre ||
+            cartMatch?.nombre ||
+            '',
+          sabor:
+            (typeof saborRef === 'object' ? saborRef?.nombre : null) ||
+            cartMatch?.sabor ||
+            productMatch?.sabor ||
+            cartMatch?.sabor ||
+            '',
+          cantidad: detalle.cantidad ?? 0,
+          precio:
+            detalle.precioUnitario ??
+            productMatch?.precio ??
+            cartMatch?.precio ??
+            (typeof productoRef === 'object' ? productoRef?.precioFinal ?? productoRef?.precio ?? 0 : 0),
+        };
+      })
+    : [];
+
 const Checkout = () => {
 
   const navigate = useNavigate();
   const { token } = useAuth();
-  const { cartItems, subtotal } = useCart();
+  const { cartItems } = useCart();
+  const lastSyncedCartSignatureRef = useRef('');
 
   const [form, setForm] = useState({
     calle: '',
@@ -26,6 +79,45 @@ const Checkout = () => {
   const [orden, setOrden] = useState(null);
   const [loading, setLoading] = useState(true);
   const [step, setStep] = useState(orden ? 'pago' : 'direccion');
+
+  const buildDireccionPayload = (direccion) => ({
+    direccion: {
+      calle: direccion.calle.trim(),
+      numero: direccion.numero.trim(),
+      ciudad: direccion.ciudad.trim(),
+      provincia: direccion.provincia.trim(),
+      codigoPostal: direccion.codigoPostal.trim(),
+    },
+  });
+
+  const buildCartSignature = (items) =>
+    items
+      .map((item) => `${item.idProducto}:${item.idSabor ?? '0'}:${item.cantidad}:${item.precio}`)
+      .join('|');
+
+  const crearOActualizarOrden = async (payload, cartSignature) => {
+    const response = await fetchWithAuth(
+      'http://localhost:4002/Ordenes',
+      {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      },
+      () => token,
+      navigate
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error('Error creando orden');
+    }
+
+    lastSyncedCartSignatureRef.current = cartSignature;
+    setOrden(data);
+    setStep('pago');
+
+    return data;
+  };
 
   const hasOrdenEnCurso = Boolean(orden);
 
@@ -43,12 +135,16 @@ const Checkout = () => {
 
       try {
 
+        console.log('[Checkout] Cargando orden en curso');
+
         const response = await fetchWithAuth(
           'http://localhost:4002/Ordenes/en-curso',
           { method: 'GET' },
           () => token,
           navigate
         );
+
+        console.log('[Checkout] /Ordenes/en-curso status', response.status);
 
         // si no hay orden en curso devolves 204 o 404
         if (response.status === 204 || response.status === 404) {
@@ -58,11 +154,32 @@ const Checkout = () => {
 
         const data = await response.json();
 
+        console.log('[Checkout] orden en curso raw', data);
+        console.log('[Checkout] orden keys', Object.keys(data || {}));
+        console.log('[Checkout] orden.detalles raw', data?.detalles);
+        console.log('[Checkout] orden.detalles length', data?.detalles?.length ?? 0);
+        console.log(
+          '[Checkout] source items',
+          Array.isArray(data?.detalles) ? 'detalles' : Array.isArray(data?.productos) ? 'productos' : 'ninguno'
+        );
+
         if (!response.ok) {
           throw new Error('Error cargando orden');
         }
 
         setOrden(data);
+        console.log('[Checkout] orden normalizada', mapOrdenToResumenItems(data));
+        console.log(
+          '[Checkout] orden.detalles mapped ids',
+          Array.isArray(data?.detalles)
+            ? data.detalles.map((detalle) => ({
+                detalleId: detalle.id,
+                productoVarianteId: detalle.productoVariante?.id ?? null,
+                productoId: detalle.productoVariante?.producto?.idProducto ?? null,
+                productoNombre: detalle.productoVariante?.producto?.nombre ?? '',
+              }))
+            : []
+        );
         if (data) {
         setStep('pago');
             }
@@ -78,6 +195,43 @@ const Checkout = () => {
 
   }, []);
 
+  useEffect(() => {
+    if (!orden || cartItems.length === 0) {
+      return;
+    }
+
+    const cartSignature = buildCartSignature(cartItems);
+
+    if (cartSignature === lastSyncedCartSignatureRef.current) {
+      return;
+    }
+
+    const syncOrdenConCarrito = async () => {
+      try {
+        await crearOActualizarOrden(buildDireccionPayload(orden.direccion), cartSignature);
+      } catch (e) {
+        if (lastSyncedCartSignatureRef.current === cartSignature) {
+          lastSyncedCartSignatureRef.current = '';
+        }
+        console.log(e);
+      }
+    };
+
+    syncOrdenConCarrito();
+  }, [orden, cartItems, navigate, token]);
+
+  useEffect(() => {
+    if (!orden) {
+      return;
+    }
+
+    const resumen = mapOrdenToResumenItems(orden);
+    console.log('[Checkout] orden render', {
+      resumenCount: resumen.length,
+      resumen,
+    });
+  }, [orden]);
+
   const handleChange = (e) => {
 
     const { name, value } = e.target;
@@ -92,44 +246,27 @@ const Checkout = () => {
 
     e.preventDefault();
 
-    const payload = {
-      direccion: {
-        calle: form.calle.trim(),
-        numero: form.numero.trim(),
-        ciudad: form.ciudad.trim(),
-        provincia: form.provincia.trim(),
-        codigoPostal: form.codigoPostal.trim(),
-      },
-    };
+    const payload = buildDireccionPayload(form);
+    const cartSignature = buildCartSignature(cartItems);
 
     try {
-
-      const response = await fetchWithAuth(
-        'http://localhost:4002/Ordenes',
-        {
-          method: 'POST',
-          body: JSON.stringify(payload)
-        },
-        () => token,
-        navigate
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error('Error creando orden');
-      }
-
-      setOrden(data);
-     
-    setStep('pago');
+      await crearOActualizarOrden(payload, cartSignature);
 
     } catch (e) {
       console.log(e);
     }
   };
 
-  const total = useMemo(() => subtotal, [subtotal]);
+  const resumenOrden = useMemo(() => mapOrdenToResumenItems(orden, cartItems), [orden, cartItems]);
+
+  const totalOrden = useMemo(
+    () =>
+      resumenOrden.reduce(
+        (acc, item) => acc + (Number(item.precio) || 0) * (Number(item.cantidad) || 0),
+        0
+      ),
+    [resumenOrden]
+  );
 
   if (loading) {
     return (
@@ -201,8 +338,8 @@ const Checkout = () => {
     <div className="lg:col-span-5 lg:pl-4">
 
       <OrderSummary
-        cartItems={cartItems}
-        total={total}
+        items={resumenOrden}
+        total={totalOrden}
       />
 
     </div>

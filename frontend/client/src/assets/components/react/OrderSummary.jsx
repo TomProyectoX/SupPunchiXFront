@@ -1,27 +1,34 @@
-const OrderSummary = ({ cartItems, total }) => {
+import { useEffect } from 'react';
+
+const OrderSummary = ({ items, total }) => {
+
+  useEffect(() => {
+    console.log('[OrderSummary] items', items);
+    console.log('[OrderSummary] items length', items.length);
+  }, [items]);
 
   return (
 
     <div className="rounded-2xl border border-[#262626] bg-[#111111] p-6">
 
       <h2 className="text-sm uppercase text-gray-400">
-        Tu carrito
+        Tu orden
       </h2>
 
       <div className="mt-4 space-y-4">
 
-        {cartItems.length === 0 ? (
+        {items.length === 0 ? (
 
           <p className="text-sm text-gray-400">
-            No hay productos en el carrito.
+            No hay productos en la orden.
           </p>
 
         ) : (
 
-          cartItems.map((item) => (
+          items.map((item) => (
 
             <div
-              key={`${item.idProducto}-${item.idSabor ?? 0}`}
+              key={`${item.idDetalle ?? item.idProducto}-${item.idSabor ?? 0}`}
               className="flex items-center justify-between border-b border-[#262626] pb-3"
             >
 
