@@ -44,8 +44,6 @@ export const CartProvider = ({ children }) => {
   };
 
   useEffect(() => {
-<<<<<<< HEAD
-=======
     const loadCart = async () => {
       if (!token) return;
 
@@ -80,7 +78,6 @@ export const CartProvider = ({ children }) => {
       }
     };
 
->>>>>>> f5959d82854f164a5873a1b9974e492247f267c5
     loadCart();
   }, [token, navigate]);
 
