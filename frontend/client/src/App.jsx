@@ -9,6 +9,7 @@ import Home from "./pages/Home.jsx";
 import ProductList from './pages/ProductList.jsx';
 import AdminProducts from './pages/admin/AdminProducts.jsx';
 import Products from './pages/admin/Products.jsx';
+import CatalogConfiguration from './pages/admin/CatalogConfiguration.jsx';
 import Cart from './pages/Cart.jsx';
 import Checkout from './pages/Checkout.jsx';
 import ProductDetails from './assets/components/react/ProductDetails.jsx';
@@ -55,6 +56,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <AdminProducts />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/catalog" 
+              element={
+                <ProtectedRoute>
+                  <CatalogConfiguration />
                 </ProtectedRoute>
               } 
             />
