@@ -41,7 +41,7 @@ function App() {
               path="/shop/:id" 
               element={
                   <ProductDetails />
-              } 
+              }
             />
             <Route 
               path="/admin/products" 
