@@ -5,6 +5,40 @@ import { useCart } from "../hooks/useCart"
 import { useCartWidget } from "../hooks/useCartWidget"
 import { fetchWithAuth } from "../utils/fetchWithAuth"
 
+const getImageSrc = (imageValue) => {
+  if (!imageValue) {
+    return "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/nrx/nrx02992/y/8.jpg";
+  }
+
+  if (typeof imageValue === 'object') {
+    const imageFile = imageValue.file || imageValue.base64 || imageValue.data || imageValue.src || imageValue.url;
+
+    if (typeof imageFile === 'string' && imageFile.length > 0) {
+      if (imageFile.startsWith('data:')) {
+        return imageFile;
+      }
+
+      if (imageFile.startsWith('http://') || imageFile.startsWith('https://')) {
+        return imageFile;
+      }
+
+      return `data:image/jpeg;base64,${imageFile}`;
+    }
+
+    return "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/nrx/nrx02992/y/8.jpg";
+  }
+
+  if (imageValue.startsWith("data:")) {
+    return imageValue;
+  }
+
+  if (imageValue.startsWith("http://") || imageValue.startsWith("https://")) {
+    return imageValue;
+  }
+
+  return `data:image/jpeg;base64,${imageValue}`;
+};
+
 const ProductDetails = () => {
 
   const { id } = useParams()
@@ -94,7 +128,7 @@ const ProductDetails = () => {
             {/* MAIN IMAGE */}
             <div className="relative group overflow-hidden rounded-xl bg-gradient-to-br from-[#141414] to-[#050505] border border-[#262626]" style={{ aspectRatio: "1" }}>
               <img
-                src={producto.imagen || "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/nrx/nrx02992/y/8.jpg"}
+                src={getImageSrc(producto.imagen)}
                 alt={producto.nombre}
                 className="w-full h-full object-contain p-8 group-hover:scale-105 transition duration-500"
                 onError={(e) => {

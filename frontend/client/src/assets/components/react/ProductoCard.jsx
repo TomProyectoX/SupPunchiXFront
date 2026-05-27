@@ -1,5 +1,39 @@
 import { Link } from "react-router-dom";
 
+const getImageSrc = (imageValue) => {
+  if (!imageValue) {
+    return "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/nrx/nrx02992/y/8.jpg";
+  }
+
+  if (typeof imageValue === 'object') {
+    const imageFile = imageValue.file || imageValue.base64 || imageValue.data || imageValue.src || imageValue.url;
+
+    if (typeof imageFile === 'string' && imageFile.length > 0) {
+      if (imageFile.startsWith('data:')) {
+        return imageFile;
+      }
+
+      if (imageFile.startsWith('http://') || imageFile.startsWith('https://')) {
+        return imageFile;
+      }
+
+      return `data:image/jpeg;base64,${imageFile}`;
+    }
+
+    return "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/nrx/nrx02992/y/8.jpg";
+  }
+
+  if (imageValue.startsWith("data:")) {
+    return imageValue;
+  }
+
+  if (imageValue.startsWith("http://") || imageValue.startsWith("https://")) {
+    return imageValue;
+  }
+
+  return `data:image/jpeg;base64,${imageValue}`;
+};
+
 const ProductoCard = ({ producto, featured = false }) => {
   if (!producto) return null;
 
@@ -39,10 +73,7 @@ const ProductoCard = ({ producto, featured = false }) => {
         <div className="relative overflow-hidden bg-[#0A0A0A] h-[220px]">
 
           <img
-            src={
-              producto.imagen ||
-              "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/nrx/nrx02992/y/8.jpg"
-            }
+            src={getImageSrc(producto.imagen)}
             alt={producto.nombre}
             className="w-full h-full object-contain p-6 grayscale group-hover:grayscale-0 transition-all duration-500"
             onError={(e) => {

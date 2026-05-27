@@ -14,6 +14,9 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
   const [tamano, setTamano] = useState("");
   const [marcaid, setMarcaid] = useState("");
   const [categoriaid, setCategoriaid] = useState("");
+  const [imagenBase64, setImagenBase64] = useState("");
+  const [imagenNombre, setImagenNombre] = useState("");
+  const [imagenError, setImagenError] = useState("");
   const [showSabores, setShowSabores] = useState(false);
   const [selectedSabores, setSelectedSabores] = useState([]);
   const [sabores, setSabores] = useState([])
@@ -23,9 +26,15 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
   useEffect(() => {
     if (!isEditing) {
       setSabores(saboresProp || []);
+      setImagenBase64("");
+      setImagenNombre("");
+      setImagenError("");
       return;
     }
 
+    setImagenBase64("");
+    setImagenNombre("");
+    setImagenError("");
     setNombre(producto.nombre);
     setDescripcion(producto.descripcion);
     setPrecio(producto.precio);
@@ -49,9 +58,6 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
     if (isEditing) {
       // LÓGICA DE EDICIÓN
       try{
-        console.log("[DEBUG] Form submitted");
-        
-        console.log("[DEBUG] Producto ID:", producto?.idProducto);
         if (!producto?.idProducto) {
           console.error("[ERROR] No hay idProducto");
           return;
@@ -63,13 +69,15 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
           precio,
           tamano: tamano,
           disponible: producto.disponible ?? true,
-          imagen: producto.imagen ?? "url",
           idMarca: marcaid,
           idCategoria: categoriaid,
           variantes: selectedSabores
         };
-     
-        console.log(bodyData)
+
+        if (imagenBase64) {
+          bodyData.imagen = imagenBase64;
+        }
+
         const response = await fetchWithAuth(`http://localhost:4002/productos/${producto.idProducto}`, {
           method: "PUT",
           body: JSON.stringify(bodyData),
@@ -83,8 +91,6 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
         }
 
         if (response.ok) {
-          console.log("[DEBUG] Save successful, updating parent state");
-       
           const marcaCompleta = marcas?.find((m) => m.idMarca === marcaid) || { idMarca: marcaid, nombre: "" };
           const categoriaCompleta = categorias?.find((c) => c.id === categoriaid) || { id: categoriaid, description: "" };
           
@@ -95,35 +101,30 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
             precio,
             tamano,
             disponible: producto.disponible ?? true,
-            imagen: producto.imagen ?? "url",
+            imagen: imagenBase64 || producto.imagen || "url",
             marca: marcaCompleta,
             categoria: categoriaCompleta,
             variantes: selectedSabores
           };
-          console.log("[DEBUG] productoActualizado structure:", productoActualizado);
           onSaved?.(productoActualizado);
           onClose?.();
         }
       } catch(e) {
         console.error("[ERROR] handleSubmit error:", e);
-        console.error("[ERROR] Stack:", e.stack);
       }
     } else {
       try {
-        console.log("[DEBUG] Creating new product");
-
         const bodyData = {
           nombre,
           descripcion,
           precio,
           tamano: tamano,
           disponible: true,
-          imagen: "url",
+          imagen: imagenBase64 || "url",
           idMarca: marcaid,
           idCategoria: categoriaid,
           variantes: selectedSabores
         };
-          console.log(bodyData)
 
         const response = await fetchWithAuth(`http://localhost:4002/productos`, {
           method: "POST",
@@ -137,7 +138,6 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
         }
 
         const responseData = await response.json();
-        console.log("[DEBUG] New product response:", responseData);
 
         const marcaCompleta = marcas?.find((m) => m.idMarca === marcaid) || { idMarca: marcaid, nombre: "" };
         const categoriaCompleta = categorias?.find((c) => c.id === categoriaid) || { id: categoriaid, description: "" };
@@ -149,18 +149,15 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
           precio,
           tamano,
           disponible: true,
-          imagen: "url",
+          imagen: imagenBase64 || "url",
           marca: marcaCompleta,
           categoria: categoriaCompleta,
           variantes: selectedSabores
         };
-
-        console.log("[DEBUG] Producto nuevo structure:", productoNuevo);
         onSaved?.(productoNuevo);
         onClose?.();
       } catch (e) {
         console.error("[ERROR] handleSubmit error:", e);
-        console.error("[ERROR] Stack:", e.stack);
       }
     }
   };
@@ -186,6 +183,44 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
     return nuevosSabores;
   });
 };
+
+  const handleImagenChange = (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      setImagenBase64("");
+      setImagenNombre("");
+      setImagenError("");
+      return;
+    }
+
+    const esImagenValida = ['image/png', 'image/jpeg'].includes(file.type);
+    if (!esImagenValida) {
+      setImagenBase64("");
+      setImagenNombre("");
+      setImagenError("Solo se permiten archivos PNG o JPG.");
+      event.target.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result || "");
+      const base64Puro = result.includes(',') ? result.split(',')[1] : result;
+
+      setImagenBase64(base64Puro);
+      setImagenNombre(file.name);
+      setImagenError("");
+    };
+    reader.onerror = () => {
+      setImagenBase64("");
+      setImagenNombre("");
+      setImagenError("No se pudo leer la imagen.");
+    };
+
+    reader.readAsDataURL(file);
+  };
+
   return (
     <form id="product-form" onSubmit={handleSubmit} className="w-full max-w-none rounded-2xl border border-emerald-400/20 bg-[#050505] p-8 shadow-[0_0_0_1px_rgba(163,230,53,0.08),0_0_40px_rgba(163,230,53,0.08)]">
       <div className="mb-6 border-b border-gray-700/80 pb-5">
@@ -248,6 +283,31 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
           placeholder="Ej: Grande, Mediano, Pequeño"
           className="mt-1 block w-full rounded-md border border-gray-700 bg-[#0B1220] px-3 py-2 text-sm text-white outline-none transition-colors placeholder:text-gray-600 focus:border-[#CCFF00]"
         />
+      </label>
+
+      <label className="block mb-4">
+        <span className="text-xs text-gray-400 uppercase">Imagen</span>
+        <div className="mt-1 rounded-md border border-dashed border-gray-700 bg-[#0B1220] px-3 py-3 transition-colors focus-within:border-[#CCFF00]">
+          <input
+            name="imagen"
+            type="file"
+            accept="image/png,image/jpeg"
+            onChange={handleImagenChange}
+            className="block w-full text-sm text-gray-300 file:mr-4 file:rounded-md file:border-0 file:bg-[#CCFF00] file:px-3 file:py-2 file:text-sm file:font-black file:text-black hover:file:bg-white"
+          />
+          <div className="mt-2 text-xs text-gray-500">
+            {imagenNombre
+              ? `Archivo seleccionado: ${imagenNombre}`
+              : isEditing && producto?.imagen
+                ? "Usando la imagen actual del producto"
+                : isEditing
+                  ? "PNG o JPG. Si no subís nada, se conserva la imagen actual."
+                  : "PNG o JPG. Si no subís nada, se usará el valor por defecto."}
+          </div>
+          {imagenError && (
+            <p className="mt-2 text-xs font-semibold text-red-400">{imagenError}</p>
+          )}
+        </div>
       </label>
 
       <label className="block mb-4">
