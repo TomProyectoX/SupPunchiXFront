@@ -111,15 +111,15 @@ const Cart = () => {
           {/* RIGHT: summary */}
           <div className="w-full lg:w-[360px]">
             <div className="rounded-2xl border border-[#262626] bg-[#111111] p-5">
-              <h2 className="text-sm uppercase text-gray-400">Order Summary</h2>
+              <h2 className="text-sm uppercase text-gray-400">Resumen de tu arsenal</h2>
               <div className="mt-4 space-y-3 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Subtotal</span>
                   <span>${(subtotal + promo).toLocaleString('es-AR')}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Shipping</span>
-                  <span className="text-[#CCFF00]">Free</span>
+                  <span className="text-gray-400">Envío</span>
+                  <span className="text-[#CCFF00]">Gratis</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Promo</span>
@@ -139,7 +139,7 @@ const Cart = () => {
                     : 'bg-[#CCFF00] text-black hover:bg-white'
                 }`}
               >
-                Proceed to Checkout
+                Proceder al pago
               </button>
             </div>
           </div>

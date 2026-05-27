@@ -25,7 +25,7 @@ export default function AdminSidebar() {
           <li>
             <NavLink to="/admin/products" className={getLinkClass}>
               <span className="w-5 h-5 flex items-center justify-center">▢</span>
-              <span>Products</span>
+              <span>Productos</span>
             </NavLink>
           </li>
 

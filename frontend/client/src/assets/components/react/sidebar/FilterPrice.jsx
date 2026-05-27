@@ -3,7 +3,7 @@ export default function FilterPrice({ priceRange, onPriceChange }) {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-xl font-black uppercase text-[#CCFF00]">
-          Price Range
+          Rango de precio
         </h3>
         <span className="text-white bg-[#141414] border border-[#262626] px-3 py-1 font-bold text-sm tracking-wider">
           ${priceRange}
