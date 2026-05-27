@@ -257,6 +257,36 @@ const Checkout = () => {
     }
   };
 
+const handleDeleteOrderDetail = async (detalle) => {
+  const idDetalleOrden = detalle.idDetalle;
+  const cantidadTotalDetalle = detalle.cantidad;
+  try {
+    const response = await fetchWithAuth(
+      `http://localhost:4002/Ordenes/${idDetalleOrden}`,
+      {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cantidad: cantidadTotalDetalle }),
+      },
+      () => token,
+      navigate
+    );
+
+    if (!response.ok) {
+      const errBody = await response.text().catch(() => null);
+      throw new Error(`Eliminar detalle fallo: ${response.status} ${errBody ?? ''}`);
+    }
+
+    // Actualiza UI localmente: eliminar detalle de `orden` sin volver a pedir toda la orden
+    setOrden((prev) =>
+      prev ? { ...prev, detalles: (prev.detalles || []).filter((d) => d.id !== idDetalleOrden) } : prev
+    );
+  } catch (e) {
+    console.error('[Checkout] delete detail error', e);
+  }
+  console.log('[Checkout] delete detail', { idDetalleOrden, cantidadTotalDetalle });
+};
+
   const resumenOrden = useMemo(() => mapOrdenToResumenItems(orden, cartItems), [orden, cartItems]);
 
   const totalOrden = useMemo(
@@ -340,6 +370,7 @@ const Checkout = () => {
       <OrderSummary
         items={resumenOrden}
         total={totalOrden}
+        onDeleteDetail={handleDeleteOrderDetail}
       />
 
     </div>

@@ -8,7 +8,7 @@ const CartToggleButton = () => {
   const { totalItems } = useCart();
 
   // Páginas donde NO debe aparecer el botón
-  const hiddenRoutes = ['/login', '/register'];
+  const hiddenRoutes = ['/login', '/register', '/checkout'];
   
   // Verificar si la ruta actual comienza con /admin
   const isAdminRoute = location.pathname.startsWith('/admin');

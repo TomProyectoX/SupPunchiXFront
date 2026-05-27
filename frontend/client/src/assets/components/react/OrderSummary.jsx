@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const OrderSummary = ({ items, total }) => {
+const OrderSummary = ({ items, total, onDeleteDetail }) => {
 
   useEffect(() => {
     console.log('[OrderSummary] items', items);
@@ -29,10 +29,10 @@ const OrderSummary = ({ items, total }) => {
 
             <div
               key={`${item.idDetalle ?? item.idProducto}-${item.idSabor ?? 0}`}
-              className="flex items-center justify-between border-b border-[#262626] pb-3"
+              className="flex items-start justify-between gap-4 border-b border-[#262626] pb-3"
             >
 
-              <div>
+              <div className="min-w-0">
 
                 <p className="text-xs uppercase text-gray-400">
                   {item.sabor || 'Sabor'}
@@ -42,9 +42,19 @@ const OrderSummary = ({ items, total }) => {
                   {item.nombre || 'Producto'}
                 </p>
 
-                <p className="text-xs text-gray-500">
-                  Cantidad: {item.cantidad || 0}
-                </p>
+                <div className="flex items-center gap-3 mt-1">
+                  <p className="text-xs text-gray-500">
+                    Cantidad: {item.cantidad || 0}
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => onDeleteDetail?.(item)}
+                    className="text-[10px] uppercase font-black tracking-wide text-red-400 hover:text-red-300 transition"
+                  >
+                    Eliminar detalle
+                  </button>
+                </div>
 
               </div>
 
