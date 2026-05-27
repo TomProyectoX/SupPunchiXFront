@@ -51,6 +51,13 @@ export default function AdminSidebar() {
               <span>Customers</span>
             </div>
           </li>
+          {/* Promos */}
+          <li>
+            <NavLink to="/admin/promos" className={getLinkClass}>
+              <span className="w-5 h-5 flex items-center justify-center">%</span>
+              <span>Promos</span>
+            </NavLink>
+          </li>
 
           {/* Settings */}
           <li>

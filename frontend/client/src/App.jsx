@@ -16,6 +16,7 @@ import Checkout from './pages/Checkout.jsx';
 import ProductDetails from './pages/ProductDetails.jsx';
 import ConditionalCartWidget from './assets/components/react/ConditionalCartWidget.jsx';
 import CartToggleButton from './assets/components/react/CartToggleButton.jsx';
+import Promos from './pages/admin/Promos.jsx';
 
 function App() {
   return (
@@ -40,6 +41,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <ProductList />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/promos" 
+                element={
+                  <ProtectedRoute>
+                    <Promos />
                   </ProtectedRoute>
                 } 
               />
