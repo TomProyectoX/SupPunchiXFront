@@ -111,7 +111,7 @@ export const CartProvider = ({ children }) => {
           stock: item.stock ?? null,
         },
         cantidad: body.cantidad ?? item.cantidad ?? 1,
-        precio: body.precio ?? item.precio ?? 0,
+        precio: item.precio ?? 0,
       });
 
       setCartItems((prev) => {
@@ -124,7 +124,7 @@ export const CartProvider = ({ children }) => {
               ? {
                   ...p,
                   ...normalized,
-                  cantidad: (p.cantidad || 0) + (normalized.cantidad || 1),
+                  cantidad: normalized.cantidad,
                 }
               : p
           );
