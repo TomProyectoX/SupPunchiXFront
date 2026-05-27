@@ -1,4 +1,35 @@
+import { fetchWithAuth } from "../../../utils/fetchWithAuth";
+import { useAuth } from "../../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+
+
 const CheckoutPayment = ({ orden, onBack }) => {
+  const { token } = useAuth();
+  const navigate = useNavigate();
+  
+
+  const handleonclick =  async () => {
+
+
+    const payload = {
+      ordenId: orden.id,
+      estado: "APROBADO",
+      metodoPago: "TARJETA"
+    };
+    try{
+     console.log('Payload para pago:', payload);
+    const response = fetchWithAuth('http://localhost:4002/pagos', {method: 'POST', 
+      body: JSON.stringify(payload)}, () => token, navigate);
+      const data = await response.json();
+    if (!response.ok) {
+      throw new Error('Error procesando pago');
+    }
+    } catch (e){
+      console.error('Error procesando pago:', e);
+    }
+  }
+
+
   return (
     <div className="rounded-3xl border border-[#262626] bg-[#111111] p-8">
       
@@ -80,7 +111,7 @@ const CheckoutPayment = ({ orden, onBack }) => {
 
           <button
             className="w-full bg-[#CCFF00] text-black font-black uppercase rounded-2xl py-5 mt-4 hover:scale-[1.01] transition"
-          >
+             onClick={handleonclick}> 
             Confirmar pago
           </button>
 
