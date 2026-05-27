@@ -1,12 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../hooks/useCart';
-
-const recommendations = [
-  { id: 'rec-1', name: 'Titan Shaker 700ml', price: 199.99, tag: 'Essential' },
-  { id: 'rec-2', name: 'Elite Lifting Straps', price: 44.99, tag: 'Grip' },
-  { id: 'rec-3', name: 'Pro Leather Belt', price: 64.99, tag: 'Support' },
-  { id: 'rec-4', name: 'Neoprene Knee Sleeves', price: 49.99, tag: 'Recovery' },
-];
+import FeaturedProducts from '../assets/components/react/FeaturedProducts';
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -29,17 +23,34 @@ const Cart = () => {
   };
 
   const shipping = subtotal > 0 ? 0 : 0;
-  const promo = subtotal > 0 ? 15 : 0;
-  const total = Math.max(subtotal - promo + shipping, 0);
+  
+  const calcularPromoTotal = () => {
+    return cartItems.reduce((total, item) => {
+      if (item.descuento && item.descuento > 0) {
+        const descuentoItem = (item.precioOriginal * (item.descuento / 100)) * item.cantidad;
+        return total + descuentoItem;
+      }
+      return total;
+    }, 0);
+  };
+  
+  const promo = calcularPromoTotal();
+  const total = Math.max(subtotal + shipping, 0);
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white pt-28 px-6 pb-16">
       <div className="max-w-[1400px] mx-auto">
+        <button
+          onClick={() => navigate('/home')}
+          className="mb-8 font-black uppercase py-2 px-4 rounded-lg border-2 border-[#CCFF00] text-[#CCFF00] hover:bg-[#CCFF00] hover:text-black transition-colors"
+        >
+          ← Volver
+        </button>
         <div className="flex flex-col lg:flex-row gap-8">
           {/* LEFT: cart items */}
           <div className="flex-1">
             <div className="flex items-baseline gap-3">
-              <h1 className="text-4xl md:text-5xl font-black uppercase">Your Arsenal</h1>
+              <h1 className="text-4xl md:text-5xl font-black uppercase">Tu arsenal</h1>
               <span className="text-gray-500 text-sm">({cartItems.length})</span>
             </div>
 
@@ -104,7 +115,7 @@ const Cart = () => {
               <div className="mt-4 space-y-3 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Subtotal</span>
-                  <span>${subtotal.toLocaleString('es-AR')}</span>
+                  <span>${(subtotal + promo).toLocaleString('es-AR')}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Shipping</span>
@@ -134,26 +145,9 @@ const Cart = () => {
           </div>
         </div>
 
-        {/* Recommendations */}
+        {/* Featured Products */}
         <div className="mt-12">
-          <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-black uppercase">Don't forget these</h2>
-            <span className="text-xs text-[#CCFF00] uppercase">(add to your order)</span>
-          </div>
-
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {recommendations.map((item) => (
-              <div key={item.id} className="rounded-2xl border border-[#262626] bg-[#111111] p-4">
-                <span className="text-[10px] uppercase text-[#CCFF00]">{item.tag}</span>
-                <div className="mt-3 h-28 w-full bg-[#141414] border border-[#262626]" />
-                <h3 className="mt-4 text-sm font-black uppercase">{item.name}</h3>
-                <p className="text-sm text-[#CCFF00] font-bold mt-2">${item.price}</p>
-                <button className="mt-4 w-full border border-[#262626] text-xs uppercase py-2 hover:border-[#CCFF00] transition-colors">
-                  Add
-                </button>
-              </div>
-            ))}
-          </div>
+          <FeaturedProducts />
         </div>
       </div>
     </div>

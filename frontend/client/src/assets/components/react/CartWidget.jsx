@@ -28,8 +28,7 @@ const CartWidget = () => {
     }
   };
 
-  const shipping = subtotal > 5000 ? 0 : 500;
-  const total = subtotal + shipping;
+  const total = subtotal;
 
   return (
     <>
@@ -143,12 +142,6 @@ const CartWidget = () => {
               <div className="flex items-center justify-between text-xs text-gray-400 font-bold uppercase">
                 <span>Subtotal</span>
                 <span className="text-[#CCFF00]">${subtotal.toLocaleString('es-AR')}</span>
-              </div>
-              <div className="flex items-center justify-between text-xs text-gray-400 font-bold uppercase">
-                <span>Envío {subtotal > 5000 ? '(Gratis)' : ''}</span>
-                <span className={shipping === 0 ? 'text-green-400' : 'text-[#CCFF00]'}>
-                  ${shipping.toLocaleString('es-AR')}
-                </span>
               </div>
               <div className="border-t border-[#262626] pt-2 mt-2 flex items-center justify-between">
                 <span className="text-sm font-black uppercase text-white">Total</span>

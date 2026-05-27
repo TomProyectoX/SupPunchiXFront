@@ -17,7 +17,7 @@ const Hero = () => {
       </div>
 
       {/* Contenido Principal - Centrado verticalmente gracias al flex del padre */}
-      <div className="relative z-10 max-w-3xl text-left">
+      <div className="relative z-10 max-w-3xl mx-auto text-center">
         
         <span className="inline-block px-3 py-1 bg-[#CCFF00] text-black text-[10px] font-black uppercase mt-10">
           Nuevos Ingresos
@@ -28,11 +28,11 @@ const Hero = () => {
           <span className="text-[#CCFF00] italic">Limites</span>
         </h1>
 
-        <p className="text-gray-400 text-base md:text-lg max-w-md font-medium leading-relaxed mb-8">
+        <p className="text-gray-400 text-base md:text-lg max-w-md mx-auto font-medium leading-relaxed mb-8">
           La ciencia aplicada al máximo rendimiento. Descubrí los suplementos importados que están cambiando el juego.
         </p>
 
-        <div className="flex gap-4">
+        <div className="flex gap-4 justify-center">
           <Link to="/shop">
             <button className="bg-[#CCFF00] text-black px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-white transition-all duration-300">
               Ver Productos

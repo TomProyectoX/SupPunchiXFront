@@ -25,6 +25,8 @@ const normalizeCartItem = (item) => {
     idSabor: item.productoVariante?.sabor?.idSabor ?? null,
     cantidad: item.cantidad ?? 0,
     precio: precioFinal,
+    precioOriginal: item.precio ?? producto?.precio ?? 0,
+    descuento: producto?.promo?.discount ?? 0,
     sabor: item.productoVariante?.sabor?.nombre ?? '',
     stock: item.productoVariante?.stock ?? null,
   };

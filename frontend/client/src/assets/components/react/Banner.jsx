@@ -8,11 +8,11 @@ const Banner = () => {
 
         <div className="flex items-center gap-10 text-black font-black text-3xl uppercase px-10">
 
-          <span>20% OFF EN TODOS LOS SUPLEMENTOS</span>
+          <span> 15% OFF EN PRODUCTOS SELECCIONADOS</span>
 
           <span>⚡</span>
 
-          <span>CÓDIGO: SP2018</span>
+          <span>CÓDIGO: SB91218</span>
 
           <span>⚡</span>
 
@@ -24,11 +24,11 @@ const Banner = () => {
 
         <div className="flex items-center gap-10 text-black font-black text-3xl uppercase px-10">
 
-          <span>20% OFF EN TODOS LOS SUPLEMENTOS</span>
+          <span> 15% OFF EN PRODUCTOS SELECCIONADOS</span>
 
           <span>⚡</span>
 
-          <span>CÓDIGO: SP2018</span>
+          <span>CÓDIGO: SB91218</span>
 
           <span>⚡</span>
 
