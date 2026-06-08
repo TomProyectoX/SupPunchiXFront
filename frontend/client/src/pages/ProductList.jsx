@@ -1,3 +1,5 @@
+import { useDispatch, useSelector } from 'react-redux'
+import { setProductos } from '../redux/slices/productSlice'
 import { useEffect, useState, useMemo } from "react"
 import Sidebar from "../assets/components/react/sidebar/Sidebar"
 import ProductoCard from "../assets/components/react/ProductoCard"
@@ -7,7 +9,12 @@ import { useSearchParams } from "react-router-dom"
 
 export default function ProductList() {
 
-  const [productos, setProductos] = useState([])
+  const dispatch = useDispatch()
+
+  const productos = useSelector(
+    state => state.products.productos
+  )
+
   const [productosFiltrados, setProductosFiltrados] = useState([])
   const [selectedBrands, setSelectedBrands] = useState([])
   const [selectedCategories, setSelectedCategories] = useState([])
@@ -61,7 +68,7 @@ export default function ProductList() {
           }
         }
 
-        setProductos(productosArray)
+        dispatch(setProductos(productosArray))
         setProductosFiltrados(initialFiltered)
 
       })
@@ -70,7 +77,7 @@ export default function ProductList() {
 
         console.error("Error al cargar productos", error)
 
-        setProductos([])
+        dispatch(setProductos([]))
         setProductosFiltrados([])
 
       })
