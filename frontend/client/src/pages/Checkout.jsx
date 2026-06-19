@@ -1,11 +1,9 @@
-// Checkout.jsx
-
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useCart } from '../hooks/useCart';
 import CheckoutAddressForm from '../assets/components/react/CheckoutAddressForm';
 import CheckoutPayment from '../assets/components/react/CheckoutPayment';
 import OrderSummary from '../assets/components/react/OrderSummary';
-import { useAuth } from "../hooks/useAuth";
+import { useSelector } from "react-redux";
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 import { useNavigate } from "react-router-dom";
 
@@ -64,7 +62,7 @@ const mapOrdenToResumenItems = (orden, cartItems = []) =>
 const Checkout = () => {
 
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { token } = useSelector((state) => state.auth);
   const { cartItems } = useCart();
   const lastSyncedCartSignatureRef = useRef('');
 

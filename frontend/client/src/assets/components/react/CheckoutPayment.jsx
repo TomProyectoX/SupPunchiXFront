@@ -1,10 +1,11 @@
 import { fetchWithAuth } from "../../../utils/fetchWithAuth";
-import { useAuth } from "../../../hooks/useAuth";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 
 const CheckoutPayment = ({ orden, onBack }) => {
-  const { token } = useAuth();
+  
+  const { token } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   
 
@@ -18,7 +19,7 @@ const CheckoutPayment = ({ orden, onBack }) => {
     };
     try{
      console.log('Payload para pago:', payload);
-    const response = fetchWithAuth('http://localhost:4002/pagos', {method: 'POST', 
+    const response = await fetchWithAuth('http://localhost:4002/pagos', {method: 'POST', 
       body: JSON.stringify(payload)}, () => token, navigate);
       const data = await response.json();
     if (!response.ok) {

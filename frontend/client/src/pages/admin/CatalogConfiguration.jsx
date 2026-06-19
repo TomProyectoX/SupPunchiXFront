@@ -1,16 +1,16 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState,} from "react";
 import { useNavigate } from "react-router-dom";
 import AdminSidebar from "../../assets/components/admin/AdminSidebar";
 import AdminHeader from "../../assets/components/admin/AdminHeader";
 import EntityFormCard from "../../assets/components/admin/EntityFormCard";
-import { AuthContext } from "../../contexts/AuthContext";
+import { useSelector } from "react-redux";
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
 
 export default function CatalogConfiguration() {
   const [categorias, setCategorias] = useState([]);
   const [marcas, setMarcas] = useState([]);
   const [sabores, setSabores] = useState([]);
-  const { token } = useContext(AuthContext);
+  const { token } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
   useEffect(() => {

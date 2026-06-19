@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { useAuth } from "../hooks/useAuth"
+import { useSelector } from "react-redux"
 import { useCart } from "../hooks/useCart"
 import { useCartWidget } from "../hooks/useCartWidget"
 import { fetchWithAuth } from "../utils/fetchWithAuth"
@@ -43,7 +43,7 @@ const ProductDetails = () => {
 
   const { id } = useParams()
   const navigate = useNavigate()
-  const { token } = useAuth()
+  const { token } = useSelector((state) => state.auth)
   const { addItem } = useCart()
   const { openCart } = useCartWidget()
 
