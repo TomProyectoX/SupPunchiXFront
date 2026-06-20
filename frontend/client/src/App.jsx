@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from './contexts/CartProvider';
 import { CartWidgetProvider } from './contexts/CartWidgetContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { AdminRoute } from './components/AdminRoute';
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Home from "./pages/Home.jsx";
@@ -23,57 +24,15 @@ function App() {
       <CartProvider>
         <CartWidgetProvider>
           <Routes>
+            {}
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route 
-              path="/home" 
-              element={
-                <ProtectedRoute>
-                  <Home />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/shop" 
-              element={
-                <ProtectedRoute>
-                  <ProductList />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/promos" 
-              element={
-                <ProtectedRoute>
-                  <Promos />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/products" 
-              element={
-                <ProtectedRoute>
-                  <Products />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/inventory" 
-              element={
-                <ProtectedRoute>
-                  <AdminProducts />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/catalog" 
-              element={
-                <ProtectedRoute>
-                  <CatalogConfiguration />
-                </ProtectedRoute>
-              } 
-            />
+            <Route path="/home" element={<Home />} />
+            <Route path="/shop" element={<ProductList />} />
+            <Route path="/product/:id" element={<ProductDetails />} />
+
+            {}
             <Route 
               path="/cart" 
               element={
@@ -90,13 +49,39 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/product/:id"
+
+            {}
+            <Route 
+              path="/admin/promos" 
               element={
-                <ProtectedRoute>
-                  <ProductDetails />
-                </ProtectedRoute>
-              }
+                <AdminRoute>
+                  <Promos />
+                </AdminRoute>
+              } 
+            />
+            <Route 
+              path="/admin/products" 
+              element={
+                <AdminRoute>
+                  <Products />
+                </AdminRoute>
+              } 
+            />
+            <Route 
+              path="/admin/inventory" 
+              element={
+                <AdminRoute>
+                  <AdminProducts />
+                </AdminRoute>
+              } 
+            />
+            <Route 
+              path="/admin/catalog" 
+              element={
+                <AdminRoute>
+                  <CatalogConfiguration />
+                </AdminRoute>
+              } 
             />
           </Routes>
           <ConditionalCartWidget />

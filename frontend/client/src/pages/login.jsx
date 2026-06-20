@@ -3,7 +3,7 @@ import InputField from '../assets/components/react/InputField';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginUser } from '../Redux/slices/authSlice';
+import { loginUser, fetchCurrentUser } from '../Redux/slices/authSlice';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -29,6 +29,7 @@ function Login() {
   const handleLogin = async () => {
     const result = await dispatch(loginUser({ email, password }));
     if (loginUser.fulfilled.match(result)) {
+      await dispatch(fetchCurrentUser(result.payload.access_token));
       navigate('/home');
     }
   };
