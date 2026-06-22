@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useSelector } from 'react-redux';
 import { fetchWithAuth } from '../utils/fetchWithAuth';
 import CartContext from './CartContext';
 
@@ -36,7 +36,7 @@ export const CartProvider = ({ children }) => {
 
   const [cartItems, setCartItems] = useState([]);
 
-  const { token } = useAuth();
+  const { token } = useSelector((state) => state.auth);
 
   const navigate = useNavigate();
 

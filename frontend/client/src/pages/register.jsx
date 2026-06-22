@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import './Register.css';
 import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import InputField from '../assets/components/react/InputField';
+import { registerUser } from '../Redux/slices/authSlice';
 
 function Register() {
   const [firstName, setFirstName] = useState('');
@@ -10,7 +12,8 @@ function Register() {
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  const role = "USER";
+  const dispatch = useDispatch();
+  const { error } = useSelector((state) => state.auth);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,7 +23,7 @@ function Register() {
     if (!email) {
       setEmailError('El correo es obligatorio');
       return;
-    }
+    } 
 
     const emailRegex = /^\S+@\S+\.\S+$/;
     if (!emailRegex.test(email)) {
@@ -33,26 +36,7 @@ function Register() {
       return;
     }
 
-    try {
-      const response = await fetch('http://localhost:4002/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName,
-          lastName,
-          email,
-          password,
-          role,
-        }),
-      });
-
-      const data = await response.json();
-      console.log(data);
-    } catch (error) {
-      console.error(error);
-    }
+    dispatch(registerUser({ firstName, lastName, email, password }));
   };
 
   // Forzamos de forma limpia la tipografía que usás en 'main-title' desde tu Register.css
@@ -146,7 +130,7 @@ function Register() {
                     placeholder="ACTIVE@ATHLETE.COM"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    error={emailError}
+                    error={emailError || error}
                   />
                 </div>
 

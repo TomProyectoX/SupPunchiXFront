@@ -1,3 +1,5 @@
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProductos } from "../redux/slices/productSlice";
 import { useEffect, useState, useMemo } from "react"
 import Sidebar from "../assets/components/react/sidebar/Sidebar"
 import ProductoCard from "../assets/components/react/ProductoCard"
@@ -7,7 +9,11 @@ import { useSearchParams } from "react-router-dom"
 
 export default function ProductList() {
 
-  const [productos, setProductos] = useState([])
+  const dispatch = useDispatch();
+
+  const productos = useSelector(
+    (state) => state.products.productos
+  )
   const [productosFiltrados, setProductosFiltrados] = useState([])
   const [selectedBrands, setSelectedBrands] = useState([])
   const [selectedCategories, setSelectedCategories] = useState([])
@@ -18,64 +24,62 @@ export default function ProductList() {
   const brandFilter = searchParams.get("brand") || ""
   const categoryFilter = searchParams.get("category") || ""
 
-  const URL = "http://localhost:4002/productos"
-
+  useEffect(() => {
+    dispatch(fetchProductos());
+  }, [dispatch]);
+  
   useEffect(() => {
 
-    fetch(URL)
+  let initialFiltered = productos
 
-      .then((response) => response.json())
+  if (brandFilter) {
 
-      .then((data) => {
+    initialFiltered = initialFiltered.filter((producto) => {
+      const marcaNombre = String(
+        producto.marca?.nombre ||
+        producto.marca ||
+        ""
+      ).toLowerCase()
 
-        console.log("PRODUCTOS:", data)
+      return marcaNombre === brandFilter.toLowerCase()
+    })
 
-        const productosArray = Array.isArray(data) ? data : []
-        let initialFiltered = productosArray
+    const matchingBrandIds = initialFiltered
+      .map((producto) => producto.marca?.idMarca || producto.marca?.id || null)
+      .filter(Boolean)
 
-        if (brandFilter) {
-          initialFiltered = initialFiltered.filter((producto) => {
-            const marcaNombre = String(producto.marca?.nombre || producto.marca || "").toLowerCase()
-            return marcaNombre === brandFilter.toLowerCase()
-          })
-          const matchingBrandIds = initialFiltered
-            .map((producto) => producto.marca?.idMarca || producto.marca?.id || null)
-            .filter(Boolean)
+    if (matchingBrandIds.length > 0) {
+      setSelectedBrands(Array.from(new Set(matchingBrandIds)))
+    }
 
-          if (matchingBrandIds.length > 0) {
-            setSelectedBrands(Array.from(new Set(matchingBrandIds)))
-          }
-        }
+  }
 
-        if (categoryFilter) {
-          initialFiltered = initialFiltered.filter((producto) => {
-            const categoriaNombre = String(producto.categoria?.description || producto.categoria?.nombre || producto.categoria || "").toLowerCase()
-            return categoriaNombre === categoryFilter.toLowerCase()
-          })
-          const matchingCategoryIds = initialFiltered
-            .map((producto) => producto.categoria?.id || producto.categoria?.idCategoria || null)
-            .filter(Boolean)
+  if (categoryFilter) {
 
-          if (matchingCategoryIds.length > 0) {
-            setSelectedCategories(Array.from(new Set(matchingCategoryIds)))
-          }
-        }
+    initialFiltered = initialFiltered.filter((producto) => {
+      const categoriaNombre = String(
+        producto.categoria?.description ||
+        producto.categoria?.nombre ||
+        producto.categoria ||
+        ""
+      ).toLowerCase()
 
-        setProductos(productosArray)
-        setProductosFiltrados(initialFiltered)
+      return categoriaNombre === categoryFilter.toLowerCase()
+    })
 
-      })
+    const matchingCategoryIds = initialFiltered
+      .map((producto) => producto.categoria?.id || producto.categoria?.idCategoria || null)
+      .filter(Boolean)
 
-      .catch((error) => {
+    if (matchingCategoryIds.length > 0) {
+      setSelectedCategories(Array.from(new Set(matchingCategoryIds)))
+    }
 
-        console.error("Error al cargar productos", error)
+  }
 
-        setProductos([])
-        setProductosFiltrados([])
+  setProductosFiltrados(initialFiltered)
 
-      })
-
-  }, [brandFilter, categoryFilter])
+}, [productos, brandFilter, categoryFilter])
 
   const handleFilteredProductos = (filtrados) => {
 

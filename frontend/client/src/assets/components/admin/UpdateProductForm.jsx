@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../../hooks/useAuth";
+import { useSelector } from "react-redux";
 import { fetchWithAuth } from "../../../utils/fetchWithAuth";
 
 export default function UpdateProductForm({ producto, marcas, categorias, sabores: saboresProp, onSaved, onClose }) {
   const isEditing = !!producto;
-  const { token } = useAuth();
+  const { token } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   
   const [nombre, setNombre] = useState("");

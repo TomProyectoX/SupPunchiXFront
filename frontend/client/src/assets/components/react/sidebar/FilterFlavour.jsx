@@ -1,31 +1,19 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchSabores } from "../../../../redux/slices/flavourSlice";
 
 export default function FilterFlavour({ selectedFlavours, onFlavourChange }) {
-  const [sabores, setSabores] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const { sabores, loading } = useSelector((state) => state.flavours);
 
-  // Fetch sabores desde la BD
   useEffect(() => {
-    const getSabores = async () => {
-      try {
-        const res = await fetch("http://localhost:4002/sabores"); // Ajusta tu endpoint
-        const data = await res.json();
-        setSabores(data); // Guardamos el array de sabores
-      } catch (error) {
-        console.error("Error fetching sabores:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    dispatch(fetchSabores());
+  }, [dispatch]);
 
-    getSabores();
-  }, []);
-
-  // Manejar cambios en checkboxes
   const handleChange = (saborId) => {
     const newSelected = selectedFlavours.includes(saborId)
-      ? selectedFlavours.filter((id) => id !== saborId) // Si ya está, lo quitamos
-      : [...selectedFlavours, saborId]; // Si no está, lo añadimos
+      ? selectedFlavours.filter((id) => id !== saborId)
+      : [...selectedFlavours, saborId];
 
     onFlavourChange(newSelected);
     console.log("Sabores seleccionados:", newSelected);

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
+import { useSelector } from "react-redux";  
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
 import AdminSidebar from "../../assets/components/admin/AdminSidebar";
 import AdminHeader from "../../assets/components/admin/AdminHeader";
@@ -11,7 +11,7 @@ import InventoryTable from "../../assets/components/admin/InventoryTable";
 export default function AdminProducts() {
 
     const [productos, setProductos] = useState([])
-    const { token } = useAuth();
+    const { token } = useSelector((state) => state.auth);
     const navigate = useNavigate();
 
     useEffect(() => {
