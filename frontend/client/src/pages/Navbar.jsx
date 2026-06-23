@@ -44,7 +44,16 @@ const Navbar = () => {
 
         {/* DERECHA: Iconos (Carrito primero, luego Login) */}
         <div className="flex justify-end items-center gap-6">
-          {/*Puntos: tiene que solo decir la cantidad de puntos */}
+          {/*Puntos */}
+          <div className="text-white text-xs uppercase font-black tracking-widest">
+            {token ? (
+              <span>
+                Puntos: {useSelector((state) => state.cupones.puntos)}
+              </span>
+            ) : (
+              <span>Inicia sesión para ver tus puntos</span>
+            )}
+          </div>
 
           {/* Carrito */}
           <NavLink to="/cart" className="text-white hover:text-[#CCFF00] transition-colors relative">

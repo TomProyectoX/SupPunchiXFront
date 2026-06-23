@@ -1,19 +1,13 @@
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { crearCupon } from "../../Redux/slices/cuponSlice";
-
-const AdminCuponForm = () => {
-  const dispatch = useDispatch();
-  const { crearLoading, crearError } = useSelector((state) => state.cupones);
-
-  const [formData, setFormData] = useState({
-    nombre: "",
-    descripcion: "",
-    costoPuntos: "",
-  });
-
-  const [enviado, setEnviado] = useState(false);
-
+export default function AdminCuponForm({
+  editingCuponId,
+  formData,
+  setFormData,
+  onSubmit,
+  onCancel,
+  loading,
+  error,
+  exito,
+}) {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -22,136 +16,97 @@ const AdminCuponForm = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!formData.nombre.trim()) {
-      alert("El nombre del cupón es requerido");
-      return;
-    }
-
-    if (!formData.descripcion.trim()) {
-      alert("La descripción es requerida");
-      return;
-    }
-
-    if (!formData.costoPuntos || formData.costoPuntos <= 0) {
-      alert("El costo en puntos debe ser mayor a 0");
-      return;
-    }
-
-    try {
-      await dispatch(crearCupon(formData)).unwrap();
-      setEnviado(true);
-      setFormData({
-        nombre: "",
-        descripcion: "",
-        costoPuntos: "",
-      });
-
-      // Limpiar mensaje de éxito después de 3 segundos
-      setTimeout(() => setEnviado(false), 3000);
-    } catch (error) {
-      console.error("Error al crear cupón:", error);
-    }
-  };
-
   return (
-    <div className="bg-[#141414] border border-[#262626] rounded-lg p-8 max-w-2xl w-full">
-      <h2 className="font-headline-md text-2xl text-white uppercase mb-6">
-        Crear Nuevo Cupón
-      </h2>
+    <form
+      onSubmit={(e) => { e.preventDefault(); onSubmit(); }}
+      className="rounded-2xl border border-gray-700 bg-[#111111] p-6"
+    >
+      <div className="mb-8">
+        <h1 className="text-3xl font-black">
+          {editingCuponId ? "Editar Cupón" : "Crear Cupón"}
+        </h1>
+        <p className="text-gray-400 mt-2">
+          Completá los datos del cupón de recompensa.
+        </p>
+      </div>
 
-      {enviado && (
-        <div className="mb-6 p-4 bg-[#CCFF00]/20 border border-[#CCFF00] rounded-lg">
-          <p className="text-[#CCFF00] font-label-bold">
-            ✅ Cupón creado exitosamente
+      {exito && (
+        <div className="mb-6 rounded-lg bg-[#CCFF00]/10 border border-[#CCFF00] px-4 py-3">
+          <p className="text-[#CCFF00] font-bold">
+            ✅ Cupón {editingCuponId ? "actualizado" : "creado"} exitosamente
           </p>
         </div>
       )}
 
-      {crearError && (
-        <div className="mb-6 p-4 bg-error/20 border border-error rounded-lg">
-          <p className="text-error font-label-bold">
-            ❌ Error: {crearError}
-          </p>
+      {error && (
+        <div className="mb-6 rounded-lg bg-red-500/10 border border-red-500 px-4 py-3">
+          <p className="text-red-400 font-bold">❌ {error}</p>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Nombre */}
+      <div className="grid grid-cols-2 gap-6 mb-6">
         <div>
-          <label htmlFor="nombre" className="block font-label-bold text-sm text-on-surface-variant uppercase mb-2">
-            Nombre del Cupón *
-          </label>
+          <label className="block mb-2 text-sm font-bold">Nombre</label>
           <input
             type="text"
-            id="nombre"
             name="nombre"
             value={formData.nombre}
             onChange={handleChange}
             placeholder="Ej: Pase diario gratis"
-            className="w-full bg-[#0A0A0A] border border-[#262626] text-white px-4 py-3 focus:outline-none focus:border-[#CCFF00] transition-colors"
+            className="w-full rounded-lg bg-black border border-gray-700 px-4 py-3 outline-none focus:border-[#CCFF00] transition-colors"
+            required
           />
         </div>
 
-        {/* Descripción */}
         <div>
-          <label htmlFor="descripcion" className="block font-label-bold text-sm text-on-surface-variant uppercase mb-2">
-            Descripción *
-          </label>
-          <textarea
-            id="descripcion"
-            name="descripcion"
-            value={formData.descripcion}
-            onChange={handleChange}
-            placeholder="Ej: Válido para todas las sucursales"
-            rows="4"
-            className="w-full bg-[#0A0A0A] border border-[#262626] text-white px-4 py-3 focus:outline-none focus:border-[#CCFF00] transition-colors resize-none"
-          />
-        </div>
-
-        {/* Costo en Puntos */}
-        <div>
-          <label htmlFor="costoPuntos" className="block font-label-bold text-sm text-on-surface-variant uppercase mb-2">
-            Costo en Puntos *
-          </label>
+          <label className="block mb-2 text-sm font-bold">Costo en Puntos</label>
           <input
             type="number"
-            id="costoPuntos"
             name="costoPuntos"
             value={formData.costoPuntos}
             onChange={handleChange}
             placeholder="Ej: 100"
             min="1"
-            className="w-full bg-[#0A0A0A] border border-[#262626] text-white px-4 py-3 focus:outline-none focus:border-[#CCFF00] transition-colors"
+            className="w-full rounded-lg bg-black border border-gray-700 px-4 py-3 outline-none focus:border-[#CCFF00] transition-colors"
+            required
           />
         </div>
+      </div>
 
-        {/* Botones */}
-        <div className="flex gap-4 pt-6">
-          <button
-            type="submit"
-            disabled={crearLoading}
-            className="flex-1 bg-[#CCFF00] hover:bg-[#b8e600] text-[#0A0A0A] font-label-bold text-label-bold px-6 py-3 uppercase transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {crearLoading ? "CREANDO..." : "CREAR CUPÓN"}
-          </button>
-          <button
-            type="reset"
-            onClick={() => setFormData({ nombre: "", descripcion: "", costoPuntos: "" })}
-            className="flex-1 border-2 border-[#262626] text-white font-label-bold text-label-bold px-6 py-3 uppercase transition-all hover:border-[#CCFF00]"
-          >
-            LIMPIAR
-          </button>
-        </div>
-      </form>
+      <div className="mb-6">
+        <label className="block mb-2 text-sm font-bold">Descripción</label>
+        <textarea
+          name="descripcion"
+          value={formData.descripcion}
+          onChange={handleChange}
+          placeholder="Ej: Válido para todas las sucursales"
+          rows="3"
+          className="w-full rounded-lg bg-black border border-gray-700 px-4 py-3 outline-none focus:border-[#CCFF00] transition-colors resize-none"
+          required
+        />
+      </div>
 
-      <p className="text-on-surface-variant text-sm mt-6">
-        * Campos requeridos
-      </p>
-    </div>
+      <div className="flex gap-4">
+        <button
+          type="submit"
+          disabled={loading}
+          className="mt-2 rounded-lg bg-[#CCFF00] px-6 py-3 font-black text-black disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading
+            ? editingCuponId ? "Guardando..." : "Creando..."
+            : editingCuponId ? "Guardar Cambios" : "Crear Cupón"}
+        </button>
+
+        {editingCuponId && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="mt-2 rounded-lg bg-gray-700 px-6 py-3 font-black"
+          >
+            Cancelar
+          </button>
+        )}
+      </div>
+    </form>
   );
-};
-
-export default AdminCuponForm;
+}

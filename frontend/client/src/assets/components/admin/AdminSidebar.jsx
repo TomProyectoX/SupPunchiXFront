@@ -46,6 +46,14 @@ export default function AdminSidebar() {
             </NavLink>
           </li>
 
+          {/* Cupones */}
+          <li>
+            <NavLink to="/admin/cupones" className={getLinkClass}>
+              <span className="w-5 h-5 flex items-center justify-center">🎫</span>
+              <span>Cupones</span>
+            </NavLink>
+          </li>
+
 
         </ul>
       </nav>

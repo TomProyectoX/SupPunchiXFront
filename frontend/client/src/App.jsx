@@ -18,6 +18,7 @@ import ConditionalCartWidget from './assets/components/react/ConditionalCartWidg
 import CartToggleButton from './assets/components/react/CartToggleButton.jsx';
 import Promos from './pages/admin/Promos.jsx';
 import Cupones from './pages/Cupones.jsx';
+import AdminCupones from './pages/admin/AdminCupones.jsx';
 
 function App() {
   return (
@@ -84,6 +85,15 @@ function App() {
                   <CatalogConfiguration />
                 </AdminRoute>
               } 
+            />
+            
+            <Route 
+              path="/admin/cupones" 
+              element={
+                <AdminRoute>
+                  <AdminCupones />
+                </AdminRoute>
+              }
             />
           </Routes>
           <ConditionalCartWidget />
