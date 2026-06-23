@@ -17,6 +17,7 @@ import ProductDetails from './pages/ProductDetails.jsx';
 import ConditionalCartWidget from './assets/components/react/ConditionalCartWidget.jsx';
 import CartToggleButton from './assets/components/react/CartToggleButton.jsx';
 import Promos from './pages/admin/Promos.jsx';
+import Cupones from './pages/Cupones.jsx';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
             <Route path="/home" element={<Home />} />
             <Route path="/shop" element={<ProductList />} />
             <Route path="/product/:id" element={<ProductDetails />} />
+            <Route path="/cupones" element={<Cupones />} />
 
             {}
             <Route 

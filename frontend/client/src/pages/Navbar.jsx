@@ -3,6 +3,7 @@ import SearchBar from "../assets/components/react/SearchBar"
 import { useSelector, useDispatch } from "react-redux"
 import { logout } from "../Redux/slices/authSlice"
 
+
 const Navbar = () => {
   const navigate = useNavigate()
   const { token } = useSelector((state) => state.auth)
@@ -28,6 +29,7 @@ const Navbar = () => {
           <div className="hidden md:flex gap-6">
             <NavLink to="/" className={navStyle}>Inicio</NavLink>
             <NavLink to="/shop" className={navStyle}>Catálogo</NavLink>
+            <NavLink to="/cupones" className={navStyle}>Cupones</NavLink>
           </div>
         </div>
 
@@ -38,9 +40,12 @@ const Navbar = () => {
           </div>
         </div>
 
+        
+
         {/* DERECHA: Iconos (Carrito primero, luego Login) */}
         <div className="flex justify-end items-center gap-6">
-          
+          {/*Puntos: tiene que solo decir la cantidad de puntos */}
+
           {/* Carrito */}
           <NavLink to="/cart" className="text-white hover:text-[#CCFF00] transition-colors relative">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
