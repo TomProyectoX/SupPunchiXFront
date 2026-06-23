@@ -9,6 +9,7 @@ function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { error } = useSelector((state) => state.auth);
@@ -87,9 +88,14 @@ function Login() {
                 noValidate
                 onSubmit={(e) => {
                   e.preventDefault();
-                  if (checkemail()) {
-                    handleLogin();
+                  const validEmail = checkemail();
+                  if (!validEmail) return;
+                  if (!password) {
+                    setPasswordError('La contraseña no puede estar vacía.');
+                    return;
                   }
+                  setPasswordError('');
+                  handleLogin();
                 }}
               >
                 <div className="space-y-2">
@@ -99,7 +105,7 @@ function Login() {
                     placeholder="EMAIL"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    error={emailError || error}
+                    error={emailError}
                   />
                 </div>
 
@@ -110,8 +116,13 @@ function Login() {
                     placeholder="CONTRASEÑA"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    error={passwordError}
                   />
                 </div>
+
+                {error && !emailError && !passwordError && (
+                  <p className="text-red-500 text-sm">{error}</p>
+                )}
 
                 <div className="pt-4 space-y-6">
                   <button

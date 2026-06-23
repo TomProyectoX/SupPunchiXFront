@@ -1,13 +1,15 @@
 import { NavLink, useNavigate } from "react-router-dom"
+import { useState } from "react"
 import SearchBar from "../assets/components/react/SearchBar"
 import { useSelector, useDispatch } from "react-redux"
 import { logout } from "../Redux/slices/authSlice"
 
-
 const Navbar = () => {
   const navigate = useNavigate()
   const { token } = useSelector((state) => state.auth)
+  const puntos = useSelector((state) => state.cupones.puntos)
   const dispatch = useDispatch()
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
 
   const navStyle = ({ isActive }) =>
     isActive
@@ -29,7 +31,9 @@ const Navbar = () => {
           <div className="hidden md:flex gap-6">
             <NavLink to="/" className={navStyle}>Inicio</NavLink>
             <NavLink to="/shop" className={navStyle}>Catálogo</NavLink>
+            {token && <NavLink to="/orders" className={`${navStyle} inline-flex min-w-max whitespace-nowrap`}>Mis pedidos</NavLink>}
             <NavLink to="/cupones" className={navStyle}>Cupones</NavLink>
+
           </div>
         </div>
 
@@ -40,21 +44,19 @@ const Navbar = () => {
           </div>
         </div>
 
-        
-
         {/* DERECHA: Iconos (Carrito primero, luego Login) */}
         <div className="flex justify-end items-center gap-6">
           {/*Puntos */}
           <div className="text-white text-xs uppercase font-black tracking-widest">
             {token ? (
               <span>
-                Puntos: {useSelector((state) => state.cupones.puntos)}
+                Puntos: {puntos}
               </span>
             ) : (
               <span>Inicia sesión para ver tus puntos</span>
             )}
           </div>
-
+          
           {/* Carrito */}
           <NavLink to="/cart" className="text-white hover:text-[#CCFF00] transition-colors relative">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,7 +66,7 @@ const Navbar = () => {
           {/* Login / Logout */}
           {token ? (
             <button
-              onClick={() => dispatch(logout())}
+              onClick={() => setShowLogoutConfirm(true)}
               className="text-white hover:text-[#CCFF00] transition-colors text-xs uppercase font-black tracking-widest"
             >
               Cerrar Sesión
@@ -81,6 +83,36 @@ const Navbar = () => {
         </div>
 
       </div>
+
+      {/** Confirmación de Logout: tiene que redirigir a la home*/}
+
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+          <div className="w-full max-w-md rounded-3xl border border-[#262626] bg-[#111111] p-8 text-center">
+            <div className="mb-6 text-[#CCFF00] text-5xl">⚠</div>
+            <h2 className="text-2xl font-black uppercase text-white mb-3">¿Seguro querés cerrar sesión?</h2>
+            <p className="text-gray-300 mb-8">Si elegís "Sí", se cerrará tu sesión actual.</p>
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={() => {
+                  dispatch(logout())
+                  setShowLogoutConfirm(false)
+                  navigate('/')
+                }}
+                className="px-6 py-3 bg-[#CCFF00] text-black font-black uppercase rounded-2xl hover:bg-white transition"
+              >
+                Sí
+              </button>
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="px-6 py-3 border border-[#CCFF00] text-[#CCFF00] font-black uppercase rounded-2xl hover:bg-[#262626] transition"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   )
 }

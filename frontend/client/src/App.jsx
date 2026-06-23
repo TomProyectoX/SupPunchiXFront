@@ -19,6 +19,7 @@ import CartToggleButton from './assets/components/react/CartToggleButton.jsx';
 import Promos from './pages/admin/Promos.jsx';
 import Cupones from './pages/Cupones.jsx';
 import AdminCupones from './pages/admin/AdminCupones.jsx';
+import OrderHistory from './pages/OrderHistory.jsx';
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
             <Route path="/shop" element={<ProductList />} />
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/cupones" element={<Cupones />} />
+            <Route path="/orders" element={<OrderHistory />} />
 
             {}
             <Route 

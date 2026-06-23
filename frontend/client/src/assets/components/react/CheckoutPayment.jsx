@@ -1,16 +1,19 @@
 import { fetchWithAuth } from "../../../utils/fetchWithAuth";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 
 const CheckoutPayment = ({ orden, onBack }) => {
   
   const { token } = useSelector((state) => state.auth);
   const navigate = useNavigate();
-  
+  const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState(null);
 
   const handleonclick =  async () => {
-
+    setLoading(true);
+    setAlert(null);
 
     const payload = {
       ordenId: orden.id,
@@ -18,21 +21,84 @@ const CheckoutPayment = ({ orden, onBack }) => {
       metodoPago: "TARJETA"
     };
     try{
-     console.log('Payload para pago:', payload);
-    const response = await fetchWithAuth('http://localhost:4002/pagos', {method: 'POST', 
-      body: JSON.stringify(payload)}, () => token, navigate);
+      console.log('Payload para pago:', payload);
+      const response = await fetchWithAuth('http://localhost:4002/pagos', {method: 'POST', 
+        body: JSON.stringify(payload)}, () => token, navigate);
+      
+      if (!response.ok) {
+        throw new Error(`Error HTTP ${response.status}: No pudimos procesar tu pago. Por favor, contacta a soporte.`);
+      }
+
       const data = await response.json();
-    if (!response.ok) {
-      throw new Error('Error procesando pago');
-    }
+
+      setAlert({
+        type: 'success',
+        title: '¡Pago Aprobado!',
+        message: 'Tu pago ha sido procesado exitosamente. ¡Gracias por tu compra!'
+      });
+      
+      setTimeout(() => {
+        navigate('/orders');
+      }, 2000);
+      
     } catch (e){
       console.error('Error procesando pago:', e);
+      setAlert({
+        type: 'error',
+        title: 'Error en el Pago',
+        message: e.message || 'No pudimos procesar tu pago. Por favor, intenta de nuevo.'
+      });
+    } finally {
+      setLoading(false);
     }
   }
 
 
   return (
-    <div className="rounded-3xl border border-[#262626] bg-[#111111] p-8">
+    <div className="rounded-3xl border border-[#262626] bg-[#111111] p-8 relative">
+      
+      {alert && (
+        <div className={`fixed inset-0 flex items-center justify-center z-50 ${alert.type === 'success' ? 'bg-black/50' : 'bg-black/50'}`}>
+          <div className={`rounded-3xl border-2 p-8 max-w-md w-full mx-4 ${
+            alert.type === 'success' 
+              ? 'border-[#CCFF00] bg-[#111111] shadow-lg shadow-[#CCFF00]/20' 
+              : 'border-red-500 bg-[#111111] shadow-lg shadow-red-500/20'
+          }`}>
+            <div className="text-center">
+              {alert.type === 'success' ? (
+                <div className="text-5xl mb-4">✓</div>
+              ) : (
+                <div className="text-5xl mb-4">⚠</div>
+              )}
+              
+              <h2 className={`text-2xl font-black uppercase mb-3 ${
+                alert.type === 'success' ? 'text-[#CCFF00]' : 'text-red-500'
+              }`}>
+                {alert.title}
+              </h2>
+              
+              <p className="text-gray-300 text-sm leading-relaxed">
+                {alert.message}
+              </p>
+
+              {alert.type === 'error' && (
+                <button
+                  onClick={() => setAlert(null)}
+                  className="mt-6 px-8 py-3 border border-[#CCFF00] text-[#CCFF00] rounded-xl font-bold uppercase text-sm hover:bg-[#CCFF00] hover:text-black transition"
+                >
+                  Intentar de nuevo
+                </button>
+              )}
+
+              {alert.type === 'success' && (
+                <p className="text-xs text-gray-400 mt-4">
+                  Redirigiendo en 2 segundos...
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       
       <div className="flex items-center justify-between mb-10">
         <div>
@@ -111,9 +177,15 @@ const CheckoutPayment = ({ orden, onBack }) => {
           </div>
 
           <button
-            className="w-full bg-[#CCFF00] text-black font-black uppercase rounded-2xl py-5 mt-4 hover:scale-[1.01] transition"
-             onClick={handleonclick}> 
-            Confirmar pago
+            disabled={loading}
+            className={`w-full font-black uppercase rounded-2xl py-5 mt-4 transition ${
+              loading 
+                ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
+                : 'bg-[#CCFF00] text-black hover:scale-[1.01]'
+            }`}
+            onClick={handleonclick}
+          > 
+            {loading ? 'Procesando pago...' : 'Confirmar pago'}
           </button>
 
         </div>

@@ -5,14 +5,58 @@ const URL_LOGIN = "http://localhost:4002/auth/authenticate";
 const URL_REGISTER = "http://localhost:4002/auth/register";
 const URL_ME = "http://localhost:4002/auth/me";
 
-export const loginUser = createAsyncThunk("auth/loginUser", async (credenciales) => {
-  const { data } = await axios.post(URL_LOGIN, credenciales);
-  return data;
+const getAuthErrorMessage = (error, defaultMessage, context = 'generic') => {
+  const status = error.response?.status;
+  const responseData = error.response?.data;
+  const backendMessage =
+    responseData?.message ||
+    responseData?.error ||
+    responseData?.msg ||
+    (typeof responseData === 'string' ? responseData : null);
+
+  if (status === 401 || status === 403) {
+    return context === 'login'
+      ? 'Email o contraseña incorrecta, intente de nuevo.'
+      : backendMessage || defaultMessage;
+  }
+
+  if (status === 409) {
+    return backendMessage || 'El email ya está en uso. Por favor elige otro.';
+  }
+
+  if (status === 400) {
+    return backendMessage || defaultMessage;
+  }
+
+  return backendMessage || error.message || defaultMessage;
+};
+
+const normalizeRejectedMessage = (payload, errorMessage, defaultMessage) => {
+  const normalized = payload || errorMessage;
+  if (!normalized || normalized === 'Rejected') {
+    return defaultMessage;
+  }
+  return normalized;
+};
+
+export const loginUser = createAsyncThunk("auth/loginUser", async (credenciales, thunkAPI) => {
+  try {
+    const { data } = await axios.post(URL_LOGIN, credenciales);
+    return data;
+  } catch (error) {
+    const payload = getAuthErrorMessage(error, 'Error al iniciar sesión.', 'login');
+    return thunkAPI.rejectWithValue(payload);
+  }
 });
 
-export const registerUser = createAsyncThunk("auth/registerUser", async (nuevoUsuario) => {
-  const { data } = await axios.post(URL_REGISTER, nuevoUsuario);
-  return data;
+export const registerUser = createAsyncThunk("auth/registerUser", async (nuevoUsuario, thunkAPI) => {
+  try {
+    const { data } = await axios.post(URL_REGISTER, nuevoUsuario);
+    return data;
+  } catch (error) {
+    const payload = getAuthErrorMessage(error, 'Error al registrarse. Revisa los datos e intenta de nuevo.', 'register');
+    return thunkAPI.rejectWithValue(payload);
+  }
 });
 
 export const fetchCurrentUser = createAsyncThunk("auth/fetchCurrentUser", async (token) => {
@@ -48,7 +92,11 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = normalizeRejectedMessage(
+          action.payload,
+          action.error?.message,
+          'Email o contraseña incorrecta, intente de nuevo.'
+        );
       })
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
@@ -59,7 +107,11 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = normalizeRejectedMessage(
+          action.payload,
+          action.error?.message,
+          'Error al registrarse. Revisa los datos e intenta de nuevo.'
+        );
       })
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
         state.role = action.payload.role;

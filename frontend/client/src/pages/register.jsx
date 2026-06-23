@@ -130,9 +130,13 @@ function Register() {
                     placeholder="ACTIVE@ATHLETE.COM"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    error={emailError || error}
+                    error={emailError}
                   />
                 </div>
+
+                {error && !emailError && !passwordError && (
+                  <p className="text-red-500 text-sm">{error}</p>
+                )}
 
                 {/* Password */}
                 <div className="space-y-2">

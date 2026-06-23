@@ -51,9 +51,23 @@ export const fetchWithAuth = async (url, options = {}, getToken, navigate) => {
     }
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+      let errorMessage = `Error en la solicitud: ${response.status}`;
+      const errorData = await response.json().catch(() => null);
+
+      if (errorData) {
+        if (typeof errorData === 'string' && errorData.length > 0) {
+          errorMessage = errorData;
+        } else if (typeof errorData === 'object') {
+          errorMessage =
+            errorData.message ||
+            errorData.error ||
+            errorData.msg ||
+            JSON.stringify(errorData);
+        }
+      }
+
       console.error(`Error HTTP ${response.status}:`, errorData);
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(errorMessage || `HTTP error! status: ${response.status}`);
     }
 
     return response;

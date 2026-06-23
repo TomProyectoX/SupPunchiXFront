@@ -23,41 +23,56 @@ const getSaborIdFromDetalle = (saborValue) => {
   return saborValue;
 };
 
-const mapOrdenToResumenItems = (orden, cartItems = []) =>
-  Array.isArray(orden?.detalles)
-    ? orden.detalles.map((detalle) => {
-        const productoRef = detalle.productoVariante?.producto;
-        const saborRef = detalle.productoVariante?.sabor;
-        const idProducto = getProductoIdFromDetalle(productoRef);
-        const idSabor = getSaborIdFromDetalle(saborRef);
-        const productMatch = cartItems.find((item) => item.idProducto === idProducto);
-        const cartMatch = cartItems.find(
-          (item) => item.idProducto === idProducto && (item.idSabor ?? null) === (idSabor ?? null)
-        );
-
-        return {
-          idDetalle: detalle.id,
-          idProducto,
-          nombre:
-            (typeof productoRef === 'object' ? productoRef?.nombre : null) ||
-            productMatch?.nombre ||
-            cartMatch?.nombre ||
-            '',
-          sabor:
-            (typeof saborRef === 'object' ? saborRef?.nombre : null) ||
-            cartMatch?.sabor ||
-            productMatch?.sabor ||
-            cartMatch?.sabor ||
-            '',
-          cantidad: detalle.cantidad ?? 0,
-          precio:
-            detalle.precioUnitario ??
-            productMatch?.precio ??
-            cartMatch?.precio ??
-            (typeof productoRef === 'object' ? productoRef?.precioFinal ?? productoRef?.precio ?? 0 : 0),
-        };
-      })
+const mapCartItemsToResumenItems = (cartItems = []) =>
+  Array.isArray(cartItems)
+    ? cartItems.map((item) => ({
+        idDetalle: item.idDetalle ?? null,
+        idProducto: item.idProducto,
+        nombre: item.nombre || '',
+        sabor: item.sabor || '',
+        cantidad: item.cantidad ?? 0,
+        precio: item.precio ?? 0,
+      }))
     : [];
+
+const mapOrdenToResumenItems = (orden, cartItems = []) => {
+  if (!orden || !Array.isArray(orden.detalles) || orden.detalles.length === 0) {
+    return mapCartItemsToResumenItems(cartItems);
+  }
+
+  return orden.detalles.map((detalle) => {
+    const productoRef = detalle.productoVariante?.producto;
+    const saborRef = detalle.productoVariante?.sabor;
+    const idProducto = getProductoIdFromDetalle(productoRef);
+    const idSabor = getSaborIdFromDetalle(saborRef);
+    const productMatch = cartItems.find((item) => item.idProducto === idProducto);
+    const cartMatch = cartItems.find(
+      (item) => item.idProducto === idProducto && (item.idSabor ?? null) === (idSabor ?? null)
+    );
+
+    return {
+      idDetalle: detalle.id,
+      idProducto,
+      nombre:
+        (typeof productoRef === 'object' ? productoRef?.nombre : null) ||
+        productMatch?.nombre ||
+        cartMatch?.nombre ||
+        '',
+      sabor:
+        (typeof saborRef === 'object' ? saborRef?.nombre : null) ||
+        cartMatch?.sabor ||
+        productMatch?.sabor ||
+        cartMatch?.sabor ||
+        '',
+      cantidad: detalle.cantidad ?? 0,
+      precio:
+        detalle.precioUnitario ??
+        productMatch?.precio ??
+        cartMatch?.precio ??
+        (typeof productoRef === 'object' ? productoRef?.precioFinal ?? productoRef?.precio ?? 0 : 0),
+    };
+  });
+};
 
 const Checkout = () => {
 
