@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { fetchWithAuth } from "../../utils/fetchWithAuth";
-
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProductos } from "../../../redux/productosSlice";
+import { fetchPromos, createPromo, updatePromo, deletePromo } from "../../../redux/promosSlice";
 import AdminSidebar from "../../assets/components/admin/AdminSidebar";
 import AdminHeader from "../../assets/components/admin/AdminHeader";
 import PromoForm from "../../assets/components/admin/promoadmin/PromoForm";
@@ -9,209 +9,93 @@ import PromoList from "../../assets/components/admin/promoadmin/PromoList";
 
 export default function Promos() {
 
-  const [productos, setProductos] = useState([]);
-  const [productosSeleccionados, setProductosSeleccionados] = useState([]);
-  const [promos, setPromos] = useState([]);
+  const dispatch = useDispatch();
+  const token = useSelector((state) => state.auth.token);
+  const productos = useSelector((state) => state.productos.productos);
+  const promos = useSelector((state) => state.promos.promos);
 
+  const [productosSeleccionados, setProductosSeleccionados] = useState([]);
   const [description, setDescription] = useState("");
   const [discount, setDiscount] = useState(0);
-
   const [editingPromoId, setEditingPromoId] = useState(null);
 
-  // TODO: dispatch redux - useSelector para token del authSlice
-  const token = null;
-
-  const navigate = useNavigate();
-
   useEffect(() => {
-
     if (!token) return;
-
-    fetchProductos();
-    fetchPromos();
-
+    dispatch(fetchProductos());
+    dispatch(fetchPromos(token));
   }, [token]);
 
-  const fetchProductos = async () => {
-
-    try {
-
-      const response = await fetchWithAuth(
-        "http://localhost:4002/productos",
-        {
-          method: "GET",
-        },
-        () => token,
-        navigate
-      );
-
-      const data = await response.json();
-
-      setProductos(data);
-
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const fetchPromos = async () => {
-
-    try {
-
-      const response = await fetchWithAuth(
-        "http://localhost:4002/promos",
-        {
-          method: "GET",
-        },
-        () => token,
-        navigate
-      );
-
-      const data = await response.json();
-
-      setPromos(data);
-
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const resetForm = () => {
-
     setEditingPromoId(null);
-
     setDescription("");
-
     setDiscount(0);
-
     setProductosSeleccionados([]);
   };
 
   const handleCheckboxChange = (idProducto) => {
-
-    setProductosSeleccionados((prev) => {
-
-      if (prev.includes(idProducto)) {
-        return prev.filter((id) => id !== idProducto);
-      }
-
-      return [...prev, idProducto];
-    });
+    setProductosSeleccionados((prev) =>
+      prev.includes(idProducto)
+        ? prev.filter((id) => id !== idProducto)
+        : [...prev, idProducto]
+    );
   };
 
   const handleCreatePromo = async (e) => {
-
     e.preventDefault();
-
     try {
-
-      const response = await fetchWithAuth(
-        "http://localhost:4002/promos",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            description,
-            discount: Number(discount),
-            productosIds: productosSeleccionados,
-          }),
+      const result = await dispatch(createPromo({
+        body: {
+          description,
+          discount: Number(discount),
+          productosIds: productosSeleccionados,
         },
-        () => token,
-        navigate
-      );
-
-      if (!response.ok) {
-        throw new Error("Error creando promo");
-      }
+        token,
+      }));
+      if (result.error) throw new Error(result.error.message);
       resetForm();
-
-      fetchPromos();
-
     } catch (error) {
-      console.error(error);
+      console.error("Error creando promo:", error);
     }
   };
 
   const handleEditPromo = async (e) => {
-
     e.preventDefault();
-
     try {
-
-      const response = await fetchWithAuth(
-        `http://localhost:4002/promos/${editingPromoId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            description,
-            discount: Number(discount),
-            productosIds: productosSeleccionados,
-          }),
+      const result = await dispatch(updatePromo({
+        id: editingPromoId,
+        body: {
+          description,
+          discount: Number(discount),
         },
-        () => token,
-        navigate
-      );
-
-      if (!response.ok) {
-        throw new Error("Error editando promo");
-      }
-
+        token,
+      }));
+      if (result.error) throw new Error(result.error.message);
       resetForm();
-
-      fetchPromos();
-
     } catch (error) {
-      console.error(error);
+      console.error("Error editando promo:", error);
     }
   };
 
   const handleDeletePromo = async (promoId) => {
-
     try {
-
-      const response = await fetchWithAuth(
-        `http://localhost:4002/promos/${promoId}`,
-        {
-          method: "DELETE",
-        },
-        () => token,
-        navigate
-      );
-
-      if (!response.ok) {
-        throw new Error("Error eliminando promo");
-      }
-
-      fetchPromos();
-
+      const result = await dispatch(deletePromo({ id: promoId, token }));
+      if (result.error) throw new Error(result.error.message);
     } catch (error) {
-      console.error(error);
+      console.error("Error eliminando promo:", error);
     }
   };
 
   const handleSelectPromoToEdit = (promo) => {
-
     setEditingPromoId(promo.id);
-
     setDescription(promo.description);
-
     setDiscount(promo.discount);
-
-    setProductosSeleccionados(
-      promo.productos.map((p) => p.idProducto)
-    );
+    setProductosSeleccionados(promo.productos.map((p) => p.idProducto));
   };
 
   return (
     <div className="bg-[#0A0A0A] text-white min-h-screen">
 
       <AdminSidebar />
-
       <AdminHeader />
 
       <main className="ml-64 mt-20 px-8 py-8">

@@ -2,7 +2,11 @@ import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCarrito, updateCarritoStock, removeFromCarrito } from '../../redux/carritoSlice';
+import { fetchPuntosMe, toggleUsarPuntos } from '../../redux/puntosSlice';
 import FeaturedProducts from '../assets/components/react/FeaturedProducts';
+import UsarPuntosSwitch from '../assets/components/react/sidebar/UsarPuntosSwitch';
+
+const PESOS_POR_PUNTO = 50;
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -10,16 +14,25 @@ const Cart = () => {
 
   const { token } = useSelector((state) => state.auth);
   const { items: cartItems } = useSelector((state) => state.carrito);
+  const { puntosActuales, usarPuntos } = useSelector((state) => state.puntos);
 
   useEffect(() => {
     if (token) {
       dispatch(fetchCarrito(token));
+      dispatch(fetchPuntosMe(token)); // carga los puntos del usuario logueado
     }
   }, [dispatch, token]);
 
   const subtotal = useMemo(() => {
     return cartItems.reduce((acc, item) => acc + (item.precio || 0) * (item.cantidad || 0), 0);
   }, [cartItems]);
+
+  const descuento = useMemo(() => {
+    if (!usarPuntos) return 0;
+    return Math.min(puntosActuales * PESOS_POR_PUNTO, subtotal);
+  }, [usarPuntos, puntosActuales, subtotal]);
+
+  const total = subtotal - descuento;
 
   const handleEdit = (item, newCantidad) => {
     dispatch(updateCarritoStock({ idproductcart: item.idCartItem, nuevoStock: newCantidad, token }));
@@ -38,6 +51,7 @@ const Cart = () => {
         >
           ← Volver
         </button>
+
         <div className="flex flex-col lg:flex-row gap-8">
           {/* LEFT: cart items */}
           <div className="flex-1">
@@ -101,6 +115,17 @@ const Cart = () => {
 
           {/* RIGHT: summary */}
           <div className="w-full lg:w-[360px]">
+
+            {/* Switch de puntos — solo se muestra si el usuario tiene puntos y el carrito no está vacío */}
+            {token && puntosActuales > 0 && cartItems.length > 0 && (
+              <UsarPuntosSwitch
+                puntosDisponibles={puntosActuales}
+                usarPuntos={usarPuntos}
+                onToggle={() => dispatch(toggleUsarPuntos())}
+                subtotal={subtotal}
+              />
+            )}
+
             <div className="rounded-2xl border border-[#262626] bg-[#111111] p-5">
               <h2 className="text-sm uppercase text-gray-400">Resumen de tu arsenal</h2>
               <div className="mt-4 space-y-3 text-sm">
@@ -108,15 +133,27 @@ const Cart = () => {
                   <span className="text-gray-400">Subtotal</span>
                   <span>${subtotal.toLocaleString('es-AR')}</span>
                 </div>
+
+                {usarPuntos && descuento > 0 && (
+                  <div className="flex items-center justify-between text-[#CCFF00]">
+                    <span>Descuento puntos ({puntosActuales} pts × $50)</span>
+                    <span>-${descuento.toLocaleString('es-AR')}</span>
+                  </div>
+                )}
+
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Envío</span>
                   <span className="text-[#CCFF00]">Gratis</span>
                 </div>
               </div>
+
               <div className="mt-5 border-t border-[#262626] pt-4 flex items-center justify-between">
                 <span className="text-sm text-gray-400">Total</span>
-                <span className="text-2xl font-black text-[#CCFF00]">${subtotal.toLocaleString('es-AR')}</span>
+                <span className="text-2xl font-black text-[#CCFF00]">
+                  ${total.toLocaleString('es-AR')}
+                </span>
               </div>
+
               <button
                 onClick={() => navigate('/checkout')}
                 disabled={cartItems.length === 0}

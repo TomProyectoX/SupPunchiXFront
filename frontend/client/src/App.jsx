@@ -14,28 +14,29 @@ import ConditionalCartWidget from './assets/components/react/ConditionalCartWidg
 import CartToggleButton from './assets/components/react/CartToggleButton.jsx';
 import Promos from './pages/admin/Promos.jsx';
 import PagoConfirmado from './pages/PagoConfirmado.jsx';
+import MisPedidos from './pages/MisPedidos.jsx';
 
 function App() {
   return (
     <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/home" element={<Home />} />
-              <Route path="/shop" element={<ProductList />} />
-              <Route path="/admin/promos" element={<Promos />} />
-              <Route path="/admin/products" element={<Products />} />
-              <Route path="/admin/inventory" element={<AdminProducts />} />
-              <Route path="/admin/catalog" element={<CatalogConfiguration />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/product/:id" element={<ProductDetails />} />
-              <Route path="/pago-confirmado" element={<PagoConfirmado />} />
-            </Routes>
-            <ConditionalCartWidget />
-            <CartToggleButton />
-
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/shop" element={<ProductList />} />
+        <Route path="/admin/promos" element={<Promos />} />
+        <Route path="/admin/products" element={<Products />} />
+        <Route path="/admin/inventory" element={<AdminProducts />} />
+        <Route path="/admin/catalog" element={<CatalogConfiguration />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
+        <Route path="/pago-confirmado" element={<PagoConfirmado />} />
+        <Route path="/mis-pedidos" element={<MisPedidos />} />
+      </Routes>
+      <ConditionalCartWidget />
+      <CartToggleButton />
     </BrowserRouter>
   )
 }

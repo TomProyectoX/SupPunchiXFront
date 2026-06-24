@@ -6,13 +6,15 @@ import CheckoutPayment from '../assets/components/react/CheckoutPayment';
 import OrderSummary from '../assets/components/react/OrderSummary';
 import { fetchOrdenEnCurso, createOrden, deleteDetalleOrden } from '../../redux/ordenSlice';
 import { fetchCarrito } from '../../redux/carritoSlice';
+import { fetchPuntosMe } from '../../redux/puntosSlice';
+
+const PESOS_POR_PUNTO = 50;
 
 const mapOrdenToResumenItems = (orden) =>
   Array.isArray(orden?.detalles)
     ? orden.detalles.map((detalle) => {
         const productoRef = detalle.productoVariante?.producto;
         const saborRef = detalle.productoVariante?.sabor;
-
         return {
           idDetalle: detalle.id,
           idProducto: productoRef?.idProducto ?? null,
@@ -32,8 +34,10 @@ const Checkout = () => {
   const { orden, loading } = useSelector((state) => state.orden);
   const { items: cartItems } = useSelector((state) => state.carrito);
 
-  const [errorCheckout, setErrorCheckout] = useState("");
+  // Leemos el estado de puntos del store — el toggle ya fue seteado en Cart/CartWidget
+  const { puntosActuales, usarPuntos } = useSelector((state) => state.puntos);
 
+  const [errorCheckout, setErrorCheckout] = useState('');
   const [form, setForm] = useState({
     calle: '',
     numero: '',
@@ -41,13 +45,13 @@ const Checkout = () => {
     provincia: '',
     codigoPostal: '',
   });
-
   const [step, setStep] = useState('direccion');
 
   useEffect(() => {
     if (token) {
       dispatch(fetchCarrito(token));
       dispatch(fetchOrdenEnCurso(token));
+      dispatch(fetchPuntosMe(token)); // por si el usuario llega directo al checkout
     }
   }, [dispatch, token]);
 
@@ -83,12 +87,12 @@ const Checkout = () => {
       },
     };
 
-    setErrorCheckout("");
+    setErrorCheckout('');
 
     const result = await dispatch(createOrden({ body, token }));
 
     if (!createOrden.fulfilled.match(result)) {
-      const msg = result.error?.message || "Error al crear la orden";
+      const msg = result.error?.message || 'Error al crear la orden';
       setErrorCheckout(msg);
     }
   };
@@ -96,7 +100,7 @@ const Checkout = () => {
   const handleActualizarOrdenConCarrito = async () => {
     if (!orden?.direccion || cartItems.length === 0) return;
 
-    setErrorCheckout("");
+    setErrorCheckout('');
 
     const body = {
       direccion: {
@@ -113,7 +117,7 @@ const Checkout = () => {
     if (createOrden.fulfilled.match(result)) {
       dispatch(fetchCarrito(token));
     } else {
-      const msg = result.error?.message || "Error al actualizar la orden con los nuevos productos";
+      const msg = result.error?.message || 'Error al actualizar la orden con los nuevos productos';
       setErrorCheckout(msg);
     }
   };
@@ -123,11 +127,18 @@ const Checkout = () => {
   };
 
   const resumenOrden = useMemo(() => mapOrdenToResumenItems(orden), [orden]);
+  const displayItems = step === 'direccion' ? cartItems : resumenOrden;
 
-  const totalOrden = useMemo(
-    () => resumenOrden.reduce((acc, item) => acc + (Number(item.precio) || 0) * (Number(item.cantidad) || 0), 0),
-    [resumenOrden]
+  const subtotal = useMemo(
+    () => displayItems.reduce((acc, item) => acc + (Number(item.precio) || 0) * (Number(item.cantidad) || 0), 0),
+    [displayItems]
   );
+
+  // El descuento se calcula igual que en Cart/CartWidget
+  const descuento = useMemo(() => {
+    if (!usarPuntos || puntosActuales === 0) return 0;
+    return Math.min(puntosActuales * PESOS_POR_PUNTO, subtotal);
+  }, [usarPuntos, puntosActuales, subtotal]);
 
   const hasOrdenEnCurso = Boolean(orden);
 
@@ -239,16 +250,20 @@ const Checkout = () => {
             ) : (
               <CheckoutPayment
                 orden={orden}
+                descuento={descuento}
+                puntosUsados={puntosActuales}
                 onBack={() => setStep('direccion')}
               />
             )}
           </div>
 
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-5 lg:pl-4">
             <OrderSummary
-              items={resumenOrden}
-              total={totalOrden}
-              onDeleteDetail={handleDeleteOrderDetail}
+              items={displayItems}
+              total={subtotal}
+              descuento={descuento}
+              puntosUsados={puntosActuales}
+              onDeleteDetail={step === 'pago' ? handleDeleteOrderDetail : undefined}
             />
           </div>
 

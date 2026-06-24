@@ -37,11 +37,23 @@ export const procesarPago = createAsyncThunk('orden/procesarPago', async ({ body
     return data;
 });
 
+export const fetchOrdenes = createAsyncThunk('orden/fetchOrdenes', async (token, thunkAPI) => {
+    try {
+      const { data } = await axios.get('http://localhost:4002/Ordenes', authHeaders(token));
+      return data;
+    } catch (error) {
+      const mensaje = error.response?.data || error.message;
+      return thunkAPI.rejectWithValue(mensaje);
+    }
+});
+
 const ordenSlice = createSlice({
   name: 'orden',
   initialState: {
     orden: null,
+    ordenes: [],
     loading: false,
+    loadingOrdenes: false,
     error: null,
   },
   reducers: {
@@ -82,6 +94,19 @@ const ordenSlice = createSlice({
       // PAGO
       .addCase(procesarPago.fulfilled, (state) => {
         state.orden = null;
+      })
+      // HISTORIAL
+      .addCase(fetchOrdenes.pending, (state) => {
+        state.loadingOrdenes = true;
+        state.error = null;
+      })
+      .addCase(fetchOrdenes.fulfilled, (state, action) => {
+        state.loadingOrdenes = false;
+        state.ordenes = action.payload;
+      })
+      .addCase(fetchOrdenes.rejected, (state, action) => {
+        state.loadingOrdenes = false;
+        state.error = action.payload || action.error.message;
       });
   },
 });
