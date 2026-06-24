@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import './register.css';
 import { Link, useNavigate } from 'react-router-dom';
-import InputField from '../assets/components/react/InputField';
 import { useDispatch } from 'react-redux';
+import { motion } from 'framer-motion';
+import InputField from '../assets/components/react/InputField';
 import { postregister } from '../../redux/registerSlice';
 import { postlogin } from '../../redux/authSlice';
 
@@ -61,103 +62,110 @@ function Register() {
     }
   };
 
-  const welcomeFont = { fontFamily: "inherit" }; 
-
   return (
-    <div className="bg-[#0A0A0A] text-[#e5e2e1] min-h-screen flex flex-col font-body-md selection:bg-[#CCFF00] selection:text-black">
-      
-      {/* Top Navigation Anchor */}
-      <div className="w-full flex items-center px-6 h-16 z-50">
+    <div className="relative bg-[#0A0A0A] text-[#e5e2e1] min-h-screen flex flex-col font-body-md overflow-hidden selection:bg-[#CCFF00] selection:text-black">
+
+      {/* GLOW DE FONDO */}
+      <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] rounded-full bg-[#CCFF00] blur-[160px] opacity-[0.07] pointer-events-none" />
+
+      <div className="relative z-10 w-full flex items-center px-6 h-16">
         <Link 
           to="/" 
-          className="inline-flex items-center gap-2 text-[#CCFF00] font-headline-md text-xs uppercase tracking-[0.2em] hover:text-white transition-colors group"
+          className="inline-flex items-center gap-2 text-[#CCFF00] text-xs uppercase tracking-[0.2em] font-black hover:text-white transition-colors group"
         >
           <span className="material-symbols-outlined text-sm transition-transform group-hover:-translate-x-1">
             chevron_left
           </span> 
-          INICIO
+          Inicio
         </Link>
       </div>
 
-      {/* Main Registration Canvas */}
-      <main className="flex-grow flex items-center justify-center pb-16 px-6">
-        <div className="max-w-screen-xl w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-          
-          {/* Left Side: Branding & Energy */}
-          <div className="lg:col-span-5 flex flex-col justify-center space-y-8 pr-0 lg:pr-8">
+      <main className="relative z-10 flex-grow flex items-center justify-center py-12 px-6">
+        <div className="max-w-screen-xl w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+
+          {/* LADO IZQUIERDO */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            className="lg:col-span-5 flex flex-col justify-center space-y-8"
+          >
             <div className="space-y-4">
-              <h1 
-                className="text-5xl md:text-6xl lg:text-[76px] text-white uppercase italic leading-none font-black tracking-tighter"
-                style={welcomeFont}
-              >
-                REGISTRARSE<br />
+              <span className="inline-block text-[#CCFF00] text-xs font-black uppercase tracking-[0.3em] mb-2">
+                Unite a la comunidad
+              </span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl text-white uppercase italic leading-[0.95] font-black tracking-tighter">
+                Creá tu<br />
+                <span className="text-[#CCFF00]">Cuenta</span>
               </h1>
-              <p className="font-body-lg text-[16px] leading-relaxed text-[#c4c9ac] max-w-md opacity-90">
-                Ingeniería de precisión para atletas de alto rendimiento. Asegura tus credenciales y accede al círculo exclusivo de equipamiento de élite.
+            </div>
+
+            <div className="border-l-2 border-[#CCFF00] pl-5 py-1">
+              <p className="text-lg md:text-xl text-white font-bold leading-snug italic">
+                "Sin atajos. Sin excusas.{' '}
+                <span className="text-[#CCFF00]">Solo resultados.</span>"
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                Suplementos importados, certificados, para quienes entrenan en serio.
               </p>
             </div>
 
-            {/* Bento Metric Highlighting Elite Performance */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-[#141414] border-l-4 border-[#CCFF00] p-6">
-                <span className="font-label-bold text-xs text-[#CCFF00] block mb-1 uppercase tracking-widest font-bold">MIEMBROS</span>
-                <div className="text-3xl font-extrabold text-white tracking-tight">50K+</div>
-              </div>
-              <div className="bg-[#141414] border-l-4 border-[#CCFF00] p-6">
-                <span className="font-label-bold text-xs text-[#CCFF00] block mb-1 uppercase tracking-widest font-bold">PRECISIÓN</span>
-                <div className="text-3xl font-extrabold text-white tracking-tight">100%</div>
-              </div>
-            </div>
-          </div>
+            <p className="text-base leading-relaxed text-gray-400 max-w-md">
+              Ingeniería de precisión para atletas de alto rendimiento. Asegurá tus credenciales y accedé al círculo exclusivo de equipamiento de élite.
+            </p>
+          </motion.div>
 
-          {/* Right Side: Registration Form */}
-          <div className="lg:col-span-7">
-            <div className="bg-[#141414] p-8 lg:p-12 border border-[#262626] relative overflow-hidden shadow-2xl">
-              
-              {/* Decorative Background Element */}
-              <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                <span className="material-symbols-outlined text-[140px] text-[#CCFF00]">fitness_center</span>
-              </div>
+          {/* LADO DERECHO: FORM */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="lg:col-span-7"
+          >
+            <div className="bg-[#141414] rounded-2xl p-8 lg:p-12 border border-[#262626] relative overflow-hidden shadow-2xl">
 
-              <form className="relative z-10 space-y-6" noValidate onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* First Name */}
+              <div className="absolute -right-20 -top-20 w-64 h-64 bg-[#CCFF00] rounded-full blur-[100px] opacity-10 pointer-events-none" />
+
+              <header className="relative z-10 mb-8">
+                <h2 className="text-2xl md:text-3xl font-black uppercase italic tracking-tight text-white">Crear Cuenta</h2>
+                <p className="text-sm text-gray-400 mt-2">Completá tus datos para unirte a la comunidad Punchis.</p>
+              </header>
+
+              <form className="relative z-10 space-y-5" noValidate onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="space-y-2">
-                    <label className="font-label-bold text-xs text-[#CCFF00] uppercase tracking-widest block font-bold" htmlFor="first-name">Nombre</label>
+                    <label className="text-xs text-[#CCFF00] uppercase tracking-widest block font-black" htmlFor="first-name">Nombre</label>
                     <InputField
                       type="text"
-                      placeholder="ingresa tu nombre"
+                      placeholder="Tu nombre"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                     />
                   </div>
-                  {/* Last Name */}
                   <div className="space-y-2">
-                    <label className="font-label-bold text-xs text-[#CCFF00] uppercase tracking-widest block font-bold" htmlFor="last-name">Apellido</label>
+                    <label className="text-xs text-[#CCFF00] uppercase tracking-widest block font-black" htmlFor="last-name">Apellido</label>
                     <InputField
                       type="text"
-                      placeholder="ingresa tu apellido"
+                      placeholder="Tu apellido"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                     />
                   </div>
                 </div>
 
-                {/* Email */}
                 <div className="space-y-2">
-                  <label className="font-label-bold text-xs text-[#CCFF00] uppercase tracking-widest block font-bold" htmlFor="email">Email</label>
+                  <label className="text-xs text-[#CCFF00] uppercase tracking-widest block font-black" htmlFor="email">Email</label>
                   <InputField
                     type="email"
-                    placeholder="ACTIVE@ATHLETE.COM"
+                    placeholder="tu@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     error={emailError}
                   />
                 </div>
 
-                {/* Password */}
                 <div className="space-y-2">
-                  <label className="font-label-bold text-xs text-[#CCFF00] uppercase tracking-widest block font-bold" htmlFor="password">Contraseña</label>
+                  <label className="text-xs text-[#CCFF00] uppercase tracking-widest block font-black" htmlFor="password">Contraseña</label>
                   <InputField
                     type="password"
                     placeholder="••••••••"
@@ -171,25 +179,23 @@ function Register() {
                   <p className="text-sm text-red-400 font-bold">{registerError}</p>
                 )}
 
-                <div className="pt-4 space-y-6">
-                  {/* Submit Button */}
+                <div className="pt-2 space-y-5">
                   <button 
-                    className="w-full bg-[#CCFF00] text-black font-bold py-5 uppercase tracking-[0.2em] hover:bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 group text-sm" 
+                    className="w-full bg-[#CCFF00] text-black font-black py-4 rounded-lg uppercase tracking-[0.15em] hover:bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 group text-sm" 
                     type="submit"
                   >
-                    CREAR CUENTA
-                    <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">bolt</span>
+                    Crear Cuenta
+                    <span className="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform">bolt</span>
                   </button>
 
-                  {/* Login Link */}
                   <div className="text-center">
-                    <p className="text-sm text-[#c4c9ac]">
-                      ¿YA FORMAS PARTE DEL EQUIPO? 
+                    <p className="text-sm text-gray-400">
+                      ¿Ya tenés una cuenta?{' '}
                       <Link 
                         to="/login" 
-                        className="text-white font-bold border-b border-[#CCFF00] ml-2 hover:text-[#CCFF00] transition-colors"
+                        className="text-white font-black border-b border-[#CCFF00] hover:text-[#CCFF00] transition-colors"
                       >
-                        INICIAR SESIÓN AQUÍ
+                        Iniciá sesión aquí
                       </Link>
                     </p>
                   </div>
@@ -197,7 +203,7 @@ function Register() {
               </form>
 
             </div>
-          </div>
+          </motion.div>
 
         </div>
       </main>

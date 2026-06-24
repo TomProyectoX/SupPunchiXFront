@@ -18,7 +18,6 @@ export default function ProductList() {
 
   useEffect(() => {
     dispatch(fetchProductos());
-    console.log(productos)
   }, [dispatch]);
 
   useEffect(() => {
@@ -48,7 +47,10 @@ export default function ProductList() {
       <div>
         <Navbar />
         <div className="bg-[#0A0A0A] text-white min-h-screen flex items-center justify-center">
-          <p className="text-xl font-black uppercase">Cargando productos...</p>
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-[#CCFF00] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-xl font-black uppercase">Cargando productos...</p>
+          </div>
         </div>
       </div>
     );
@@ -69,7 +71,14 @@ export default function ProductList() {
     <div>
       <Navbar />
 
-      <div className="bg-[#0A0A0A] text-white min-h-screen pt-24 px-6">
+      <div className="bg-[#0A0A0A] text-white min-h-screen pt-20 px-6">
+
+        <div className="max-w-[1440px] mx-auto mb-6">
+          <h1 className="text-xl md:text-2xl font-black uppercase italic tracking-tighter text-white">
+            Nuestro <span className="text-[#CCFF00]">Catálogo</span>
+          </h1>
+        </div>
+
         <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row gap-6">
 
           <Sidebar
