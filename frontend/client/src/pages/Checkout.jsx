@@ -19,7 +19,7 @@ const mapOrdenToResumenItems = (orden) =>
           nombre: productoRef?.nombre ?? '',
           sabor: saborRef?.nombre ?? '',
           cantidad: detalle.cantidad ?? 0,
-          precio: detalle.precioUnitario ?? productoRef?.precioFinal ?? productoRef?.precio ?? 0,
+          precio: productoRef?.precioFinal ?? detalle.precioUnitario ?? productoRef?.precio ?? 0,
         };
       })
     : [];
@@ -32,7 +32,7 @@ const Checkout = () => {
   const { orden, loading } = useSelector((state) => state.orden);
   const { items: cartItems } = useSelector((state) => state.carrito);
 
-  const [errorCheckout, setErrorCheckout] = useState("");
+  const [errorCheckout, setErrorCheckout] = useState('');
 
   const [form, setForm] = useState({
     calle: '',
@@ -53,26 +53,6 @@ const Checkout = () => {
 
   useEffect(() => {
     if (orden) {
-      // si hay orden en curso y el carrito tiene items, mergear con POST
-      if (cartItems.length > 0 && orden.direccion) {
-        const body = {
-          direccion: {
-            calle: orden.direccion.calle,
-            numero: orden.direccion.numero,
-            ciudad: orden.direccion.ciudad,
-            provincia: orden.direccion.provincia,
-            codigoPostal: orden.direccion.codigoPostal,
-          },
-        };
-        dispatch(createOrden({ body, token }))
-          .unwrap()
-          .then(() => dispatch(fetchCarrito(token)))
-          .catch((e) => {
-            const msg = typeof e === 'string' ? e : e?.message || "Error al actualizar la orden con los nuevos productos";
-            setErrorCheckout(msg);
-          });
-      }
-
       setStep('pago');
       if (orden.direccion) {
         setForm({
@@ -103,11 +83,12 @@ const Checkout = () => {
       },
     };
 
-    setErrorCheckout("");
+    setErrorCheckout('');
     try {
       await dispatch(createOrden({ body, token })).unwrap();
+      await dispatch(fetchCarrito(token));
     } catch (e) {
-      const msg = typeof e === 'string' ? e : e?.message || "Error al crear la orden";
+      const msg = typeof e === 'string' ? e : e?.message || 'Error al crear la orden';
       setErrorCheckout(msg);
     }
   };

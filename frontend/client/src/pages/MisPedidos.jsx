@@ -20,7 +20,7 @@ const getOrderItems = (orden) =>
           nombre: producto?.nombre || "Producto",
           sabor: sabor?.nombre || "",
           cantidad: Number(detalle.cantidad || 0),
-          precio: Number(detalle.precioUnitario || producto?.precioFinal || producto?.precio || 0),
+          precio: Number(producto?.precioFinal ?? detalle.precioUnitario ?? producto?.precio ?? 0),
         };
       })
     : [];
