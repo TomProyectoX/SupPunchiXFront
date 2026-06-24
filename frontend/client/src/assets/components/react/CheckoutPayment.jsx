@@ -4,6 +4,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { procesarPago } from "../../../../redux/ordenSlice";
 import { fetchCarrito } from "../../../../redux/carritoSlice";
 import { fetchPuntosMe, usarPuntos, resetPuntos } from "../../../../redux/puntosSlice";
+import DeliveryAddressCard from "./DeliveryAddressCard";
+import CardPaymentForm from "./CardPaymentForm";
 
 const CARD_NUMBER_MAX_LENGTH = 16;
 
@@ -90,7 +92,11 @@ const CheckoutPayment = ({ orden, descuento = 0, puntosUsados = 0, onBack }) => 
 
   const totalFinal = Math.max(0, subtotalOrden - descuento);
 
+  const tieneProductos = Array.isArray(orden?.detalles) && orden.detalles.length > 0;
+
   const handleConfirmarPago = async () => {
+    if (!tieneProductos) return;
+
     const validationErrors = validatePaymentForm({ tarjeta, expiracion, cvv });
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -119,10 +125,22 @@ const CheckoutPayment = ({ orden, descuento = 0, puntosUsados = 0, onBack }) => 
       }
 
       // 2. Procesamos el pago
-     await dispatch(procesarPago({ body: {  ordenId: orden.id,  estado: "APROBADO",    metodoPago: "TARJETA",    descuento: descuento, // ya lo recibís como prop
-  },
-  token,
-}));
+      const result = await dispatch(procesarPago({
+        body: {
+          ordenId: orden.id,
+          estado: "APROBADO",
+          metodoPago: "TARJETA",
+          descuento: descuento,
+        },
+        token,
+      }));
+
+      if (!procesarPago.fulfilled.match(result)) {
+        console.error('Error procesando pago:', result.error);
+        setError("Error al procesar el pago. Intentá de nuevo.");
+        setIsSubmitting(false);
+        return;
+      }
 
       // 3. Refrescamos carrito y puntos
       await dispatch(fetchCarrito(token));
@@ -148,29 +166,30 @@ const CheckoutPayment = ({ orden, descuento = 0, puntosUsados = 0, onBack }) => 
   return (
     <>
       <div className="rounded-3xl border border-[#262626] bg-[#111111] p-8">
-        <div className="mb-10 flex items-center justify-between">
+        <div className="flex items-center justify-between mb-10">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-[#CCFF00]">Paso final</p>
-            <h1 className="mt-2 text-5xl font-black uppercase">Pago</h1>
+            <h1 className="text-5xl font-black uppercase mt-2">Pago</h1>
           </div>
           <button
             onClick={onBack}
-            className="rounded-xl border border-[#2A2A2A] px-5 py-3 text-sm uppercase tracking-wider transition hover:border-[#CCFF00]"
+            className="border border-[#2A2A2A] px-5 py-3 rounded-xl text-sm uppercase tracking-wider hover:border-[#CCFF00] transition"
           >
-            Editar direccion
+            Editar dirección
           </button>
         </div>
 
-        <div className="space-y-8">
-          <div className="rounded-2xl border border-[#262626] bg-black p-6">
-            <p className="mb-5 text-xs uppercase tracking-[0.25em] text-gray-500">Direccion de entrega</p>
-            <div className="space-y-3 text-sm">
-              <p>{orden?.direccion?.calle} {orden?.direccion?.numero}</p>
-              <p>{orden?.direccion?.ciudad}</p>
-              <p>{orden?.direccion?.provincia}</p>
-              <p>{orden?.direccion?.codigoPostal}</p>
-            </div>
+        {!tieneProductos && (
+          <div className="mb-8 flex items-center gap-3 rounded-2xl border border-red-500/30 bg-red-500/10 p-4">
+            <span className="material-symbols-outlined text-red-400">error</span>
+            <p className="text-sm text-red-300 font-bold">
+              No hay productos en tu orden. Volvé al carrito antes de continuar.
+            </p>
           </div>
+        )}
+
+        <div className="space-y-8">
+          <DeliveryAddressCard direccion={orden?.direccion} />
 
           {descuento > 0 && (
             <div className="rounded-2xl border border-[#CCFF00]/30 bg-[#0A0A0A] p-5 space-y-2 text-sm">
@@ -190,100 +209,29 @@ const CheckoutPayment = ({ orden, descuento = 0, puntosUsados = 0, onBack }) => 
             </div>
           )}
 
-          <div className="space-y-6">
-            <div>
-              <div className="mb-3 flex items-center justify-between gap-4">
-                <label className="block text-xs uppercase tracking-[0.25em] text-gray-400">
-                  Numero de tarjeta
-                </label>
-                {cardType && (
-                  <span className="text-xs font-black uppercase tracking-[0.2em] text-[#CCFF00]">
-                    {cardType}
-                  </span>
-                )}
-              </div>
-              <input
-                type="text"
-                inputMode="numeric"
-                autoComplete="cc-number"
-                placeholder="4242 4242 4242 4242"
-                value={tarjeta}
-                onChange={(e) => {
-                  setTarjeta(formatCardNumber(e.target.value));
-                  setErrors((prev) => ({ ...prev, tarjeta: "" }));
-                  setError("");
-                }}
-                className={`w-full rounded-2xl border bg-black px-5 py-5 outline-none focus:border-[#CCFF00] ${
-                  errors.tarjeta ? "border-red-500" : "border-[#262626]"
-                }`}
-              />
-              {errors.tarjeta && (
-                <p className="mt-2 text-sm font-bold text-red-400">{errors.tarjeta}</p>
-              )}
-            </div>
+          <CardPaymentForm
+            tarjeta={tarjeta}
+            setTarjeta={setTarjeta}
+            expiracion={expiracion}
+            setExpiracion={setExpiracion}
+            cvv={cvv}
+            setCvv={setCvv}
+            disabled={!tieneProductos}
+          />
 
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <label className="mb-3 block text-xs uppercase tracking-[0.25em] text-gray-400">
-                  Expiracion
-                </label>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="cc-exp"
-                  placeholder="MM/AA"
-                  value={expiracion}
-                  onChange={(e) => {
-                    setExpiracion(formatExpiration(e.target.value));
-                    setErrors((prev) => ({ ...prev, expiracion: "" }));
-                    setError("");
-                  }}
-                  className={`w-full rounded-2xl border bg-black px-5 py-5 outline-none focus:border-[#CCFF00] ${
-                    errors.expiracion ? "border-red-500" : "border-[#262626]"
-                  }`}
-                />
-                {errors.expiracion && (
-                  <p className="mt-2 text-sm font-bold text-red-400">{errors.expiracion}</p>
-                )}
-              </div>
+          {error && (
+            <p className="rounded-2xl border border-red-500/40 bg-red-500/10 px-5 py-4 text-sm font-bold text-red-400">
+              {error}
+            </p>
+          )}
 
-              <div>
-                <label className="mb-3 block text-xs uppercase tracking-[0.25em] text-gray-400">CVV</label>
-                <input
-                  type="password"
-                  inputMode="numeric"
-                  autoComplete="cc-csc"
-                  placeholder="123"
-                  value={cvv}
-                  onChange={(e) => {
-                    setCvv(e.target.value.replace(/\D/g, "").slice(0, 4));
-                    setErrors((prev) => ({ ...prev, cvv: "" }));
-                    setError("");
-                  }}
-                  className={`w-full rounded-2xl border bg-black px-5 py-5 outline-none focus:border-[#CCFF00] ${
-                    errors.cvv ? "border-red-500" : "border-[#262626]"
-                  }`}
-                />
-                {errors.cvv && (
-                  <p className="mt-2 text-sm font-bold text-red-400">{errors.cvv}</p>
-                )}
-              </div>
-            </div>
-
-            {error && (
-              <p className="rounded-2xl border border-red-500/40 bg-red-500/10 px-5 py-4 text-sm font-bold text-red-400">
-                {error}
-              </p>
-            )}
-
-            <button
-              className="mt-4 w-full rounded-2xl bg-[#CCFF00] py-5 font-black uppercase text-black transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
-              onClick={handleConfirmarPago}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Procesando..." : `Confirmar pago — $${totalFinal.toLocaleString('es-AR')}`}
-            </button>
-          </div>
+          <button
+            className="mt-4 w-full rounded-2xl bg-[#CCFF00] py-5 font-black uppercase text-black transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
+            onClick={handleConfirmarPago}
+            disabled={isSubmitting || !tieneProductos}
+          >
+            {isSubmitting ? "Procesando..." : `Confirmar pago — $${totalFinal.toLocaleString('es-AR')}`}
+          </button>
         </div>
       </div>
 

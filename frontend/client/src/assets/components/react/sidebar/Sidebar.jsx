@@ -79,7 +79,7 @@ export default function Sidebar({ productos, selectedBrands, onSelectedBrandsCha
 
     <aside className="w-full md:w-[240px] flex-shrink-0">
 
-      <div className="sticky top-24 bg-[#111111] border border-[#262626] p-5">
+      <div className="sticky top-24 bg-[#111111] rounded-2xl border border-[#262626] p-5">
 
         {/* HEADER */}
         <button
@@ -88,11 +88,11 @@ export default function Sidebar({ productos, selectedBrands, onSelectedBrandsCha
         >
 
           <h2 className="text-lg font-black uppercase text-white tracking-wide">
-            Filters
+            Filtros
           </h2>
 
-          <span className="text-[#CCFF00] text-xl font-black">
-            {isOpen ? "-" : "+"}
+          <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#CCFF00]/10 text-[#CCFF00] transition-transform duration-300" style={{ transform: isOpen ? "rotate(0deg)" : "rotate(180deg)" }}>
+            <span className="material-symbols-outlined text-[18px]">expand_less</span>
           </span>
 
         </button>

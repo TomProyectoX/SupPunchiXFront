@@ -3,16 +3,20 @@ import { Link } from "react-router-dom"
 const BrandsSection = () => {
   const brands = [
     {
-      name: "ENA",
-      logo: "https://cdn.batitienda.com/baticloud/images/product_picture_f116054f5cdb4c40b3232b56abdc62aa_637933148345028682_0_m.png",
+      name: "ENA SPORT",
+      logo: "https://i.imgur.com/jceJxOx.png",
     },
     {
       name: "STAR NUTRITION",
-      logo: "https://starnutrition.com.ar/cdn/shop/files/IronPack-Strawberry.png?v=1719589259&width=750",
+      logo: "https://i.imgur.com/HItFoQj.jpeg",
     },
     {
-      name: "CREATINA MAX",
-      logo: "https://http2.mlstatic.com/D_NQ_NP_878402-MLA87517023824_072025-O.webp",
+      name: "GOLD NUTRITION",
+      logo: "https://i.imgur.com/f55YQQR.jpeg",
+    },
+    {
+      name: "OPTIMUM NUTRITION",
+      logo: "https://i.imgur.com/nWqpKlb.jpeg",
     }
   ]
 
@@ -30,27 +34,27 @@ const BrandsSection = () => {
         </div>
 
         {/* CONTENEDOR GRID RESPONSIVO */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {brands.map((brand, index) => (
             <Link
               key={index}
               to={`/shop?brand=${encodeURIComponent(brand.name)}`}
-              className="block overflow-hidden rounded-[2rem] border border-[#262626] bg-[#141414] transition-all duration-300 hover:border-[#CCFF00]"
+              className="block overflow-hidden rounded-[2rem] border border-[#262626] bg-[#141414] transition-all duration-300 hover:border-[#CCFF00] hover:-translate-y-1.5 hover:shadow-[0_25px_50px_-12px_rgba(204,255,0,0.2)] group flex flex-col"
             >
-              <div className="relative h-[280px] md:h-[340px] overflow-hidden">
+              <div className="h-[220px] md:h-[260px] flex items-center justify-center p-8 flex-shrink-0 bg-black relative overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.04),transparent_70%)]" />
                 <img
                   src={brand.logo}
                   alt={brand.name}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="relative max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-black/35" />
-                <div className="absolute inset-0 flex items-center justify-center px-4 text-center">
-                  <h3 className="text-2xl md:text-3xl font-black uppercase tracking-wide text-white drop-shadow-lg">
-                    {brand.name}
-                  </h3>
-                </div>
-                <div className="absolute bottom-4 right-4 flex h-11 w-11 items-center justify-center rounded-full bg-white text-black opacity-90 transition-opacity duration-300 group-hover:opacity-100">
-                  <span className="material-symbols-outlined">arrow_forward</span>
+              </div>
+              <div className="px-6 py-4 border-t border-[#262626] flex items-center justify-between">
+                <span className="text-sm font-black uppercase tracking-widest text-white">
+                  {brand.name}
+                </span>
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#CCFF00] text-black flex-shrink-0 transition-transform duration-300 group-hover:translate-x-1">
+                  <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                 </div>
               </div>
             </Link>

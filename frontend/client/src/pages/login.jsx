@@ -2,28 +2,28 @@ import './register.css';
 import InputField from '../assets/components/react/InputField';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { motion } from 'framer-motion';
 import { postlogin } from '../../redux/authSlice';
 
 function Login() {
   const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
   const [password, setPassword] = useState('');
+  const [emailError, setEmailError] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { error } = useSelector((state) => state.auth);
 
   const checkemail = () => {
     if (email.trim() === '') {
-      setError('El campo de correo electrónico no puede estar vacío.');
+      setEmailError('El campo de correo electrónico no puede estar vacío.');
       return false;
     }
-
     if (!/^\S+@\S+\.\S+$/.test(email)) {
-      setError('Por favor, ingresa un correo electrónico válido.');
+      setEmailError('Por favor, ingresa un correo electrónico válido.');
       return false;
     }
-
-    setError('');
+    setEmailError('');
     return true;
   };
 
@@ -32,76 +32,77 @@ function Login() {
       await dispatch(postlogin({ email, password })).unwrap();
       navigate('/home');
     } catch (loginError) {
-      setError('Ocurrió un error al iniciar sesión.');
       console.error(loginError);
     }
   };
 
   return (
-    <div className="bg-[#0A0A0A] text-[#e5e2e1] h-screen w-full flex flex-col font-sans overflow-hidden selection:bg-[#CCFF00] selection:text-black">
-      
-      {/* Top Navigation Anchor */}
-      <div className="w-full flex items-center px-6 h-16 z-50">
-        <Link 
-          to="/" 
-          className="inline-flex items-center gap-2 text-[#CCFF00] font-headline-md text-xs uppercase tracking-[0.2em] hover:text-white transition-colors group"
-        >
-          <span className="material-symbols-outlined text-sm transition-transform group-hover:-translate-x-1">
-            chevron_left
-          </span> 
+    <div className="relative bg-[#0A0A0A] text-[#e5e2e1] min-h-screen w-full flex flex-col font-sans overflow-hidden selection:bg-[#CCFF00] selection:text-black">
+
+      {/* GLOW DE FONDO */}
+      <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-[#CCFF00] blur-[160px] opacity-[0.07] pointer-events-none" />
+
+      <div className="relative z-10 w-full flex items-center px-6 h-16">
+        <Link to="/" className="inline-flex items-center gap-2 text-[#CCFF00] text-xs uppercase tracking-[0.2em] font-black hover:text-white transition-colors group">
+          <span className="material-symbols-outlined text-sm transition-transform group-hover:-translate-x-1">chevron_left</span>
           Inicio
         </Link>
       </div>
 
-      {/* Main Login Canvas */}
-      <main className="flex-grow flex items-center justify-center pb-16 px-6">
-        <div className="max-w-screen-xl w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-          
-          {/* Left Side: Branding & Energy */}
-          <div className="lg:col-span-5 flex flex-col justify-center space-y-8 pr-0 lg:pr-8">
+      <main className="relative z-10 flex-grow flex items-center justify-center py-12 px-6">
+        <div className="max-w-screen-xl w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+
+          {/* LADO IZQUIERDO */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            className="lg:col-span-5 flex flex-col justify-center space-y-8"
+          >
             <div className="space-y-4">
-              <h1 className="text-1xl md:text-6xl lg:text-[72px] text-white uppercase italic leading-[0.9] font-black tracking-tighter">
-                Bienvenido<br />
-                <span className="text-[#CCFF00]">Suplementos Punchi</span>
+              <span className="inline-block text-[#CCFF00] text-xs font-black uppercase tracking-[0.3em] mb-2">
+                Bienvenido de nuevo
+              </span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl text-white uppercase italic leading-[0.95] font-black tracking-tighter">
+                Suplementos<br />
+                <span className="text-[#CCFF00]">Punchi</span>
               </h1>
-              <p className="font-body-lg text-[16px] leading-relaxed text-[#c4c9ac] max-w-md opacity-90">
-                Accedé a tu cuenta para gestionar pedidos, explorar suplementos y seguir formando parte de la comunidad Punchis.
+            </div>
+
+            <div className="border-l-2 border-[#CCFF00] pl-5 py-1">
+              <p className="text-lg md:text-xl text-white font-bold leading-snug italic">
+                "Sin atajos. Sin excusas.{' '}
+                <span className="text-[#CCFF00]">Solo resultados.</span>"
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                Suplementos importados, certificados, para quienes entrenan en serio.
               </p>
             </div>
 
-            {/* Bento Metric Highlighting Elite Performance */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-[#141414] border-l-4 border-[#CCFF00] p-6">
-                <span className="font-label-bold text-xs text-[#CCFF00] block mb-1 uppercase tracking-widest font-bold">ENERGIA</span>
-                <div className="text-3xl font-extrabold text-white tracking-tight">100%</div>
-              </div>
-              <div className="bg-[#141414] border-l-4 border-[#CCFF00] p-6">
-                <span className="font-label-bold text-xs text-[#CCFF00] block mb-1 uppercase tracking-widest font-bold">FUERZA</span>
-                <div className="text-3xl font-extrabold text-white tracking-tight">24/7</div>
-              </div>
-            </div>
-          </div>
+            <p className="text-base leading-relaxed text-gray-400 max-w-md">
+              Accedé a tu cuenta para gestionar pedidos, explorar suplementos y seguir formando parte de la comunidad Punchis.
+            </p>
+          </motion.div>
 
-          {/* Right Side: Login Form */}
-          <div className="lg:col-span-7">
-            <div className="bg-[#141414] p-8 lg:p-12 border border-[#262626] relative overflow-hidden shadow-2xl">
-              
-              {/* Decorative Background Element */}
-              <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                <span className="material-symbols-outlined text-[140px] text-[#CCFF00]">fitness_center</span>
-              </div>
+          {/* LADO DERECHO - FORM */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="lg:col-span-7"
+          >
+            <div className="bg-[#141414] rounded-2xl p-8 lg:p-12 border border-[#262626] relative overflow-hidden shadow-2xl">
 
-              {/* Header inside Form Container */}
-              <header className="mb-10">
-                <h1 className="text-3xl font-black uppercase italic tracking-tight text-white">
-                  INICIAR SESIÓN
-                </h1>
-                <p className="text-sm text-[#c4c9ac] mt-2">Ingresa tus credenciales para acceder a la consola de élite.</p>
+              <div className="absolute -right-20 -top-20 w-64 h-64 bg-[#CCFF00] rounded-full blur-[100px] opacity-10 pointer-events-none" />
+
+              <header className="relative z-10 mb-8">
+                <h2 className="text-2xl md:text-3xl font-black uppercase italic tracking-tight text-white">Iniciar Sesión</h2>
+                <p className="text-sm text-gray-400 mt-2">Ingresá tus credenciales para acceder a la consola de élite.</p>
               </header>
 
-              <form 
-                className="relative z-10 space-y-6" 
-                noValidate 
+              <form
+                className="relative z-10 space-y-5"
+                noValidate
                 onSubmit={(e) => {
                   e.preventDefault();
                   if (checkemail()) {
@@ -109,48 +110,45 @@ function Login() {
                   }
                 }}
               >
-                {/* Email Input */}
                 <div className="space-y-2">
-                  <label className="font-label-bold text-xs text-[#CCFF00] uppercase tracking-widest block font-bold" htmlFor="email">Dirección de Email</label>
+                  <label className="text-xs text-[#CCFF00] uppercase tracking-widest block font-black" htmlFor="email">
+                    Dirección de Email
+                  </label>
                   <InputField
                     type="email"
-                    placeholder="EMAIL"
+                    placeholder="tu@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    error={error}
+                    error={emailError || error}
                   />
                 </div>
 
-                {/* Password Input */}
                 <div className="space-y-2">
-                  <label className="font-label-bold text-xs text-[#CCFF00] uppercase tracking-widest block font-bold" htmlFor="password">Contraseña</label>
+                  <label className="text-xs text-[#CCFF00] uppercase tracking-widest block font-black" htmlFor="password">
+                    Contraseña
+                  </label>
                   <InputField
                     type="password"
-                    placeholder="CONTRASEÑA"
+                    placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
 
-                <div className="pt-4 space-y-6">
-                  {/* Submit Button */}
-                  <button 
-                    className="w-full bg-[#CCFF00] text-black font-bold py-5 uppercase tracking-[0.2em] hover:bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 group text-sm" 
+                <div className="pt-2 space-y-5">
+                  <button
+                    className="w-full bg-[#CCFF00] text-black font-black py-4 rounded-lg uppercase tracking-[0.15em] hover:bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 group text-sm"
                     type="submit"
                   >
-                    INICIAR SESIÓN
-                    <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">bolt</span>
+                    Iniciar Sesión
+                    <span className="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform">bolt</span>
                   </button>
 
-                  {/* Register Link */}
                   <div className="text-center">
-                    <p className="text-sm text-[#c4c9ac]">
-                      ¿NO TIENES UNA CUENTA? 
-                      <Link 
-                        to="/register" 
-                        className="text-white font-bold border-b border-[#CCFF00] ml-2 hover:text-[#CCFF00] transition-colors"
-                      >
-                        REGISTRATE AQUÍ
+                    <p className="text-sm text-gray-400">
+                      ¿No tenés una cuenta?{' '}
+                      <Link to="/register" className="text-white font-black border-b border-[#CCFF00] hover:text-[#CCFF00] transition-colors">
+                        Registrate aquí
                       </Link>
                     </p>
                   </div>
@@ -158,7 +156,7 @@ function Login() {
               </form>
 
             </div>
-          </div>
+          </motion.div>
 
         </div>
       </main>
