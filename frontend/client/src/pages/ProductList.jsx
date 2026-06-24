@@ -5,11 +5,29 @@ import Navbar from "./Navbar"
 import SortProducts from "../assets/components/react/sidebar/SortProducts"
 import { useDispatch, useSelector } from "react-redux"
 import { fetchProductos } from "../../redux/productosSlice"
+import { useSearchParams } from "react-router-dom"
+
+const normalizeText = (value = "") =>
+  String(value)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+const getSearchableText = (producto) =>
+  normalizeText([
+    producto.nombre,
+    producto.descripcion,
+    producto.categoria?.description,
+    producto.categoria?.nombre,
+    producto.marca?.nombre,
+  ].filter(Boolean).join(" "));
 
 export default function ProductList() {
 
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
   const { productos, error, loading } = useSelector((state) => state.productos);
+  const searchQuery = searchParams.get("search")?.trim() || "";
 
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -30,17 +48,29 @@ export default function ProductList() {
     setProductosFiltrados(filtrados);
   };
 
+  const productosBuscados = useMemo(() => {
+    const normalizedQuery = normalizeText(searchQuery);
+
+    if (!normalizedQuery) {
+      return productosFiltrados;
+    }
+
+    return productosFiltrados.filter((producto) =>
+      getSearchableText(producto).includes(normalizedQuery)
+    );
+  }, [productosFiltrados, searchQuery]);
+
   const productosOrdenados = useMemo(() => {
-    const copia = [...productosFiltrados];
+    const copia = [...productosBuscados];
 
     if (ordenPrecio === "menor-mayor") {
-      copia.sort((a, b) => a.precio - b.precio);
+      copia.sort((a, b) => (a.precioFinal ?? a.precio ?? 0) - (b.precioFinal ?? b.precio ?? 0));
     } else if (ordenPrecio === "mayor-menor") {
-      copia.sort((a, b) => b.precio - a.precio);
+      copia.sort((a, b) => (b.precioFinal ?? b.precio ?? 0) - (a.precioFinal ?? a.precio ?? 0));
     }
 
     return copia;
-  }, [productosFiltrados, ordenPrecio]);
+  }, [productosBuscados, ordenPrecio]);
 
   if (loading) {
     return (
@@ -96,6 +126,11 @@ export default function ProductList() {
                 <p className="text-sm text-gray-400 uppercase mb-2">
                   Mostrando {productosOrdenados.length} Resultados
                 </p>
+                {searchQuery && (
+                  <p className="text-xs text-[#CCFF00] uppercase font-black tracking-widest">
+                    Busqueda: {searchQuery}
+                  </p>
+                )}
               </div>
 
               <SortProducts
@@ -112,6 +147,12 @@ export default function ProductList() {
                 />
               ))}
             </div>
+
+            {productosOrdenados.length === 0 && (
+              <div className="rounded-2xl border border-[#262626] bg-[#111111] p-6 text-gray-400">
+                No encontramos productos para esa busqueda.
+              </div>
+            )}
           </section>
 
         </div>

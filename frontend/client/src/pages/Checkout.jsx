@@ -19,7 +19,7 @@ const mapOrdenToResumenItems = (orden) =>
           nombre: productoRef?.nombre ?? '',
           sabor: saborRef?.nombre ?? '',
           cantidad: detalle.cantidad ?? 0,
-          precio: detalle.precioUnitario ?? productoRef?.precioFinal ?? productoRef?.precio ?? 0,
+          precio: productoRef?.precioFinal ?? detalle.precioUnitario ?? productoRef?.precio ?? 0,
         };
       })
     : [];
@@ -32,7 +32,7 @@ const Checkout = () => {
   const { orden, loading } = useSelector((state) => state.orden);
   const { items: cartItems } = useSelector((state) => state.carrito);
 
-  const [errorCheckout, setErrorCheckout] = useState("");
+  const [errorCheckout, setErrorCheckout] = useState('');
 
   const [form, setForm] = useState({
     calle: '',
@@ -83,12 +83,12 @@ const Checkout = () => {
       },
     };
 
-    setErrorCheckout("");
-
-    const result = await dispatch(createOrden({ body, token }));
-
-    if (!createOrden.fulfilled.match(result)) {
-      const msg = result.error?.message || "Error al crear la orden";
+    setErrorCheckout('');
+    try {
+      await dispatch(createOrden({ body, token })).unwrap();
+      await dispatch(fetchCarrito(token));
+    } catch (e) {
+      const msg = typeof e === 'string' ? e : e?.message || 'Error al crear la orden';
       setErrorCheckout(msg);
     }
   };
@@ -96,7 +96,7 @@ const Checkout = () => {
   const handleActualizarOrdenConCarrito = async () => {
     if (!orden?.direccion || cartItems.length === 0) return;
 
-    setErrorCheckout("");
+    setErrorCheckout('');
 
     const body = {
       direccion: {
@@ -108,12 +108,11 @@ const Checkout = () => {
       },
     };
 
-    const result = await dispatch(createOrden({ body, token }));
-
-    if (createOrden.fulfilled.match(result)) {
-      dispatch(fetchCarrito(token));
-    } else {
-      const msg = result.error?.message || "Error al actualizar la orden con los nuevos productos";
+    try {
+      await dispatch(createOrden({ body, token })).unwrap();
+      await dispatch(fetchCarrito(token));
+    } catch (e) {
+      const msg = typeof e === 'string' ? e : e?.message || 'Error al actualizar la orden con los nuevos productos';
       setErrorCheckout(msg);
     }
   };
@@ -123,10 +122,11 @@ const Checkout = () => {
   };
 
   const resumenOrden = useMemo(() => mapOrdenToResumenItems(orden), [orden]);
+  const displayItems = step === 'direccion' ? cartItems : resumenOrden;
 
   const totalOrden = useMemo(
-    () => resumenOrden.reduce((acc, item) => acc + (Number(item.precio) || 0) * (Number(item.cantidad) || 0), 0),
-    [resumenOrden]
+    () => displayItems.reduce((acc, item) => acc + (Number(item.precio) || 0) * (Number(item.cantidad) || 0), 0),
+    [displayItems]
   );
 
   const hasOrdenEnCurso = Boolean(orden);
@@ -204,7 +204,6 @@ const Checkout = () => {
           </div>
         </div>
 
-        {/* AVISO DE PRODUCTOS NUEVOS EN EL CARRITO, FUERA DE LA ORDEN */}
         {hasOrdenEnCurso && cartItems.length > 0 && (
           <div className="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-[#CCFF00]/30 bg-[#CCFF00]/5 p-4">
             <p className="text-sm text-[#CCFF00] font-bold">
@@ -228,7 +227,6 @@ const Checkout = () => {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14">
-
           <div className="lg:col-span-7">
             {step === 'direccion' ? (
               <CheckoutAddressForm
@@ -246,16 +244,14 @@ const Checkout = () => {
 
           <div className="lg:col-span-5">
             <OrderSummary
-              items={resumenOrden}
+              items={displayItems}
               total={totalOrden}
-              onDeleteDetail={handleDeleteOrderDetail}
+              onDeleteDetail={step === 'pago' ? handleDeleteOrderDetail : undefined}
             />
           </div>
-
         </div>
 
       </div>
-
     </div>
   );
 };

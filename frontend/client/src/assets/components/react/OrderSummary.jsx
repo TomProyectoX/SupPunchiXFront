@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const OrderSummary = ({ items, total, onDeleteDetail }) => {
@@ -14,84 +14,55 @@ const OrderSummary = ({ items, total, onDeleteDetail }) => {
   return (
     <>
       <div className="rounded-2xl border border-[#262626] bg-[#111111] p-6">
-
-        <h2 className="text-sm uppercase text-gray-400">
-          Tu orden
-        </h2>
+        <h2 className="text-sm uppercase text-gray-400">Tu orden</h2>
 
         <div className="mt-4 space-y-4">
-
           {items.length === 0 ? (
-
             <div className="text-center py-8">
               <span className="material-symbols-outlined text-gray-600 text-3xl mb-2 block">shopping_bag</span>
-              <p className="text-sm text-gray-400">
-                No hay productos en la orden.
-              </p>
+              <p className="text-sm text-gray-400">No hay productos en la orden.</p>
             </div>
-
           ) : (
-
             items.map((item) => (
-
               <div
                 key={`${item.idDetalle ?? item.idProducto}-${item.idSabor ?? 0}`}
                 className="flex items-start justify-between gap-4 border-b border-[#262626] pb-3"
               >
-
                 <div className="min-w-0">
-
-                  <p className="text-xs uppercase text-gray-400">
-                    {item.sabor || 'Sabor'}
-                  </p>
-
-                  <p className="text-sm font-black uppercase">
-                    {item.nombre || 'Producto'}
-                  </p>
+                  <p className="text-xs uppercase text-gray-400">{item.sabor || 'Sabor'}</p>
+                  <p className="text-sm font-black uppercase">{item.nombre || 'Producto'}</p>
 
                   <div className="flex items-center gap-3 mt-1">
-                    <p className="text-xs text-gray-500">
-                      Cantidad: {item.cantidad || 0}
-                    </p>
+                    <p className="text-xs text-gray-500">Cantidad: {item.cantidad || 0}</p>
 
-                    <button
-                      type="button"
-                      onClick={() => setDetalleAEliminar(item)}
-                      className="text-[10px] uppercase font-black tracking-wide text-red-400 hover:text-red-300 transition"
-                    >
-                      Eliminar detalle
-                    </button>
+                    {onDeleteDetail && (
+                      <button
+                        type="button"
+                        onClick={() => setDetalleAEliminar(item)}
+                        className="text-[10px] uppercase font-black tracking-wide text-red-400 hover:text-red-300 transition"
+                      >
+                        Eliminar detalle
+                      </button>
+                    )}
                   </div>
-
                 </div>
 
                 <span className="text-sm font-black text-[#CCFF00]">
                   ${Number(item.precio || 0).toLocaleString('es-AR')}
                 </span>
-
               </div>
-
             ))
-
           )}
 
           <div className="flex items-center justify-between pt-2">
-
-            <span className="text-sm text-gray-400">
-              Total
-            </span>
-
+            <span className="text-sm text-gray-400">Total</span>
             <span className="text-2xl font-black text-[#CCFF00]">
               ${Number(total || 0).toLocaleString('es-AR')}
             </span>
-
           </div>
-
         </div>
-
       </div>
 
-      {/* MODAL DE CONFIRMACION */}
       <AnimatePresence>
         {detalleAEliminar && (
           <motion.div
@@ -113,16 +84,12 @@ const OrderSummary = ({ items, total, onDeleteDetail }) => {
               <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-500/10 border border-red-500/30 mx-auto mb-4">
                 <span className="material-symbols-outlined text-red-400 text-2xl">warning</span>
               </div>
-
-              <h3 className="text-white text-lg font-black uppercase text-center mb-2">
-                ¿Estás seguro?
-              </h3>
+              <h3 className="text-white text-lg font-black uppercase text-center mb-2">¿Estás seguro?</h3>
               <p className="text-gray-400 text-sm text-center mb-6">
                 ¿Deseás eliminar{' '}
                 <span className="text-white font-bold">{detalleAEliminar.nombre || 'este producto'}</span>{' '}
                 de tu orden?
               </p>
-
               <div className="flex gap-3">
                 <button
                   type="button"

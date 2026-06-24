@@ -14,6 +14,7 @@ import ConditionalCartWidget from './assets/components/react/ConditionalCartWidg
 import CartToggleButton from './assets/components/react/CartToggleButton.jsx';
 import Promos from './pages/admin/Promos.jsx';
 import PagoConfirmado from './pages/PagoConfirmado.jsx';
+import MisPedidos from './pages/MisPedidos.jsx';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/product/:id" element={<ProductDetails />} />
               <Route path="/pago-confirmado" element={<PagoConfirmado />} />
+              <Route path="/mis-pedidos" element={<MisPedidos />} />
             </Routes>
             <ConditionalCartWidget />
             <CartToggleButton />
