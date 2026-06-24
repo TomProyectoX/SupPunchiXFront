@@ -1,34 +1,23 @@
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCategorias } from "../../../../../redux/categoriasSlice";
 
 export default function FilterCategory({ selectedCategories, onCategoryChange }) {
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const token = useSelector((state) => state.auth.token)
+  const categorias = useSelector((state) => state. categorias.categorias)
+  const loading = useSelector((state) => state. categorias.loading)
 
-  // Fetch categorías desde la BD
   useEffect(() => {
-    const getCategorias = async () => {
-      try {
-        const res = await fetch("http://localhost:4002/categories"); // Ajusta tu endpoint
-        const data = await res.json();
-        setCategories(data); // Guardamos el array de categorías
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getCategorias();
+    dispatch(fetchCategorias(token));
   }, []);
 
-  // Manejar cambios en checkboxes
   const handleChange = (categoriaId) => {
     const newSelected = selectedCategories.includes(categoriaId)
-      ? selectedCategories.filter((id) => id !== categoriaId) // Si ya está, lo quitamos
-      : [...selectedCategories, categoriaId]; // Si no está, lo añadimos
+      ? selectedCategories.filter((id) => id !== categoriaId) 
+      : [...selectedCategories, categoriaId]; 
 
     onCategoryChange(newSelected);
-    console.log("Categorías seleccionadas:", newSelected);
   };
 
   return (
@@ -41,19 +30,19 @@ export default function FilterCategory({ selectedCategories, onCategoryChange })
         <p className="text-sm text-gray-400">Cargando categorías...</p>
       ) : (
         <div className="flex flex-col gap-1.5">
-          {categories.map((cat) => (
+          {categorias.map((categoria) => (
             <label
-              key={cat.id}
+              key={categoria.id}
               className="flex items-center gap-2 cursor-pointer group"
             >
               <input
                 type="checkbox"
-                checked={selectedCategories.includes(cat.id)}
-                onChange={() => handleChange(cat.id)}
+                checked={selectedCategories.includes(categoria.id)}
+                onChange={() => handleChange(categoria.id)}
                 className="w-3 h-3 appearance-none border border-[#3A3A3A] bg-[#0A0A0A] checked:bg-[#CCFF00] checked:border-[#CCFF00] cursor-pointer"
               />
               <span className="text-xs font-bold uppercase tracking-wide text-white group-hover:text-[#CCFF00] transition-colors">
-                {cat.description} {/* Mostramos la descripción de la categoría al lado del checkbox */}
+                {categoria.description} {/* Mostramos la descripción de la categoría al lado del checkbox */}
               </span>
             </label>
           ))}

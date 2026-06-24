@@ -1,34 +1,23 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMarcas } from "../../../../../redux/marcasSlice";
 
-export default function FilterBrand({ selectedBrands, onBrandChange }) { // recibos los estados de los filtros de estados y el callback para actualizar esos estados en el componente padre (Sidebar)
-  const [marcas, setMarcas] = useState([]); // Estado local para almacenar las marcas obtenidas de la BD
-  const [loading, setLoading] = useState(true); // Estado para manejar la carga de datos
+export default function FilterBrand({ selectedBrands, onBrandChange }) {
+  const dispatch = useDispatch();
+  const token = useSelector((state) => state.auth.token);
+  const marcas = useSelector((state) => state.marcas.marcas);
+  const loading = useSelector((state) => state.marcas.loading);
 
-  // Fetch marcas desde la BD
   useEffect(() => {
-    const getMarcas = async () => { 
-      try {
-        const res = await fetch("http://localhost:4002/marcas"); 
-        const data = await res.json();
-        setMarcas(data); // Guardamos el array de marcas
-      } catch (error) {
-        console.error("Error fetching marcas:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getMarcas();
+    dispatch(fetchMarcas(token));
   }, []);
 
-  // Manejar cambios en checkboxes
   const handleChange = (marcaId) => {
-    const newSelected = selectedBrands.includes(marcaId) // Si la marca ya está seleccionada, la quitamos; si no, la añadimos
-      ? selectedBrands.filter((id) => id !== marcaId) // Si ya está, lo quitamos
-      : [...selectedBrands, marcaId]; // Si no está, lo añadimos
+    const newSelected = selectedBrands.includes(marcaId)
+      ? selectedBrands.filter((id) => id !== marcaId)
+      : [...selectedBrands, marcaId];
 
-    onBrandChange(newSelected); // Llamamos al callback del componente padre para actualizar el estado de las marcas seleccionadas
-    console.log("Marcas seleccionadas:", newSelected);
+    onBrandChange(newSelected);
   };
 
   return (
@@ -53,7 +42,7 @@ export default function FilterBrand({ selectedBrands, onBrandChange }) { // reci
                 className="w-3 h-3 appearance-none border border-[#3A3A3A] bg-[#0A0A0A] checked:bg-[#CCFF00] checked:border-[#CCFF00] cursor-pointer"
               />
               <span className="text-xs font-bold uppercase tracking-wide text-white group-hover:text-[#CCFF00] transition-colors">
-                {marca.nombre} {/* Mostramos el nombre de la marca al lado del checkbox */}
+                {marca.nombre}
               </span>
             </label>
           ))}
