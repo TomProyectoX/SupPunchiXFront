@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCarrito, updateCarritoStock, removeFromCarrito } from '../../../../redux/carritoSlice';
 import { closeCart } from '../../../../redux/cartWidgetSlice';
+import { fetchPuntosMe, toggleUsarPuntos } from '../../../../redux/puntosSlice';
+import UsarPuntosSwitch from './sidebar/UsarPuntosSwitch';
+
+const PESOS_POR_PUNTO = 50;
 
 const CartWidget = () => {
   const navigate = useNavigate();
@@ -11,16 +15,25 @@ const CartWidget = () => {
   const { token } = useSelector((state) => state.auth);
   const { items: cartItems } = useSelector((state) => state.carrito);
   const { isOpen } = useSelector((state) => state.cartWidget);
+  const { puntosActuales, usarPuntos } = useSelector((state) => state.puntos);
 
   useEffect(() => {
     if (token) {
       dispatch(fetchCarrito(token));
+      dispatch(fetchPuntosMe(token));
     }
   }, [dispatch, token]);
 
   const subtotal = useMemo(() => {
     return cartItems.reduce((acc, item) => acc + (item.precio || 0) * (item.cantidad || 0), 0);
   }, [cartItems]);
+
+  const descuento = useMemo(() => {
+    if (!usarPuntos) return 0;
+    return Math.min(puntosActuales * PESOS_POR_PUNTO, subtotal);
+  }, [usarPuntos, puntosActuales, subtotal]);
+
+  const total = subtotal - descuento;
 
   const totalItems = useMemo(() => {
     return cartItems.reduce((acc, item) => acc + (item.cantidad || 0), 0);
@@ -52,7 +65,7 @@ const CartWidget = () => {
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        {/* HEADER CON GLOW */}
+        {/* HEADER */}
         <div className="relative px-6 py-6 border-b border-[#262626] bg-gradient-to-r from-[#0A0A0A] to-[#141414] overflow-hidden">
           <div className="absolute -right-40 -top-40 w-80 h-80 bg-[#CCFF00] rounded-full blur-[120px] opacity-5" />
           <div className="relative z-10 flex items-center justify-between">
@@ -74,7 +87,7 @@ const CartWidget = () => {
           </div>
         </div>
 
-        {/* ITEMS CONTAINER */}
+        {/* ITEMS */}
         <div className="flex-1 overflow-y-auto custom-scrollbar">
           {cartItems.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center px-6 text-center">
@@ -138,15 +151,34 @@ const CartWidget = () => {
         {/* FOOTER */}
         {cartItems.length > 0 && (
           <div className="border-t border-[#262626] bg-gradient-to-t from-[#0A0A0A] to-transparent p-6 space-y-4">
+
+            {/* Switch de puntos — solo si el usuario tiene puntos */}
+            {token && puntosActuales > 0 && (
+              <UsarPuntosSwitch
+                puntosDisponibles={puntosActuales}
+                usarPuntos={usarPuntos}
+                onToggle={() => dispatch(toggleUsarPuntos())}
+                subtotal={subtotal}
+              />
+            )}
+
             <div className="space-y-2 py-3 px-3 bg-[#141414] border border-[#262626] rounded-lg">
               <div className="flex items-center justify-between text-xs text-gray-400 font-bold uppercase">
                 <span>Subtotal</span>
-                <span className="text-[#CCFF00]">${subtotal.toLocaleString('es-AR')}</span>
+                <span className="text-white">${subtotal.toLocaleString('es-AR')}</span>
               </div>
+
+              {usarPuntos && descuento > 0 && (
+                <div className="flex items-center justify-between text-xs font-bold uppercase text-[#CCFF00]">
+                  <span>Descuento ({puntosActuales} pts × $50)</span>
+                  <span>-${descuento.toLocaleString('es-AR')}</span>
+                </div>
+              )}
+
               <div className="border-t border-[#262626] pt-2 mt-2 flex items-center justify-between">
                 <span className="text-sm font-black uppercase text-white">Total</span>
                 <span className="text-xl font-black text-[#CCFF00] shadow-lg shadow-[#CCFF00]/30">
-                  ${subtotal.toLocaleString('es-AR')}
+                  ${total.toLocaleString('es-AR')}
                 </span>
               </div>
             </div>

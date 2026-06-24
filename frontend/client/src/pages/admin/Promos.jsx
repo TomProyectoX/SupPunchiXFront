@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProductos } from "../../../redux/productosSlice";
 import { fetchPromos, createPromo, updatePromo, deletePromo } from "../../../redux/promosSlice";
-
 import AdminSidebar from "../../assets/components/admin/AdminSidebar";
 import AdminHeader from "../../assets/components/admin/AdminHeader";
 import PromoForm from "../../assets/components/admin/promoadmin/PromoForm";
@@ -15,8 +14,6 @@ export default function Promos() {
   const productos = useSelector((state) => state.productos.productos);
   const promos = useSelector((state) => state.promos.promos);
 
-  // Estos tres se quedan como estado local porque son solo datos del formulario,
-  // no tiene sentido meterlos en el store global
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
   const [description, setDescription] = useState("");
   const [discount, setDiscount] = useState(0);
@@ -46,14 +43,15 @@ export default function Promos() {
   const handleCreatePromo = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(createPromo({
+      const result = await dispatch(createPromo({
         body: {
           description,
           discount: Number(discount),
           productosIds: productosSeleccionados,
         },
         token,
-      })).unwrap();
+      }));
+      if (result.error) throw new Error(result.error.message);
       resetForm();
     } catch (error) {
       console.error("Error creando promo:", error);
@@ -63,15 +61,15 @@ export default function Promos() {
   const handleEditPromo = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(updatePromo({
+      const result = await dispatch(updatePromo({
         id: editingPromoId,
         body: {
           description,
           discount: Number(discount),
-          // productosIds no va — el backend no lo acepta en el PUT
         },
         token,
-      })).unwrap();
+      }));
+      if (result.error) throw new Error(result.error.message);
       resetForm();
     } catch (error) {
       console.error("Error editando promo:", error);
@@ -80,7 +78,8 @@ export default function Promos() {
 
   const handleDeletePromo = async (promoId) => {
     try {
-      await dispatch(deletePromo({ id: promoId, token })).unwrap();
+      const result = await dispatch(deletePromo({ id: promoId, token }));
+      if (result.error) throw new Error(result.error.message);
     } catch (error) {
       console.error("Error eliminando promo:", error);
     }
