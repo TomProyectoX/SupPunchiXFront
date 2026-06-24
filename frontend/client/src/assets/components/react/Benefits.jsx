@@ -5,25 +5,25 @@ const Benefits = () => {
     {
       titulo: "Envío Rápido",
       descripcion: "Entrega en 24-48 horas.",
-      icono: "🚚"
+      icono: "local_shipping"
     },
 
     {
       titulo: "Marcas de Confianza",
       descripcion: "Ingredientes premium probados en laboratorio.",
-      icono: "✔️"
+      icono: "verified"
     },
 
     {
       titulo: "Atención al Cliente",
       descripcion: "Asistencia nutricional las 24hs.",
-      icono: "🎧"
+      icono: "support_agent"
     },
 
     {
       titulo: "Pago Seguro",
       descripcion: "Transacciones 100% seguras.",
-      icono: "🔒"
+      icono: "lock"
     }
 
   ]
@@ -41,10 +41,10 @@ const Benefits = () => {
             className="flex flex-col items-center text-center"
           >
 
-            <div className="w-20 h-20 border border-[#CCFF00] flex items-center justify-center text-4xl mb-6 bg-black">
-
-              {beneficio.icono}
-
+            <div className="w-20 h-20 rounded-full border border-[#CCFF00] flex items-center justify-center mb-6 bg-black">
+              <span className="material-symbols-outlined text-[#CCFF00]" style={{ fontSize: "36px" }}>
+                {beneficio.icono}
+              </span>
             </div>
 
             <h3 className="text-white text-xl font-black uppercase mb-3">

@@ -10,19 +10,23 @@ const GenericCard = ({
   return (
     <Link
       to={link}
-      className={`group block overflow-hidden ${rounded} border border-[#262626] bg-[#141414] transition-all duration-300 hover:border-[#CCFF00] ${height}`}
+      className={`group block overflow-hidden ${rounded} border border-[#262626] bg-[#141414] transition-all duration-300 hover:border-[#CCFF00] hover:-translate-y-1 hover:shadow-[0_25px_50px_-12px_rgba(204,255,0,0.2)] ${height}`}
     >
       <div className="relative h-full w-full">
 
-        {/* IMAGEN */}
-        <img
-          src={image}
-          alt={name}
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        {/* IMAGEN en blanco y negro */}
+        <div
+          className="absolute inset-0 h-full w-full transition-transform duration-500 group-hover:scale-105"
+          style={{
+            backgroundImage: `url(${image})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            filter: "grayscale(1) contrast(1.1)",
+          }}
         />
 
-        {/* OVERLAY */}
-        <div className="absolute inset-0 bg-black/30" />
+        {/* OVERLAY DEGRADADO - oscurece de abajo hacia arriba para que el texto siempre se lea */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/10" />
 
         {/* TEXTO */}
         <div className="absolute inset-0 flex items-center justify-center px-4">
@@ -32,7 +36,7 @@ const GenericCard = ({
         </div>
 
         {/* BOTON */}
-        <div className="absolute bottom-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-white text-black opacity-90 transition-opacity duration-300 group-hover:opacity-100">
+        <div className="absolute bottom-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#CCFF00] text-black opacity-90 transition-opacity duration-300 group-hover:opacity-100">
           <span className="material-symbols-outlined">
             arrow_forward
           </span>

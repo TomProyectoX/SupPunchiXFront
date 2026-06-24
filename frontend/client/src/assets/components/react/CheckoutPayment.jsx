@@ -7,10 +7,12 @@ const CheckoutPayment = ({ orden, onBack }) => {
   
   const { token } = useSelector((state) => state.auth);
   const navigate = useNavigate();
-  
 
-  const handleonclick =  async () => {
+  const tieneProductos = Array.isArray(orden?.detalles) && orden.detalles.length > 0;
 
+  const handleonclick = async () => {
+
+    if (!tieneProductos) return;
 
     const payload = {
       ordenId: orden.id,
@@ -53,6 +55,15 @@ const CheckoutPayment = ({ orden, onBack }) => {
         </button>
       </div>
 
+      {!tieneProductos && (
+        <div className="mb-8 flex items-center gap-3 rounded-2xl border border-red-500/30 bg-red-500/10 p-4">
+          <span className="material-symbols-outlined text-red-400">error</span>
+          <p className="text-sm text-red-300 font-bold">
+            No hay productos en tu orden. Volvé al carrito antes de continuar.
+          </p>
+        </div>
+      )}
+
       <div className="space-y-8">
 
         <div className="border border-[#262626] rounded-2xl p-6 bg-black">
@@ -78,7 +89,8 @@ const CheckoutPayment = ({ orden, onBack }) => {
             <input
               type="text"
               placeholder="4242 4242 4242 4242"
-              className="w-full rounded-2xl border border-[#262626] bg-black px-5 py-5 outline-none focus:border-[#CCFF00]"
+              disabled={!tieneProductos}
+              className="w-full rounded-2xl border border-[#262626] bg-black px-5 py-5 outline-none focus:border-[#CCFF00] disabled:opacity-40 disabled:cursor-not-allowed"
             />
           </div>
 
@@ -92,7 +104,8 @@ const CheckoutPayment = ({ orden, onBack }) => {
               <input
                 type="text"
                 placeholder="MM/AA"
-                className="w-full rounded-2xl border border-[#262626] bg-black px-5 py-5 outline-none focus:border-[#CCFF00]"
+                disabled={!tieneProductos}
+                className="w-full rounded-2xl border border-[#262626] bg-black px-5 py-5 outline-none focus:border-[#CCFF00] disabled:opacity-40 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -104,15 +117,22 @@ const CheckoutPayment = ({ orden, onBack }) => {
               <input
                 type="text"
                 placeholder="123"
-                className="w-full rounded-2xl border border-[#262626] bg-black px-5 py-5 outline-none focus:border-[#CCFF00]"
+                disabled={!tieneProductos}
+                className="w-full rounded-2xl border border-[#262626] bg-black px-5 py-5 outline-none focus:border-[#CCFF00] disabled:opacity-40 disabled:cursor-not-allowed"
               />
             </div>
 
           </div>
 
           <button
-            className="w-full bg-[#CCFF00] text-black font-black uppercase rounded-2xl py-5 mt-4 hover:scale-[1.01] transition"
-             onClick={handleonclick}> 
+            disabled={!tieneProductos}
+            className={`w-full font-black uppercase rounded-2xl py-5 mt-4 transition ${
+              tieneProductos
+                ? "bg-[#CCFF00] text-black hover:scale-[1.01]"
+                : "bg-gray-700 text-gray-500 cursor-not-allowed"
+            }`}
+            onClick={handleonclick}
+          >
             Confirmar pago
           </button>
 

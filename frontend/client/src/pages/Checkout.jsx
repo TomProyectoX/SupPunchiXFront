@@ -119,10 +119,12 @@ const Checkout = () => {
 
   const hasOrdenEnCurso = Boolean(orden);
 
-  const steps = ['Carrito', 'Entrega', 'Pago'];
+  const steps = [
+    { label: 'Carrito', icon: 'shopping_bag' },
+    { label: 'Entrega', icon: 'local_shipping' },
+    { label: 'Pago', icon: 'credit_card' },
+  ];
 
-  // si ya hay orden -> paso pago
-  // si no -> paso entrega
   const currentStepIndex = hasOrdenEnCurso ? 2 : 1;
 
   const progress = (currentStepIndex / (steps.length - 1)) * 100;
@@ -133,8 +135,6 @@ const Checkout = () => {
 
       try {
 
-        console.log('[Checkout] Cargando orden en curso');
-
         const response = await fetchWithAuth(
           'http://localhost:4002/Ordenes/en-curso',
           { method: 'GET' },
@@ -142,9 +142,6 @@ const Checkout = () => {
           navigate
         );
 
-        console.log('[Checkout] /Ordenes/en-curso status', response.status);
-
-        // si no hay orden en curso devolves 204 o 404
         if (response.status === 204 || response.status === 404) {
           setLoading(false);
           return;
@@ -152,35 +149,14 @@ const Checkout = () => {
 
         const data = await response.json();
 
-        console.log('[Checkout] orden en curso raw', data);
-        console.log('[Checkout] orden keys', Object.keys(data || {}));
-        console.log('[Checkout] orden.detalles raw', data?.detalles);
-        console.log('[Checkout] orden.detalles length', data?.detalles?.length ?? 0);
-        console.log(
-          '[Checkout] source items',
-          Array.isArray(data?.detalles) ? 'detalles' : Array.isArray(data?.productos) ? 'productos' : 'ninguno'
-        );
-
         if (!response.ok) {
           throw new Error('Error cargando orden');
         }
 
         setOrden(data);
-        console.log('[Checkout] orden normalizada', mapOrdenToResumenItems(data));
-        console.log(
-          '[Checkout] orden.detalles mapped ids',
-          Array.isArray(data?.detalles)
-            ? data.detalles.map((detalle) => ({
-                detalleId: detalle.id,
-                productoVarianteId: detalle.productoVariante?.id ?? null,
-                productoId: detalle.productoVariante?.producto?.idProducto ?? null,
-                productoNombre: detalle.productoVariante?.producto?.nombre ?? '',
-              }))
-            : []
-        );
         if (data) {
-        setStep('pago');
-            }
+          setStep('pago');
+        }
 
       } catch (e) {
         console.log(e);
@@ -218,18 +194,6 @@ const Checkout = () => {
     syncOrdenConCarrito();
   }, [orden, cartItems, navigate, token]);
 
-  useEffect(() => {
-    if (!orden) {
-      return;
-    }
-
-    const resumen = mapOrdenToResumenItems(orden);
-    console.log('[Checkout] orden render', {
-      resumenCount: resumen.length,
-      resumen,
-    });
-  }, [orden]);
-
   const handleChange = (e) => {
 
     const { name, value } = e.target;
@@ -255,35 +219,33 @@ const Checkout = () => {
     }
   };
 
-const handleDeleteOrderDetail = async (detalle) => {
-  const idDetalleOrden = detalle.idDetalle;
-  const cantidadTotalDetalle = detalle.cantidad;
-  try {
-    const response = await fetchWithAuth(
-      `http://localhost:4002/Ordenes/${idDetalleOrden}`,
-      {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cantidad: cantidadTotalDetalle }),
-      },
-      () => token,
-      navigate
-    );
+  const handleDeleteOrderDetail = async (detalle) => {
+    const idDetalleOrden = detalle.idDetalle;
+    const cantidadTotalDetalle = detalle.cantidad;
+    try {
+      const response = await fetchWithAuth(
+        `http://localhost:4002/Ordenes/${idDetalleOrden}`,
+        {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cantidad: cantidadTotalDetalle }),
+        },
+        () => token,
+        navigate
+      );
 
-    if (!response.ok) {
-      const errBody = await response.text().catch(() => null);
-      throw new Error(`Eliminar detalle fallo: ${response.status} ${errBody ?? ''}`);
+      if (!response.ok) {
+        const errBody = await response.text().catch(() => null);
+        throw new Error(`Eliminar detalle fallo: ${response.status} ${errBody ?? ''}`);
+      }
+
+      setOrden((prev) =>
+        prev ? { ...prev, detalles: (prev.detalles || []).filter((d) => d.id !== idDetalleOrden) } : prev
+      );
+    } catch (e) {
+      console.error('[Checkout] delete detail error', e);
     }
-
-    // Actualiza UI localmente: eliminar detalle de `orden` sin volver a pedir toda la orden
-    setOrden((prev) =>
-      prev ? { ...prev, detalles: (prev.detalles || []).filter((d) => d.id !== idDetalleOrden) } : prev
-    );
-  } catch (e) {
-    console.error('[Checkout] delete detail error', e);
-  }
-  console.log('[Checkout] delete detail', { idDetalleOrden, cantidadTotalDetalle });
-};
+  };
 
   const resumenOrden = useMemo(() => mapOrdenToResumenItems(orden, cartItems), [orden, cartItems]);
 
@@ -299,83 +261,109 @@ const handleDeleteOrderDetail = async (detalle) => {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center text-white">
-        Cargando checkout...
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-[#CCFF00] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-sm uppercase tracking-widest text-gray-400 font-black">Cargando checkout...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white pt-28 px-6 pb-16">
+    <div className="relative min-h-screen bg-[#0A0A0A] text-white pt-28 px-6 pb-16 overflow-hidden">
 
-  <div className="max-w-[1600px] mx-auto">
+      {/* GLOW DE FONDO */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-[#CCFF00] blur-[200px] opacity-[0.05] pointer-events-none" />
 
-    <div className="mb-10">
+      <div className="relative z-10 max-w-[1600px] mx-auto">
 
-      <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.25em] text-gray-500">
+        {/* STEPPER */}
+        <div className="mb-12">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-sm text-gray-400 hover:text-[#CCFF00] transition uppercase font-black mb-8 group"
+        >
+          <span className="material-symbols-outlined text-base transition-transform group-hover:-translate-x-1">arrow_back</span>
+          Volver
+        </button>
 
-        {steps.map((step, index) => (
-          <span
-            key={step}
-            className={index === currentStepIndex ? 'text-[#CCFF00]' : ''}
-          >
-            {step}
-          </span>
-        ))}
+        <div className="flex items-center justify-between">
+          {steps.map((s, index) => {
+            const isActive = index === currentStepIndex;
+            const isDone = index < currentStepIndex;
+            return (
+              <div key={s.label} className="flex items-center gap-2 flex-1">
+                <div
+                  className={`flex items-center justify-center w-9 h-9 rounded-full border-2 flex-shrink-0 transition-colors ${
+                    isActive
+                      ? "bg-[#CCFF00] border-[#CCFF00] text-black"
+                      : isDone
+                      ? "bg-[#CCFF00]/10 border-[#CCFF00] text-[#CCFF00]"
+                      : "bg-[#141414] border-[#262626] text-gray-500"
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-base">{s.icon}</span>
+                </div>
+                <span
+                  className={`text-xs uppercase tracking-[0.2em] font-black hidden sm:inline ${
+                    isActive || isDone ? "text-[#CCFF00]" : "text-gray-500"
+                  }`}
+                >
+                  {s.label}
+                </span>
+                {index < steps.length - 1 && (
+                  <div className="flex-1 h-[2px] bg-[#262626] mx-2 relative overflow-hidden rounded-full">
+                    <div
+                      className="absolute left-0 top-0 h-full bg-[#CCFF00] transition-all duration-500"
+                      style={{ width: index < currentStepIndex ? "100%" : "0%" }}
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+        {/* GRID PRINCIPAL */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14">
+
+          <div className="lg:col-span-7">
+
+            {step === 'direccion' ? (
+
+              <CheckoutAddressForm
+                form={form}
+                onChange={handleChange}
+                onSubmit={handleSubmit}
+                isDisabled={Boolean(orden)}
+              />
+
+            ) : (
+
+              <CheckoutPayment
+                orden={orden}
+                onBack={() => setStep('direccion')}
+              />
+
+            )}
+
+          </div>
+
+          <div className="lg:col-span-5">
+
+            <OrderSummary
+              items={resumenOrden}
+              total={totalOrden}
+              onDeleteDetail={handleDeleteOrderDetail}
+            />
+
+          </div>
+
+        </div>
 
       </div>
 
-      <div className="mt-4 h-[2px] bg-[#262626] relative">
-
-        <div
-          className="absolute left-0 top-0 h-[2px] bg-[#CCFF00]"
-          style={{ width: `${progress}%` }}
-        />
-
-      </div>
-
     </div>
-
-  </div>
-
-  {/* MÁS ESPACIO ENTRE COLUMNAS */}
-  <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-14">
-
-    <div className="lg:col-span-7">
-
-      {step === 'direccion' ? (
-
-        <CheckoutAddressForm
-          form={form}
-          onChange={handleChange}
-          onSubmit={handleSubmit}
-          isDisabled={Boolean(orden)}
-        />
-
-      ) : (
-
-        <CheckoutPayment
-          orden={orden}
-          onBack={() => setStep('direccion')}
-        />
-
-      )}
-
-    </div>
-
-    {/* le agregamos margin top para separarlo un poco */}
-    <div className="lg:col-span-5 lg:pl-4">
-
-      <OrderSummary
-        items={resumenOrden}
-        total={totalOrden}
-        onDeleteDetail={handleDeleteOrderDetail}
-      />
-
-    </div>
-
-  </div>
-
-</div>
   );
 };
 

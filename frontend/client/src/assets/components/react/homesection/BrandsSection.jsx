@@ -1,40 +1,29 @@
-import GenericCard from "./GenericCard"
+import { Link } from "react-router-dom"
 
 const BrandsSection = () => {
   const brands = [
     {
-      name: "ENA",
-      image:
-        "https://cdn.batitienda.com/baticloud/images/product_picture_f116054f5cdb4c40b3232b56abdc62aa_637933148345028682_0_m.png",
-      link: "/shop?brand=ENA",
+      name: "ENA SPORT",
+      logo: "https://i.imgur.com/jceJxOx.png",
     },
-
     {
       name: "STAR NUTRITION",
-      image:
-        "https://starnutrition.com.ar/cdn/shop/files/IronPack-Strawberry.png?v=1719589259&width=750",
-      link: "/shop?brand=STAR%20NUTRITION",
+      logo: "https://i.imgur.com/HItFoQj.jpeg",
     },
-
     {
-      name: "SPORT GOLD",
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlbpJLzc2KdDNX-H9gbWX9BqFqFL6Iw0z5fg&s",
-      link: "/shop?brand=SPORT%20GOLD",
+      name: "GOLD NUTRITION",
+      logo: "https://i.imgur.com/f55YQQR.jpeg",
     },
-
     {
-      name: "ON",
-      image:
-        "https://http2.mlstatic.com/D_NQ_NP_2X_794907-MLA99946855777_112025-F.webp",
-      link: "/shop?brand=ON",
-    },
+      name: "OPTIMUM NUTRITION",
+      logo: "https://i.imgur.com/nWqpKlb.jpeg",
+    }
   ]
 
   return (
     <section className="py-16 px-2 md:px-4 bg-[#0A0A0A] w-full">
       <div className="max-w-full w-full">
-
+        
         {/* CABECERA */}
         <div className="flex justify-between items-end mb-8 border-l-4 border-[#CCFF00] pl-4">
           <div>
@@ -44,19 +33,33 @@ const BrandsSection = () => {
           </div>
         </div>
 
-        {/* GRID */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* CONTENEDOR GRID RESPONSIVO */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {brands.map((brand, index) => (
-            <GenericCard
+            <Link
               key={index}
-              name={brand.name}
-              image={brand.image}
-              link={brand.link}
-              height="h-[280px] md:h-[340px]"
-            />
+              to={`/shop?brand=${encodeURIComponent(brand.name)}`}
+              className="block overflow-hidden rounded-[2rem] border border-[#262626] bg-[#141414] transition-all duration-300 hover:border-[#CCFF00] hover:-translate-y-1.5 hover:shadow-[0_25px_50px_-12px_rgba(204,255,0,0.2)] group flex flex-col"
+            >
+              <div className="h-[220px] md:h-[260px] flex items-center justify-center p-8 flex-shrink-0 bg-black relative overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.04),transparent_70%)]" />
+                <img
+                  src={brand.logo}
+                  alt={brand.name}
+                  className="relative max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-110"
+                />
+              </div>
+              <div className="px-6 py-4 border-t border-[#262626] flex items-center justify-between">
+                <span className="text-sm font-black uppercase tracking-widest text-white">
+                  {brand.name}
+                </span>
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#CCFF00] text-black flex-shrink-0 transition-transform duration-300 group-hover:translate-x-1">
+                  <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                </div>
+              </div>
+            </Link>
           ))}
         </div>
-
       </div>
     </section>
   )

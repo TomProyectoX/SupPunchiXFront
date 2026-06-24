@@ -142,7 +142,13 @@ export default function ProductList() {
 
       <Navbar />
 
-      <div className="bg-[#0A0A0A] text-white min-h-screen pt-24 px-6">
+      <div className="bg-[#0A0A0A] text-white min-h-screen pt-0 px-6">
+
+        <div className="max-w-[1440px] mx-auto mb-8">
+          <h1 className="text-xl md:text-2xl font-black uppercase italic tracking-tighter text-white">
+            Nuestro <span className="text-[#CCFF00]">Catálogo</span>
+          </h1>
+        </div>
 
         <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row gap-6">
 
