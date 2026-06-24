@@ -30,14 +30,24 @@ export const fetchCarrito = createAsyncThunk('carrito/fetchCarrito', async (toke
     return data;
 });
 
-export const addToCarrito = createAsyncThunk('carrito/addToCarrito', async ({ body, token }) => {
-    const { data } = await axios.post('http://localhost:4002/carritos', body, authHeaders(token));
-    return data;
+export const addToCarrito = createAsyncThunk('carrito/addToCarrito', async ({ body, token }, thunkAPI) => {
+    try {
+      const { data } = await axios.post('http://localhost:4002/carritos', body, authHeaders(token));
+      return data;
+    } catch (error) {
+      const mensaje = error.response?.data || error.message;
+      return thunkAPI.rejectWithValue(mensaje);
+    }
 });
 
-export const updateCarritoStock = createAsyncThunk('carrito/updateCarritoStock', async ({ idproductcart, nuevoStock, token }) => {
-    await axios.put('http://localhost:4002/carritos/stock', { idproductcart, nuevoStock }, authHeaders(token));
-    return { idproductcart, nuevoStock };
+export const updateCarritoStock = createAsyncThunk('carrito/updateCarritoStock', async ({ idproductcart, nuevoStock, token }, thunkAPI) => {
+    try {
+      await axios.put('http://localhost:4002/carritos/stock', { idproductcart, nuevoStock }, authHeaders(token));
+      return { idproductcart, nuevoStock };
+    } catch (error) {
+      const mensaje = error.response?.data || error.message;
+      return thunkAPI.rejectWithValue(mensaje);
+    }
 });
 
 export const removeFromCarrito = createAsyncThunk('carrito/removeFromCarrito', async ({ idproductcart, stock, token }) => {
@@ -56,7 +66,9 @@ const carritoSlice = createSlice({
     error: null,
     loading: false,
   },
-  reducers: {},
+  reducers: {
+    clearCarritoError: (state) => { state.error = null; },
+  },
   extraReducers: (builder) => {
     builder
       // FETCH
@@ -74,13 +86,17 @@ const carritoSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-      // ADD - recargamos el carrito entero para tener los datos completos
-      .addCase(addToCarrito.fulfilled, (state, action) => {
-        // el POST devuelve el productocarrito creado, pero sin la data completa
-        // marcamos para que el componente haga un refetch
-        state.needsRefresh = true;
+      // ADD
+      .addCase(addToCarrito.fulfilled, (state) => {
+        state.error = null;
+      })
+      .addCase(addToCarrito.rejected, (state, action) => {
+        state.error = action.payload || action.error.message;
       })
       // UPDATE STOCK
+      .addCase(updateCarritoStock.rejected, (state, action) => {
+        state.error = action.payload || action.error.message;
+      })
       .addCase(updateCarritoStock.fulfilled, (state, action) => {
         const { idproductcart, nuevoStock } = action.payload;
         if (nuevoStock <= 0) {
@@ -99,4 +115,5 @@ const carritoSlice = createSlice({
   },
 });
 
+export const { clearCarritoError } = carritoSlice.actions;
 export default carritoSlice.reducer;

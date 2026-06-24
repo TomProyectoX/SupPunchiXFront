@@ -14,9 +14,14 @@ export const fetchOrdenEnCurso = createAsyncThunk('orden/fetchOrdenEnCurso', asy
     return response.data;
 });
 
-export const createOrden = createAsyncThunk('orden/createOrden', async ({ body, token }) => {
-    const { data } = await axios.post('http://localhost:4002/Ordenes', body, authHeaders(token));
-    return data;
+export const createOrden = createAsyncThunk('orden/createOrden', async ({ body, token }, thunkAPI) => {
+    try {
+      const { data } = await axios.post('http://localhost:4002/Ordenes', body, authHeaders(token));
+      return data;
+    } catch (error) {
+      const mensaje = error.response?.data || error.message;
+      return thunkAPI.rejectWithValue(mensaje);
+    }
 });
 
 export const deleteDetalleOrden = createAsyncThunk('orden/deleteDetalleOrden', async ({ id, cantidad, token }) => {

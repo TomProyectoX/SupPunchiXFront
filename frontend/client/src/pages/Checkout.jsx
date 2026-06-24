@@ -32,6 +32,8 @@ const Checkout = () => {
   const { orden, loading } = useSelector((state) => state.orden);
   const { items: cartItems } = useSelector((state) => state.carrito);
 
+  const [errorCheckout, setErrorCheckout] = useState("");
+
   const [form, setForm] = useState({
     calle: '',
     numero: '',
@@ -62,8 +64,13 @@ const Checkout = () => {
             codigoPostal: orden.direccion.codigoPostal,
           },
         };
-        dispatch(createOrden({ body, token }));
-        dispatch(fetchCarrito(token));
+        dispatch(createOrden({ body, token }))
+          .unwrap()
+          .then(() => dispatch(fetchCarrito(token)))
+          .catch((e) => {
+            const msg = typeof e === 'string' ? e : e?.message || "Error al actualizar la orden con los nuevos productos";
+            setErrorCheckout(msg);
+          });
       }
 
       setStep('pago');
@@ -96,10 +103,12 @@ const Checkout = () => {
       },
     };
 
+    setErrorCheckout("");
     try {
       await dispatch(createOrden({ body, token })).unwrap();
     } catch (e) {
-      console.error('Error creando orden:', e);
+      const msg = typeof e === 'string' ? e : e?.message || "Error al crear la orden";
+      setErrorCheckout(msg);
     }
   };
 
@@ -143,6 +152,14 @@ const Checkout = () => {
           </div>
         </div>
       </div>
+
+      {errorCheckout && (
+        <div className="max-w-[1600px] mx-auto mb-6">
+          <div className="bg-red-500/10 border border-red-500 rounded-lg px-5 py-3 text-red-400 font-bold text-sm">
+            {errorCheckout}
+          </div>
+        </div>
+      )}
 
       <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-14">
         <div className="lg:col-span-7">

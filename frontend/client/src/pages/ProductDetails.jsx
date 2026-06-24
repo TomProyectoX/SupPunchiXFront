@@ -50,6 +50,7 @@ const ProductDetails = () => {
   const [varianteSeleccionada, setVarianteSeleccionada] = useState(null)
   const [cantidad, setCantidad] = useState(1)
   const [agregado, setAgregado] = useState(false)
+  const [errorCarrito, setErrorCarrito] = useState("")
 
   useEffect(() => {
     dispatch(fetchProductoById(id))
@@ -70,6 +71,7 @@ const ProductDetails = () => {
       cantidad: cantidad,
     };
 
+    setErrorCarrito("");
     try {
       await dispatch(addToCarrito({ body, token })).unwrap();
       await dispatch(fetchCarrito(token));
@@ -77,7 +79,8 @@ const ProductDetails = () => {
       dispatch(openCart());
       setTimeout(() => setAgregado(false), 2000);
     } catch (e) {
-      console.error("Error agregando al carrito:", e);
+      const msg = typeof e === 'string' ? e : e?.message || "Error al agregar al carrito";
+      setErrorCarrito(msg);
     }
   };
 
@@ -227,7 +230,8 @@ const ProductDetails = () => {
                       −
                     </button>
                     <input
-                      type="number"
+                      type="text"
+                      inputMode="numeric"
                       min="1"
                       max={varianteSeleccionada?.stock || 999}
                       value={cantidad}
@@ -263,6 +267,9 @@ const ProductDetails = () => {
                   </button>
                 </div>
                 <p className="text-xs text-gray-500 mt-2">Stock: {varianteSeleccionada?.stock || 0}</p>
+                {errorCarrito && (
+                  <p className="text-sm text-red-400 font-bold mt-2">{errorCarrito}</p>
+                )}
               </div>
             </div>
 

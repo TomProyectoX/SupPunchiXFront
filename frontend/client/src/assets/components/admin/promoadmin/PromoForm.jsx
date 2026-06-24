@@ -72,7 +72,8 @@ export default function PromoForm({
           </label>
 
           <input
-            type="number"
+            type="text"
+            inputMode="numeric"
             value={discount}
             onChange={(e) =>
               setDiscount(e.target.value)

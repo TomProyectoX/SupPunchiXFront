@@ -1,20 +1,23 @@
 import React, { useState } from 'react';
 import './register.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import InputField from '../assets/components/react/InputField';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { postregister } from '../../redux/registerSlice';
+import { postlogin } from '../../redux/authSlice';
 
 function Register() {
-   const dispatch = useDispatch(); 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [registerError, setRegisterError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     let valid = true;
 
@@ -39,13 +42,22 @@ function Register() {
     }
 
     if (valid) {
+      setRegisterError('');
       const body = {
         firstname: firstName,
         lastname: lastName,
         email: email,
         password: password,
       };
-      dispatch(postregister(body));
+
+      try {
+        await dispatch(postregister(body)).unwrap();
+        await dispatch(postlogin({ email, password })).unwrap();
+        navigate('/home');
+      } catch (e) {
+        const msg = typeof e === 'string' ? e : e?.message || 'Error al registrarse';
+        setRegisterError(msg);
+      }
     }
   };
 
@@ -155,6 +167,10 @@ function Register() {
                   />
                 </div>
 
+                {registerError && (
+                  <p className="text-sm text-red-400 font-bold">{registerError}</p>
+                )}
+
                 <div className="pt-4 space-y-6">
                   {/* Submit Button */}
                   <button 
@@ -170,7 +186,7 @@ function Register() {
                     <p className="text-sm text-[#c4c9ac]">
                       ¿YA FORMAS PARTE DEL EQUIPO? 
                       <Link 
-                        to="http://localhost:5173/login" 
+                        to="/login" 
                         className="text-white font-bold border-b border-[#CCFF00] ml-2 hover:text-[#CCFF00] transition-colors"
                       >
                         INICIAR SESIÓN AQUÍ

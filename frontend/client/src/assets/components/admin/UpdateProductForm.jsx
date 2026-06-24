@@ -168,7 +168,8 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
         <span className="text-xs text-gray-400 uppercase">Precio (ARS)</span>
         <input
           name="precio"
-          type="number"
+          type="text"
+          inputMode="numeric"
           step="0.01"
           value={precio}
           onChange={(e) => setPrecio(Number(e.target.value))}

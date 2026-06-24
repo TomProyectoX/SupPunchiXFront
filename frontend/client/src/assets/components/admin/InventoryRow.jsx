@@ -22,7 +22,8 @@ export default function InventoryRow({ producto, variante, handleDelete, handleE
       <td className="px-6 py-4">
         <div className="flex flex-col">
           <input
-            type="number"
+            type="text"
+            inputMode="numeric"
             defaultValue={variante.stock}
             min={0}
             className="w-24 bg-gray-800 text-white rounded px-2 py-1 text-sm"
