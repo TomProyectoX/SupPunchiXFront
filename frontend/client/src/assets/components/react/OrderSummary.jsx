@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const OrderSummary = ({ items, total, onDeleteDetail }) => {
+const OrderSummary = ({ items, total, descuento = 0, puntosUsados = 0, onDeleteDetail }) => {
+  const totalFinal = Math.max(0, total - descuento);
   const [detalleAEliminar, setDetalleAEliminar] = useState(null);
 
   const confirmarEliminar = () => {
@@ -54,10 +55,22 @@ const OrderSummary = ({ items, total, onDeleteDetail }) => {
             ))
           )}
 
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center justify-between pt-2 text-sm">
+            <span className="text-gray-400">Subtotal</span>
+            <span className="text-white">${Number(total || 0).toLocaleString('es-AR')}</span>
+          </div>
+
+          {descuento > 0 && (
+            <div className="flex items-center justify-between text-sm text-[#CCFF00]">
+              <span>Descuento ({puntosUsados} pts × $50)</span>
+              <span>-${descuento.toLocaleString('es-AR')}</span>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between border-t border-[#262626] pt-3">
             <span className="text-sm text-gray-400">Total</span>
             <span className="text-2xl font-black text-[#CCFF00]">
-              ${Number(total || 0).toLocaleString('es-AR')}
+              ${totalFinal.toLocaleString('es-AR')}
             </span>
           </div>
         </div>
@@ -84,9 +97,9 @@ const OrderSummary = ({ items, total, onDeleteDetail }) => {
               <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-500/10 border border-red-500/30 mx-auto mb-4">
                 <span className="material-symbols-outlined text-red-400 text-2xl">warning</span>
               </div>
-              <h3 className="text-white text-lg font-black uppercase text-center mb-2">¿Estás seguro?</h3>
+              <h3 className="text-white text-lg font-black uppercase text-center mb-2">¿Estas seguro?</h3>
               <p className="text-gray-400 text-sm text-center mb-6">
-                ¿Deseás eliminar{' '}
+                ¿Deseas eliminar{' '}
                 <span className="text-white font-bold">{detalleAEliminar.nombre || 'este producto'}</span>{' '}
                 de tu orden?
               </p>

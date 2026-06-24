@@ -20,19 +20,20 @@ const getOrderItems = (orden) =>
           nombre: producto?.nombre || "Producto",
           sabor: sabor?.nombre || "",
           cantidad: Number(detalle.cantidad || 0),
-          precio: Number(producto?.precioFinal ?? detalle.precioUnitario ?? producto?.precio ?? 0),
+          precio: Number(detalle.precioUnitario || producto?.precioFinal || producto?.precio || 0),
         };
       })
     : [];
 
-const getOrderTotal = (orden) =>
-  getOrderItems(orden).reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+const getOrderTotal = (orden) => {
+  if (orden.montoPagado != null) return orden.montoPagado;
+  return getOrderItems(orden).reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+};
 
 const getStatusClass = (estado) => {
   if (estado === "PAGADA") return "border-[#CCFF00]/40 bg-[#CCFF00]/10 text-[#CCFF00]";
   if (estado === "CANCELADA") return "border-red-500/40 bg-red-500/10 text-red-300";
   if (estado === "CONFIRMADA") return "border-blue-400/40 bg-blue-400/10 text-blue-300";
-
   return "border-gray-500/40 bg-gray-500/10 text-gray-300";
 };
 
@@ -47,7 +48,6 @@ const MisPedidos = () => {
       navigate("/login");
       return;
     }
-
     dispatch(fetchOrdenes(token));
   }, [dispatch, navigate, token]);
 
@@ -98,6 +98,8 @@ const MisPedidos = () => {
           {pedidos.map((orden) => {
             const items = getOrderItems(orden);
             const total = getOrderTotal(orden);
+            const subtotal = items.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+            const descuento = subtotal - total;
 
             return (
               <article key={orden.id} className="rounded-2xl border border-[#262626] bg-[#111111] p-6">
@@ -115,6 +117,11 @@ const MisPedidos = () => {
                       {orden.estado || "Sin estado"}
                     </span>
                     <p className="text-3xl font-black text-[#CCFF00]">{formatCurrency(total)}</p>
+                    {descuento > 0 && (
+                      <p className="text-xs font-bold text-gray-400">
+                        Subtotal: {formatCurrency(subtotal)} · Descuento puntos: -{formatCurrency(descuento)}
+                      </p>
+                    )}
                   </div>
                 </div>
 

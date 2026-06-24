@@ -3,33 +3,19 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { fetchWithAuth } from "../../../utils/fetchWithAuth"
 import { Link } from "react-router-dom" 
-// IMPORTANTE: Importamos el diseño reutilizable de la tarjeta
+import { useDispatch, useSelector } from "react-redux"
+import { fetchProductos } from "../../../../redux/productosSlice"
 import ProductoCard from "./ProductoCard" 
 
 const FeaturedProducts = () => {
-  const [productos, setProductos] = useState([])
-  // TODO: dispatch redux - useSelector para token del authSlice
-  const token = null;
+  const dispatch = useDispatch();
+  const token = useSelector((state) => state.auth.token);
+  const productos = useSelector((state) => state.productos.productos.slice(0, 3));
   const navigate = useNavigate();
 
-// FeaturedProducts.jsx
 useEffect(() => {
-  const cargarProductos = async () => {
-    try {
-      // Usamos fetch normal en lugar de fetchWithAuth si no necesitas el token
-      const response = await fetch("http://localhost:4002/productos");
-      const data = await response.json();
-      
-      // Aseguramos que data sea un array antes de hacer slice
-      const productosArray = Array.isArray(data) ? data : [];
-      setProductos(productosArray.slice(0, 3));
-    } catch (error) {
-      console.error("Error al cargar productos destacados", error);
-    }
-  };
-
-  cargarProductos();
-}, []); // Quitamos token y navigate de las dependencias
+  dispatch(fetchProductos());
+}, []);
 
   return (
     <section className="py-12 px-4 md:px-8 bg-[#0A0A0A] w-full">
