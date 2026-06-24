@@ -1,61 +1,54 @@
 import React, { useState } from 'react';
-import './Register.css';
+import './register.css';
 import { Link } from 'react-router-dom';
 import InputField from '../assets/components/react/InputField';
+import { useDispatch, useSelector } from 'react-redux';
+import { postregister } from '../../redux/registerSlice';
 
 function Register() {
+   const dispatch = useDispatch(); 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  const role = "USER";
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setEmailError('');
-    setPasswordError('');
+    let valid = true;
 
-    if (!email) {
-      setEmailError('El correo es obligatorio');
-      return;
+    if (email.trim() === '') {
+      setEmailError('El campo de correo electrónico no puede estar vacío.');
+      valid = false;
+    } else if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setEmailError('Por favor, ingresa un correo electrónico válido.');
+      valid = false;
+    } else {
+      setEmailError('');
     }
 
-    const emailRegex = /^\S+@\S+\.\S+$/;
-    if (!emailRegex.test(email)) {
-      setEmailError('El correo no es válido');
-      return;
+    if (password.trim() === '') {
+      setPasswordError('El campo de contraseña no puede estar vacío.');
+      valid = false;
+    } else if (password.length < 6) {
+      setPasswordError('La contraseña debe tener al menos 6 caracteres.');
+      valid = false;
+    } else {
+      setPasswordError('');
     }
 
-    if (!password || password.length < 8) {
-      setPasswordError('La contraseña debe tener al menos 8 caracteres');
-      return;
-    }
-
-    try {
-      const response = await fetch('http://localhost:4002/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName,
-          lastName,
-          email,
-          password,
-          role,
-        }),
-      });
-
-      const data = await response.json();
-      console.log(data);
-    } catch (error) {
-      console.error(error);
+    if (valid) {
+      const body = {
+        firstname: firstName,
+        lastname: lastName,
+        email: email,
+        password: password,
+      };
+      dispatch(postregister(body));
     }
   };
 
-  // Forzamos de forma limpia la tipografía que usás en 'main-title' desde tu Register.css
   const welcomeFont = { fontFamily: "inherit" }; 
 
   return (

@@ -1,41 +1,33 @@
+import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '../hooks/useCart';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchCarrito, updateCarritoStock, removeFromCarrito } from '../../redux/carritoSlice';
 import FeaturedProducts from '../assets/components/react/FeaturedProducts';
 
 const Cart = () => {
   const navigate = useNavigate();
-  const { cartItems, updateItemQuantity, removeItem, subtotal } = useCart();
+  const dispatch = useDispatch();
 
-  const handleEdit = async (item, nextCantidad) => {
-    try {
-      updateItemQuantity(item, Number(nextCantidad));
-    } catch (e) {
-      console.error('Error actualizando cantidad:', e);
+  const { token } = useSelector((state) => state.auth);
+  const { items: cartItems } = useSelector((state) => state.carrito);
+
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchCarrito(token));
     }
+  }, [dispatch, token]);
+
+  const subtotal = useMemo(() => {
+    return cartItems.reduce((acc, item) => acc + (item.precio || 0) * (item.cantidad || 0), 0);
+  }, [cartItems]);
+
+  const handleEdit = (item, newCantidad) => {
+    dispatch(updateCarritoStock({ idproductcart: item.idCartItem, nuevoStock: newCantidad, token }));
   };
 
-  const handleDelete = async (item) => {
-    try {
-      removeItem(item);
-    } catch (e) {
-      console.error('Error eliminando item:', e);
-    }
+  const handleDelete = (item) => {
+    dispatch(removeFromCarrito({ idproductcart: item.idCartItem, stock: item.stock, token }));
   };
-
-  const shipping = subtotal > 0 ? 0 : 0;
-  
-  const calcularPromoTotal = () => {
-    return cartItems.reduce((total, item) => {
-      if (item.descuento && item.descuento > 0) {
-        const descuentoItem = (item.precioOriginal * (item.descuento / 100)) * item.cantidad;
-        return total + descuentoItem;
-      }
-      return total;
-    }, 0);
-  };
-  
-  const promo = calcularPromoTotal();
-  const total = Math.max(subtotal + shipping, 0);
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white pt-28 px-6 pb-16">
@@ -70,7 +62,6 @@ const Cart = () => {
                       <div>
                         <p className="text-[10px] uppercase text-gray-400">{item.sabor || 'Flavor'}</p>
                         <h3 className="text-lg font-black uppercase">{item.nombre || 'Producto'}</h3>
-                        <p className="text-xs text-gray-500">ID Producto: {item.idProducto}</p>
                       </div>
                     </div>
 
@@ -92,7 +83,7 @@ const Cart = () => {
                       </div>
 
                       <span className="text-lg font-black text-[#CCFF00]">
-                        ${Number((item.productoVariante?.producto?.precio || item.precio || 0) * (item.cantidad || 0)).toLocaleString('es-AR')}
+                        ${Number((item.precio || 0) * (item.cantidad || 0)).toLocaleString('es-AR')}
                       </span>
 
                       <button
@@ -115,20 +106,16 @@ const Cart = () => {
               <div className="mt-4 space-y-3 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Subtotal</span>
-                  <span>${(subtotal + promo).toLocaleString('es-AR')}</span>
+                  <span>${subtotal.toLocaleString('es-AR')}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Envío</span>
                   <span className="text-[#CCFF00]">Gratis</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Promo</span>
-                  <span className="text-red-400">-${promo.toFixed(2)}</span>
-                </div>
               </div>
               <div className="mt-5 border-t border-[#262626] pt-4 flex items-center justify-between">
                 <span className="text-sm text-gray-400">Total</span>
-                <span className="text-2xl font-black text-[#CCFF00]">${total.toFixed(2)}</span>
+                <span className="text-2xl font-black text-[#CCFF00]">${subtotal.toLocaleString('es-AR')}</span>
               </div>
               <button
                 onClick={() => navigate('/checkout')}

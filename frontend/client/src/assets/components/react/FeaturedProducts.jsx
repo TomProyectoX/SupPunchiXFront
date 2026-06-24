@@ -1,7 +1,6 @@
 // FeaturedProducts.jsx
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { useAuth } from "../../../hooks/useAuth"
 import { fetchWithAuth } from "../../../utils/fetchWithAuth"
 import { Link } from "react-router-dom" 
 // IMPORTANTE: Importamos el diseño reutilizable de la tarjeta
@@ -9,7 +8,8 @@ import ProductoCard from "./ProductoCard"
 
 const FeaturedProducts = () => {
   const [productos, setProductos] = useState([])
-  const { token } = useAuth();
+  // TODO: dispatch redux - useSelector para token del authSlice
+  const token = null;
   const navigate = useNavigate();
 
 // FeaturedProducts.jsx

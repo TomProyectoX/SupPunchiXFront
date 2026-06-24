@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
 import { fetchWithAuth } from "../../utils/fetchWithAuth";
 
 import AdminSidebar from "../../assets/components/admin/AdminSidebar";
@@ -19,7 +18,8 @@ export default function Promos() {
 
   const [editingPromoId, setEditingPromoId] = useState(null);
 
-  const { token } = useAuth();
+  // TODO: dispatch redux - useSelector para token del authSlice
+  const token = null;
 
   const navigate = useNavigate();
 

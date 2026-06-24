@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../../hooks/useAuth";
-import { fetchWithAuth } from "../../../utils/fetchWithAuth";
+import { useDispatch, useSelector } from "react-redux";
+import { addProducto, updateProducto } from "../../../../redux/productosSlice";
 
-export default function UpdateProductForm({ producto, marcas, categorias, sabores: saboresProp, onSaved, onClose }) {
+export default function UpdateProductForm({ producto, marcas, categorias, sabores: saboresProp, onClose }) {
   const isEditing = !!producto;
-  const { token } = useAuth();
-  const navigate = useNavigate();
-  
+  const dispatch = useDispatch();
+  const { token } = useSelector((state) => state.auth);
+
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [precio, setPrecio] = useState(0);
@@ -19,9 +18,7 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
   const [imagenError, setImagenError] = useState("");
   const [showSabores, setShowSabores] = useState(false);
   const [selectedSabores, setSelectedSabores] = useState([]);
-  const [sabores, setSabores] = useState([])
-  
-  
+  const [sabores, setSabores] = useState([]);
 
   useEffect(() => {
     if (!isEditing) {
@@ -42,147 +39,55 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
     setCategoriaid(producto.categoria.id);
     setMarcaid(producto.marca.idMarca);
     setSabores(saboresProp);
-    
-    
+
     const saboresIniciales = (producto.variantes || []).map((variante) => ({
       idSabor: variante.sabor?.idSabor || variante.idSabor,
       stock: variante.stock || 0
     }));
     setSelectedSabores(saboresIniciales);
-  
   }, [producto, saboresProp, isEditing]);
- 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (isEditing) {
-      // LÓGICA DE EDICIÓN
-      try{
-        if (!producto?.idProducto) {
-          console.error("[ERROR] No hay idProducto");
-          return;
-        }
+    const bodyData = {
+      nombre,
+      descripcion,
+      precio,
+      tamano,
+      disponible: isEditing ? (producto.disponible ?? true) : true,
+      idMarca: marcaid,
+      idCategoria: categoriaid,
+      variantes: selectedSabores,
+    };
 
-        const bodyData = {
-          nombre,
-          descripcion,
-          precio,
-          tamano: tamano,
-          disponible: producto.disponible ?? true,
-          idMarca: marcaid,
-          idCategoria: categoriaid,
-          variantes: selectedSabores
-        };
+    if (imagenBase64) {
+      bodyData.imagen = imagenBase64;
+    }
 
-        if (imagenBase64) {
-          bodyData.imagen = imagenBase64;
-        }
+    console.log("[DEBUG] bodyData enviado:", bodyData);
 
-        const response = await fetchWithAuth(`http://localhost:4002/productos/${producto.idProducto}`, {
-          method: "PUT",
-          body: JSON.stringify(bodyData),
-        }, () => token, navigate);
-
-        
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error("[ERROR] Response error:", errorData);
-        }
-
-        if (response.ok) {
-          const marcaCompleta = marcas?.find((m) => m.idMarca === marcaid) || { idMarca: marcaid, nombre: "" };
-          const categoriaCompleta = categorias?.find((c) => c.id === categoriaid) || { id: categoriaid, description: "" };
-          
-          const productoActualizado = {
-            ...producto,
-            nombre,
-            descripcion,
-            precio,
-            tamano,
-            disponible: producto.disponible ?? true,
-            imagen: imagenBase64 || producto.imagen || "url",
-            marca: marcaCompleta,
-            categoria: categoriaCompleta,
-            variantes: selectedSabores
-          };
-          onSaved?.(productoActualizado);
-          onClose?.();
-        }
-      } catch(e) {
-        console.error("[ERROR] handleSubmit error:", e);
+    try {
+      if (isEditing) {
+        await dispatch(updateProducto({ id: producto.idProducto, body: bodyData, token })).unwrap();
+      } else {
+        await dispatch(addProducto({ body: bodyData, token })).unwrap();
       }
-    } else {
-      try {
-        const bodyData = {
-          nombre,
-          descripcion,
-          precio,
-          tamano: tamano,
-          disponible: true,
-          imagen: imagenBase64 || "url",
-          idMarca: marcaid,
-          idCategoria: categoriaid,
-          variantes: selectedSabores
-        };
-
-        const response = await fetchWithAuth(`http://localhost:4002/productos`, {
-          method: "POST",
-          body: JSON.stringify(bodyData),
-        }, () => token, navigate);
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error("[ERROR] Response error:", errorData);
-          return;
-        }
-
-        const responseData = await response.json();
-
-        const marcaCompleta = marcas?.find((m) => m.idMarca === marcaid) || { idMarca: marcaid, nombre: "" };
-        const categoriaCompleta = categorias?.find((c) => c.id === categoriaid) || { id: categoriaid, description: "" };
-        
-        const productoNuevo = {
-          idProducto: responseData.idProducto || responseData.id,
-          nombre,
-          descripcion,
-          precio,
-          tamano,
-          disponible: true,
-          imagen: imagenBase64 || "url",
-          marca: marcaCompleta,
-          categoria: categoriaCompleta,
-          variantes: selectedSabores
-        };
-        onSaved?.(productoNuevo);
-        onClose?.();
-      } catch (e) {
-        console.error("[ERROR] handleSubmit error:", e);
-      }
+      onClose?.();
+    } catch (e) {
+      console.error("[ERROR] handleSubmit error:", e);
     }
   };
 
-   const toggleSabor = (sabor) => {
-  setSelectedSabores((saboresActuales) => {
-    const yaSeleccionado = saboresActuales.some(
-      (s) => s.idSabor === sabor.idSabor
-    );
-    if (yaSeleccionado) {
-      const nuevosSabores = saboresActuales.filter( /// si encuentra algun sabor que cumpla con la condicion, lo filtra (q es lo mismo q sacarlo)
-        (s) => s.idSabor !== sabor.idSabor
-      );
-      return nuevosSabores;
-    }
-    const nuevosSabores = [
-      ...saboresActuales,
-      {
-        idSabor: sabor.idSabor,
-        stock: 0
+  const toggleSabor = (sabor) => {
+    setSelectedSabores((saboresActuales) => {
+      const yaSeleccionado = saboresActuales.some((s) => s.idSabor === sabor.idSabor);
+      if (yaSeleccionado) {
+        return saboresActuales.filter((s) => s.idSabor !== sabor.idSabor);
       }
-    ];
-    return nuevosSabores;
-  });
-};
+      return [...saboresActuales, { idSabor: sabor.idSabor, stock: 0 }];
+    });
+  };
 
   const handleImagenChange = (event) => {
     const file = event.target.files?.[0];
@@ -207,7 +112,6 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
     reader.onload = () => {
       const result = String(reader.result || "");
       const base64Puro = result.includes(',') ? result.split(',')[1] : result;
-
       setImagenBase64(base64Puro);
       setImagenNombre(file.name);
       setImagenError("");
@@ -217,7 +121,6 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
       setImagenNombre("");
       setImagenError("No se pudo leer la imagen.");
     };
-
     reader.readAsDataURL(file);
   };
 
@@ -231,8 +134,8 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
           {isEditing ? producto?.nombre : "Agregar Producto"}
         </h3>
         <p className="mt-2 text-sm text-gray-400">
-          {isEditing 
-            ? "Editá nombre, descripción, precio, categoría y marca" 
+          {isEditing
+            ? "Editá nombre, descripción, precio, categoría y marca"
             : "Completá los datos para crear un nuevo producto"}
         </p>
       </div>
@@ -353,22 +256,19 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
           {showSabores ? "Ocultar sabores" : isEditing ? "Actualizar sabores" : "Agregar sabores"}
         </button>
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           className="rounded-md bg-[#CCFF00] px-4 py-2 text-sm font-black text-black transition-colors hover:bg-white"
         >
           {isEditing ? "Guardar" : "Crear Producto"}
         </button>
       </div>
 
-    
       {showSabores && (
         <div className="mt-4 border border-gray-700 rounded-lg p-4 bg-[#050505]">
-   
           <div className="overflow-auto max-h-48">
             <table className="w-full text-left text-sm">
               <thead>
-  
                 <tr className="text-xs text-gray-500 uppercase">
                   <th className="py-2 px-3">ID</th>
                   <th className="py-2 px-3">Nombre</th>
@@ -405,4 +305,3 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
     </form>
   );
 }
-

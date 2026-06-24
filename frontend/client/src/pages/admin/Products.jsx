@@ -1,134 +1,43 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
-import { fetchWithAuth } from "../../utils/fetchWithAuth";
+import { useDispatch, useSelector } from "react-redux";
 import AdminSidebar from "../../assets/components/admin/AdminSidebar";
 import AdminHeader from "../../assets/components/admin/AdminHeader";
 import StatCard from "../../assets/components/admin/StatCard";
 import ProductsTable from "../../assets/components/admin/ProductsTable";
 import UpdateProductForm from "../../assets/components/admin/UpdateProductForm";
+import { fetchProductos, deleteProducto } from "../../../redux/productosSlice";
+import { fetchCategorias } from "../../../redux/categoriasSlice";
+import { fetchMarcas } from "../../../redux/marcasSlice";
+import { fetchSabores } from "../../../redux/saboresSlice";
 
 export default function Products() {
-  const [productos, setProductos] = useState([])
+  const dispatch = useDispatch();
+
+  const { token } = useSelector((state) => state.auth);
+  const { productos } = useSelector((state) => state.productos);
+  const { categorias } = useSelector((state) => state.categorias);
+  const { marcas } = useSelector((state) => state.marcas);
+  const { sabores } = useSelector((state) => state.sabores);
+
   const [productoEditando, setProductoEditando] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const [categorias, setCategorias] = useState([]);
-  const [marcas, setMarcas] = useState([]);
-  const [flavours, setFlavours] = useState([]);
-  const { token } = useAuth();
-  const navigate = useNavigate();
 
   useEffect(() => {
-    if (!token) {
-      console.log('No hay token en Products');
-      return;
-    }
-
-    const fetchproductos = async () => {
-      try {
-        const response = await fetchWithAuth('http://localhost:4002/productos', { method: 'GET' }, () => token, navigate);
-        const data = await response.json()
-        setProductos(data)
-      } catch (e) { console.error('Error fetchproductos:', e) }
-    }
-    const fetchcategorias = async () => {
-      try {
-        const response1 = await fetchWithAuth('http://localhost:4002/categories', { method: 'GET' }, () => token, navigate);
-        const data1 = await response1.json()
-        setCategorias(data1)
-      } catch (e) { console.error('Error fetchcategorias:', e) }
-    }
-    const fetchmarcas = async () => {
-      try {
-        const response2 = await fetchWithAuth('http://localhost:4002/marcas', { method: 'GET' }, () => token, navigate);
-        const data2 = await response2.json()
-        setMarcas(data2)
-      } catch (e) { console.error('Error fetchmarcas:', e) }
-    }
-    const fetchsabores = async () => {
-      try {
-        const response3 = await fetchWithAuth('http://localhost:4002/sabores', { method: 'GET' }, () => token, navigate);
-        const data3 = await response3.json()
-        setFlavours(data3)
-      } catch (e) { console.error('Error fetchsabores:', e) }
-    }
-    
-    fetchproductos();
-    fetchcategorias();
-    fetchmarcas();
-    fetchsabores();
-  }, [token, navigate]) /// si cambia el token volvemos a ejecutar el use effect, 
-  // lo de navigate se pone ahi porque es una regla de los hooks y para evitar bug es un estandar
+    dispatch(fetchProductos());
+    dispatch(fetchCategorias(token));
+    dispatch(fetchMarcas(token));
+    dispatch(fetchSabores(token));
+  }, [dispatch, token]);
 
   const handleEdit = (producto) => {
     setProductoEditando(producto);
     setIsEditing(true);
   };
 
-  const onSaved = (productoActualizado) => {
-    console.log("[DEBUG] onSaved called with:", productoActualizado);
-    console.log("[DEBUG] Current productos before update:", productos);
-    
-    setProductos((productosAnteriores) => {
-      const productosActualizados = productosAnteriores.map((producto) => {
-        if (producto.idProducto === productoActualizado.idProducto) {
-          console.log("[DEBUG] Found matching product, replacing");
-          return productoActualizado;
-        }
-        return producto;
-      });
-      console.log("[DEBUG] Updated productos state:", productosActualizados);
-      return productosActualizados;
-    });
-    setIsEditing(false);
+  const handleDelete = (producto) => {
+    dispatch(deleteProducto({ id: producto.idProducto, token }));
   };
-
-  const savenewproducto = (productoNuevo) => {
-    console.log("[DEBUG] savenewproducto called with:", productoNuevo);
-    setProductos((productosAnteriores) => {
-      const productosActualizados = [...productosAnteriores, productoNuevo];
-      console.log("[DEBUG] Updated productos state:", productosActualizados);
-      return productosActualizados;
-    });
-    setIsAdding(false);
-  };
-
-
-const handleDelete = async (producto) => {
-    try{
-        console.log(producto)
-        const res = await fetchWithAuth(
-           `http://127.0.0.1:4002/productos/${producto.idProducto}`,
-            {
-                method: 'DELETE',
-            },
-            () => token,
-            navigate
-        )
-        if (!res.ok){
-            throw new Error()
-        }
-        deleteproductofromestado(producto)
-
-    } catch (e){
-        console.log(e)
-    }
-}
-
-
-
-function deleteproductofromestado (product) {
-    setProductos((productosantiguos) => {
-        const nuevosprodcutos = productosantiguos.filter((producto) =>  producto.idProducto !== product.idProducto)
-        return nuevosprodcutos
-    })
-
-
-
-
-}
-
 
   return (
     <div className="bg-[#0A0A0A] text-white min-h-screen">
@@ -145,13 +54,13 @@ function deleteproductofromestado (product) {
           />
           <StatCard
             title="Marcas"
-            value={String(new Set(productos.map((producto) => producto.marca?.nombre || producto.marca)).size)}
+            value={String(new Set(productos.map((p) => p.marca?.nombre || p.marca)).size)}
             unit="brands"
             borderColor="border-green-500"
           />
           <StatCard
             title="Categorías"
-            value={String(new Set(productos.map((producto) => producto.categoria?.description || producto.categoria)).size)}
+            value={String(new Set(productos.map((p) => p.categoria?.description || p.categoria)).size)}
             unit="types"
             borderColor="border-yellow-500"
           />
@@ -179,15 +88,12 @@ function deleteproductofromestado (product) {
               >
                 Cerrar
               </button>
-
               <div className="rounded-2xl border border-gray-700 bg-[#0A0A0A] shadow-[0_0_60px_rgba(0,0,0,0.65)]">
-               
                 <UpdateProductForm
                   producto={productoEditando}
                   marcas={marcas}
                   categorias={categorias}
-                  sabores={flavours}
-                  onSaved={onSaved}
+                  sabores={sabores}
                   onClose={() => setIsEditing(false)}
                 />
               </div>
@@ -205,14 +111,11 @@ function deleteproductofromestado (product) {
               >
                 Cerrar
               </button>
-
               <div className="rounded-2xl border border-gray-700 bg-[#0A0A0A] shadow-[0_0_60px_rgba(0,0,0,0.65)]">
-               
                 <UpdateProductForm
                   marcas={marcas}
                   categorias={categorias}
-                  sabores={flavours}
-                  onSaved={savenewproducto}
+                  sabores={sabores}
                   onClose={() => setIsAdding(false)}
                 />
               </div>

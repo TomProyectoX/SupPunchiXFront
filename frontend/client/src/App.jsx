@@ -1,11 +1,7 @@
 import './App.css'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from './contexts/AuthContext';
-import { CartProvider } from './contexts/CartProvider';
-import { CartWidgetProvider } from './contexts/CartWidgetContext';
-import { ProtectedRoute } from './components/ProtectedRoute';
-import Login from "./pages/Login.jsx";
-import Register from "./pages/Register.jsx";
+import Login from "./pages/login.jsx";
+import Register from "./pages/register.jsx";
 import Home from "./pages/Home.jsx";
 import ProductList from './pages/ProductList.jsx';
 import AdminProducts from './pages/admin/AdminProducts.jsx';
@@ -17,95 +13,29 @@ import ProductDetails from './pages/ProductDetails.jsx';
 import ConditionalCartWidget from './assets/components/react/ConditionalCartWidget.jsx';
 import CartToggleButton from './assets/components/react/CartToggleButton.jsx';
 import Promos from './pages/admin/Promos.jsx';
+import PagoConfirmado from './pages/PagoConfirmado.jsx';
 
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <CartProvider>
-          <CartWidgetProvider>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route 
-                path="/home" 
-                element={
-                  <ProtectedRoute>
-                    <Home />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/shop" 
-                element={
-                  <ProtectedRoute>
-                    <ProductList />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/promos" 
-                element={
-                  <ProtectedRoute>
-                    <Promos />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/products" 
-                element={
-                  <ProtectedRoute>
-                    <Products />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/inventory" 
-                element={
-                  <ProtectedRoute>
-                    <AdminProducts />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/catalog" 
-                element={
-                  <ProtectedRoute>
-                    <CatalogConfiguration />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/cart" 
-                element={
-                  <ProtectedRoute>
-                    <Cart />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route
-                path="/checkout"
-                element={
-                  <ProtectedRoute>
-                    <Checkout />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/product/:id"
-                element={
-                  <ProtectedRoute>
-                    <ProductDetails />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/home" element={<Home />} />
+              <Route path="/shop" element={<ProductList />} />
+              <Route path="/admin/promos" element={<Promos />} />
+              <Route path="/admin/products" element={<Products />} />
+              <Route path="/admin/inventory" element={<AdminProducts />} />
+              <Route path="/admin/catalog" element={<CatalogConfiguration />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/product/:id" element={<ProductDetails />} />
+              <Route path="/pago-confirmado" element={<PagoConfirmado />} />
             </Routes>
             <ConditionalCartWidget />
             <CartToggleButton />
-          </CartWidgetProvider>
-        </CartProvider>
-      </AuthProvider>
+
     </BrowserRouter>
   )
 }

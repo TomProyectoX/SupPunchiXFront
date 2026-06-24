@@ -3,143 +3,73 @@ import Sidebar from "../assets/components/react/sidebar/Sidebar"
 import ProductoCard from "../assets/components/react/ProductoCard"
 import Navbar from "./Navbar"
 import SortProducts from "../assets/components/react/sidebar/SortProducts"
-import { useSearchParams } from "react-router-dom"
+import { useDispatch, useSelector } from "react-redux"
+import { fetchProductos } from "../../redux/productosSlice"
 
 export default function ProductList() {
 
-  const [productos, setProductos] = useState([])
-  const [productosFiltrados, setProductosFiltrados] = useState([])
-  const [selectedBrands, setSelectedBrands] = useState([])
-  const [selectedCategories, setSelectedCategories] = useState([])
-  const [ordenPrecio, setOrdenPrecio] = useState("default")
+  const dispatch = useDispatch();
+  const { productos, error, loading } = useSelector((state) => state.productos);
 
-  const [searchParams] = useSearchParams()
-  const searchTerm = searchParams.get("search") || ""
-  const brandFilter = searchParams.get("brand") || ""
-  const categoryFilter = searchParams.get("category") || ""
-
-  const URL = "http://localhost:4002/productos"
+  const [selectedBrands, setSelectedBrands] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [productosFiltrados, setProductosFiltrados] = useState([]);
+  const [ordenPrecio, setOrdenPrecio] = useState("default");
 
   useEffect(() => {
+    dispatch(fetchProductos());
+    console.log(productos)
+  }, [dispatch]);
 
-    fetch(URL)
-
-      .then((response) => response.json())
-
-      .then((data) => {
-
-        console.log("PRODUCTOS:", data)
-
-        const productosArray = Array.isArray(data) ? data : []
-        let initialFiltered = productosArray
-
-        if (brandFilter) {
-          initialFiltered = initialFiltered.filter((producto) => {
-            const marcaNombre = String(producto.marca?.nombre || producto.marca || "").toLowerCase()
-            return marcaNombre === brandFilter.toLowerCase()
-          })
-          const matchingBrandIds = initialFiltered
-            .map((producto) => producto.marca?.idMarca || producto.marca?.id || null)
-            .filter(Boolean)
-
-          if (matchingBrandIds.length > 0) {
-            setSelectedBrands(Array.from(new Set(matchingBrandIds)))
-          }
-        }
-
-        if (categoryFilter) {
-          initialFiltered = initialFiltered.filter((producto) => {
-            const categoriaNombre = String(producto.categoria?.description || producto.categoria?.nombre || producto.categoria || "").toLowerCase()
-            return categoriaNombre === categoryFilter.toLowerCase()
-          })
-          const matchingCategoryIds = initialFiltered
-            .map((producto) => producto.categoria?.id || producto.categoria?.idCategoria || null)
-            .filter(Boolean)
-
-          if (matchingCategoryIds.length > 0) {
-            setSelectedCategories(Array.from(new Set(matchingCategoryIds)))
-          }
-        }
-
-        setProductos(productosArray)
-        setProductosFiltrados(initialFiltered)
-
-      })
-
-      .catch((error) => {
-
-        console.error("Error al cargar productos", error)
-
-        setProductos([])
-        setProductosFiltrados([])
-
-      })
-
-  }, [brandFilter, categoryFilter])
+  useEffect(() => {
+    if (productosFiltrados.length === 0 && productos.length > 0) {
+      setProductosFiltrados(productos);
+    }
+  }, [productos]);
 
   const handleFilteredProductos = (filtrados) => {
+    setProductosFiltrados(filtrados);
+  };
 
-    setProductosFiltrados(
-      Array.isArray(filtrados) ? filtrados : []
-    )
+  const productosOrdenados = useMemo(() => {
+    const copia = [...productosFiltrados];
 
+    if (ordenPrecio === "menor-mayor") {
+      copia.sort((a, b) => a.precio - b.precio);
+    } else if (ordenPrecio === "mayor-menor") {
+      copia.sort((a, b) => b.precio - a.precio);
+    }
+
+    return copia;
+  }, [productosFiltrados, ordenPrecio]);
+
+  if (loading) {
+    return (
+      <div>
+        <Navbar />
+        <div className="bg-[#0A0A0A] text-white min-h-screen flex items-center justify-center">
+          <p className="text-xl font-black uppercase">Cargando productos...</p>
+        </div>
+      </div>
+    );
   }
 
-  // ORDENAR PRODUCTOS
-  const productosOrdenados = useMemo(() => {
-    let filtered = [...productosFiltrados]
-    
-    // Filtrar por término de búsqueda
-     // Filtrar por término de búsqueda
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase()
-      filtered = filtered.filter(producto => {
-        // Asegurar que son strings antes de .toLowerCase()
-        const nombre = String(producto.nombre || "").toLowerCase()
-        const descripcion = String(producto.descripcion || "").toLowerCase()
-        // Si categoria es un objeto, intentar obtener su nombre o propiedad
-        let categoriaStr = ""
-        if (producto.categoria) {
-          if (typeof producto.categoria === "string") {
-            categoriaStr = producto.categoria.toLowerCase()
-          } else if (typeof producto.categoria === "object" && producto.categoria.nombre) {
-            categoriaStr = String(producto.categoria.nombre).toLowerCase()
-          }
-        }
-
-        return (
-          nombre.includes(searchLower) ||
-          descripcion.includes(searchLower) ||
-          categoriaStr.includes(searchLower)
-        )
-      })
-    }
-    
-          // Luego aplicar el ordenamiento de precio
-      return filtered.sort((a, b) => {
-        const precioA = a.promo ? a.precio - (a.precio * a.promo.discount) / 100 : a.precio
-        const precioB = b.promo ? b.precio - (b.precio * b.promo.discount) / 100 : b.precio
-
-        if (ordenPrecio === "menor-mayor") {
-          return Number(precioA) - Number(precioB)
-        }
-
-        if (ordenPrecio === "mayor-menor") {
-          return Number(precioB) - Number(precioA)
-        }
-
-        return 0
-      })
-    }, [productosFiltrados, ordenPrecio, searchTerm])
+  if (error) {
+    return (
+      <div>
+        <Navbar />
+        <div className="bg-[#0A0A0A] text-white min-h-screen flex items-center justify-center">
+          <p className="text-xl text-red-400">Error: {error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-
     <div>
-
       <Navbar />
 
       <div className="bg-[#0A0A0A] text-white min-h-screen pt-24 px-6">
-
         <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row gap-6">
 
           <Sidebar
@@ -152,45 +82,31 @@ export default function ProductList() {
           />
 
           <section className="flex-grow">
-
             <div className="flex justify-between items-end mb-8">
-
               <div>
-
                 <p className="text-sm text-gray-400 uppercase mb-2">
-                  Mostrando  {productosOrdenados.length} Resultados
+                  Mostrando {productosOrdenados.length} Resultados
                 </p>
-
               </div>
 
               <SortProducts
                 ordenPrecio={ordenPrecio}
                 setOrdenPrecio={setOrdenPrecio}
               />
-
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-
               {productosOrdenados.map((producto) => (
-
                 <ProductoCard
                   key={producto.idProducto}
                   producto={producto}
                 />
-
               ))}
-
             </div>
-
           </section>
 
         </div>
-
       </div>
-
     </div>
-
-  )
-
+  );
 }

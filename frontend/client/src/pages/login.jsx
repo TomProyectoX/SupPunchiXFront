@@ -1,15 +1,16 @@
-import './Register.css';
+import './register.css';
 import InputField from '../assets/components/react/InputField';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useDispatch } from 'react-redux';
+import { postlogin } from '../../redux/authSlice';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const dispatch = useDispatch();
 
   const checkemail = () => {
     if (email.trim() === '') {
@@ -28,25 +29,7 @@ function Login() {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch('http://localhost:4002/auth/authenticate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data?.message || 'No se pudo iniciar sesión.');
-        return;
-      }
-
-      login(data);
+      await dispatch(postlogin({ email, password })).unwrap();
       navigate('/home');
     } catch (loginError) {
       setError('Ocurrió un error al iniciar sesión.');

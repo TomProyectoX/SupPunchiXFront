@@ -1,27 +1,29 @@
+import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useCartWidget } from '../../../hooks/useCartWidget';
-import { useCart } from '../../../hooks/useCart';
+import { useSelector, useDispatch } from 'react-redux';
+import { toggleCart } from '../../../../redux/cartWidgetSlice';
 
 const CartToggleButton = () => {
   const location = useLocation();
-  const { toggleCart } = useCartWidget();
-  const { totalItems } = useCart();
+  const dispatch = useDispatch();
 
-  // Páginas donde NO debe aparecer el botón
+  const { items: cartItems } = useSelector((state) => state.carrito);
+
+  const totalItems = useMemo(() => {
+    return cartItems.reduce((acc, item) => acc + (item.cantidad || 0), 0);
+  }, [cartItems]);
+
   const hiddenRoutes = ['/login', '/register', '/checkout'];
-  
-  // Verificar si la ruta actual comienza con /admin
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isHiddenRoute = hiddenRoutes.some(route => location.pathname.startsWith(route));
 
-  // No mostrar en rutas ocultas
   if (isHiddenRoute || isAdminRoute) {
     return null;
   }
 
   return (
     <button
-      onClick={toggleCart}
+      onClick={() => dispatch(toggleCart())}
       className="fixed right-6 bottom-6 z-30 w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-[#CCFF00] to-[#E8FF66] text-black font-black flex items-center justify-center rounded-full shadow-xl shadow-[#CCFF00]/50 hover:shadow-2xl hover:shadow-[#CCFF00]/70 hover:scale-110 active:scale-95 transition-all duration-200"
     >
       <div className="flex flex-col items-center gap-0.5">

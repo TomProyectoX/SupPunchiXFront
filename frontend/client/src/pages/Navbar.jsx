@@ -1,10 +1,13 @@
 import { NavLink, useNavigate } from "react-router-dom"
 import SearchBar from "../assets/components/react/SearchBar"
-import { useAuth } from "../hooks/useAuth"
+import { useSelector, useDispatch } from "react-redux"
+import { logout } from "../../redux/authSlice"
 
 const Navbar = () => {
   const navigate = useNavigate()
-  const { token, logout } = useAuth()
+  const dispatch = useDispatch()
+  const { token } = useSelector((state) => state.auth)
+  const handleLogout = () => dispatch(logout())
   const navStyle = ({ isActive }) =>
     isActive
       ? "text-[#CCFF00] border-b-2 border-[#CCFF00] font-black py-1 text-xs uppercase tracking-widest transition-all"
@@ -48,7 +51,7 @@ const Navbar = () => {
           {/* Login / Logout */}
           {token ? (
             <button
-              onClick={logout}
+              onClick={handleLogout}
               className="text-white hover:text-[#CCFF00] transition-colors text-xs uppercase font-black tracking-widest"
             >
               Cerrar Sesión

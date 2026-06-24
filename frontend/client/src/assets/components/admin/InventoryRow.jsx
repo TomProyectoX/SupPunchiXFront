@@ -30,7 +30,7 @@ export default function InventoryRow({ producto, variante, handleDelete, handleE
             onBlur={(e) => {
               const newStock = Number(e.target.value || 0);
               
-              handleEdit(producto.id ,variante, newStock);
+              handleEdit(producto.idProducto, variante, newStock);
             }}
           />
           <p className="text-xs text-gray-500 mt-1">{variante.stock} UNITS</p>
@@ -43,7 +43,7 @@ export default function InventoryRow({ producto, variante, handleDelete, handleE
             type="button"
             className="px-3 py-1 bg-red-600 text-white rounded text-sm font-semibold"
             aria-label={`Eliminar variante ${variante.id} de ${producto.nombre}`}
-            onClick={() => handleDelete(variante.id, producto.id)}
+            onClick={() => handleDelete(variante.id, producto.idProducto)}
           >
             Eliminar
           </button>
