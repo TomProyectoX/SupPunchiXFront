@@ -47,13 +47,15 @@ const OrderSummary = ({ items, total, onDeleteDetail }) => {
                     Cantidad: {item.cantidad || 0}
                   </p>
 
-                  <button
-                    type="button"
-                    onClick={() => onDeleteDetail?.(item)}
-                    className="text-[10px] uppercase font-black tracking-wide text-red-400 hover:text-red-300 transition"
-                  >
-                    Eliminar detalle
-                  </button>
+                  {onDeleteDetail && (
+                    <button
+                      type="button"
+                      onClick={() => onDeleteDetail(item)}
+                      className="text-[10px] uppercase font-black tracking-wide text-red-400 hover:text-red-300 transition"
+                    >
+                      Eliminar detalle
+                    </button>
+                  )}
                 </div>
 
               </div>

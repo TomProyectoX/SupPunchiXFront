@@ -117,10 +117,11 @@ const Checkout = () => {
   };
 
   const resumenOrden = useMemo(() => mapOrdenToResumenItems(orden), [orden]);
+  const displayItems = step === 'direccion' ? cartItems : resumenOrden;
 
   const totalOrden = useMemo(
-    () => resumenOrden.reduce((acc, item) => acc + (Number(item.precio) || 0) * (Number(item.cantidad) || 0), 0),
-    [resumenOrden]
+    () => displayItems.reduce((acc, item) => acc + (Number(item.precio) || 0) * (Number(item.cantidad) || 0), 0),
+    [displayItems]
   );
 
   const hasOrdenEnCurso = Boolean(orden);
@@ -179,9 +180,9 @@ const Checkout = () => {
 
         <div className="lg:col-span-5 lg:pl-4">
           <OrderSummary
-            items={resumenOrden}
+            items={displayItems}
             total={totalOrden}
-            onDeleteDetail={handleDeleteOrderDetail}
+            onDeleteDetail={step === 'pago' ? handleDeleteOrderDetail : undefined}
           />
         </div>
       </div>
