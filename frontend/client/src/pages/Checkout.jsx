@@ -19,7 +19,7 @@ const mapOrdenToResumenItems = (orden) =>
           nombre: productoRef?.nombre ?? '',
           sabor: saborRef?.nombre ?? '',
           cantidad: detalle.cantidad ?? 0,
-          precio: detalle.precioUnitario ?? productoRef?.precioFinal ?? productoRef?.precio ?? 0,
+          precio: productoRef?.precioFinal ?? detalle.precioUnitario ?? productoRef?.precio ?? 0,
         };
       })
     : [];
