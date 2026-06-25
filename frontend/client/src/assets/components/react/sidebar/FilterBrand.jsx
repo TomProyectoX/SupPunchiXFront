@@ -1,24 +1,16 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMarcas } from "../../../../../redux/marcasSlice";
 
 export default function FilterBrand({ selectedBrands, onBrandChange }) {
-  const [marcas, setMarcas] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const token = useSelector((state) => state.auth.token);
+  const marcas = useSelector((state) => state.marcas.marcas);
+  const loading = useSelector((state) => state.marcas.loading);
 
   useEffect(() => {
-    const getMarcas = async () => {
-      try {
-        const res = await fetch("http://localhost:4002/marcas");
-        const data = await res.json();
-        setMarcas(data);
-      } catch (error) {
-        console.error("Error fetching marcas:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getMarcas();
-  }, []);
+    dispatch(fetchMarcas(token));
+  }, [dispatch, token]);
 
   const handleChange = (marcaId) => {
     const newSelected = selectedBrands.includes(marcaId)

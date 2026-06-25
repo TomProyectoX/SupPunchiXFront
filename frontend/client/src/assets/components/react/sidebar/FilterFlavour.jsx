@@ -1,24 +1,16 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchSabores } from "../../../../../redux/saboresSlice";
 
 export default function FilterFlavour({ selectedFlavours, onFlavourChange }) {
-  const [sabores, setSabores] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const token = useSelector((state) => state.auth.token);
+  const sabores = useSelector((state) => state.sabores.sabores);
+  const loading = useSelector((state) => state.sabores.loading);
 
   useEffect(() => {
-    const getSabores = async () => {
-      try {
-        const res = await fetch("http://localhost:4002/sabores");
-        const data = await res.json();
-        setSabores(data);
-      } catch (error) {
-        console.error("Error fetching sabores:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getSabores();
-  }, []);
+    dispatch(fetchSabores(token));
+  }, [dispatch, token]);
 
   const handleChange = (saborId) => {
     const newSelected = selectedFlavours.includes(saborId)
