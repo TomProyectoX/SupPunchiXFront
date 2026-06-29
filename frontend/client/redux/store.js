@@ -10,6 +10,7 @@ import carritoSlice from './carritoSlice';
 import cartWidgetSlice from './cartWidgetSlice';
 import ordenSlice from './ordenSlice';
 import promosSlice from './promosSlice';
+import cuponesSlice from './cuponesSlice';
 
 
 export const store = configureStore({
@@ -25,5 +26,6 @@ export const store = configureStore({
     cartWidget: cartWidgetSlice,
     orden: ordenSlice,
     promos: promosSlice,
+    cupones: cuponesSlice,
   },
 });

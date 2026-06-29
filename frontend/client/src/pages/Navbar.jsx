@@ -40,6 +40,7 @@ const Navbar = () => {
           <div className="hidden md:flex gap-6 ml-4">
             <NavLink to="/" className={navStyle}>Inicio</NavLink>
             <NavLink to="/shop" className={navStyle}>Catálogo</NavLink>
+            <NavLink to="/cupones" className={navStyle}>Cupones</NavLink>
           </div>
         </div>
 

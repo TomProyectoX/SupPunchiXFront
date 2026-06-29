@@ -13,6 +13,8 @@ import ProductDetails from './pages/ProductDetails.jsx';
 import ConditionalCartWidget from './assets/components/react/ConditionalCartWidget.jsx';
 import CartToggleButton from './assets/components/react/CartToggleButton.jsx';
 import Promos from './pages/admin/Promos.jsx';
+import Cupones from './pages/admin/Cupones.jsx';
+import CanjearCupones from './pages/CanjearCupones.jsx';
 import PagoConfirmado from './pages/PagoConfirmado.jsx';
 
 function App() {
@@ -25,6 +27,8 @@ function App() {
               <Route path="/home" element={<Home />} />
               <Route path="/shop" element={<ProductList />} />
               <Route path="/admin/promos" element={<Promos />} />
+              <Route path="/admin/cupones" element={<Cupones />} />
+              <Route path="/cupones" element={<CanjearCupones />} />
               <Route path="/admin/products" element={<Products />} />
               <Route path="/admin/inventory" element={<AdminProducts />} />
               <Route path="/admin/catalog" element={<CatalogConfiguration />} />
