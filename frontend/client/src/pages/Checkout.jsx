@@ -5,7 +5,6 @@ import CheckoutAddressForm from '../assets/components/react/CheckoutAddressForm'
 import CheckoutPayment from '../assets/components/react/CheckoutPayment';
 import OrderSummary from '../assets/components/react/OrderSummary';
 import { fetchOrdenEnCurso, createOrden, deleteDetalleOrden } from '../../redux/ordenSlice';
-import { fetchCarrito } from '../../redux/carritoSlice';
 
 const mapOrdenToResumenItems = (orden) =>
   Array.isArray(orden?.detalles)
@@ -46,7 +45,6 @@ const Checkout = () => {
 
   useEffect(() => {
     if (token) {
-      dispatch(fetchCarrito(token));
       dispatch(fetchOrdenEnCurso(token));
     }
   }, [dispatch, token]);
@@ -110,9 +108,7 @@ const Checkout = () => {
 
     const result = await dispatch(createOrden({ body, token }));
 
-    if (createOrden.fulfilled.match(result)) {
-      dispatch(fetchCarrito(token));
-    } else {
+    if (!createOrden.fulfilled.match(result)) {
       const msg = result.error?.message || "Error al actualizar la orden con los nuevos productos";
       setErrorCheckout(msg);
     }

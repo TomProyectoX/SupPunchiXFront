@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createOrden } from './ordenSlice';
 
 
 const authHeaders = (token) => ({
@@ -87,8 +88,15 @@ const carritoSlice = createSlice({
         state.error = action.error.message;
       })
       // ADD
-      .addCase(addToCarrito.fulfilled, (state) => {
+      .addCase(addToCarrito.fulfilled, (state, action) => {
         state.error = null;
+        const newItem = normalizeItem(action.payload);
+        const existingIndex = state.items.findIndex((i) => i.idCartItem === newItem.idCartItem);
+        if (existingIndex >= 0) {
+          state.items[existingIndex] = newItem;
+        } else {
+          state.items.push(newItem);
+        }
       })
       .addCase(addToCarrito.rejected, (state, action) => {
         state.error = action.payload || action.error.message;
@@ -111,6 +119,11 @@ const carritoSlice = createSlice({
       // REMOVE
       .addCase(removeFromCarrito.fulfilled, (state, action) => {
         state.items = state.items.filter((i) => i.idCartItem !== action.payload);
+      })
+      // CREAR ORDEN => vaciar carrito
+      .addCase(createOrden.fulfilled, (state) => {
+        state.items = [];
+        state.total = 0;
       });
   },
 });

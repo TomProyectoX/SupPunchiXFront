@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import { useSelector, useDispatch } from "react-redux"
 import { motion } from "framer-motion"
 import { fetchProductoById } from "../../redux/productosSlice"
-import { addToCarrito, fetchCarrito } from "../../redux/carritoSlice"
+import { addToCarrito } from "../../redux/carritoSlice"
 import { openCart } from "../../redux/cartWidgetSlice"
 import ProductImage from "../assets/components/react/product/ProductImage";
 import ProductVariantSelector from "../assets/components/react/product/ProductVariantSelector";
@@ -47,7 +47,6 @@ const ProductDetails = () => {
     const result = await dispatch(addToCarrito({ body, token }));
 
     if (addToCarrito.fulfilled.match(result)) {
-      await dispatch(fetchCarrito(token));
       setAgregado(true);
       dispatch(openCart());
       setTimeout(() => setAgregado(false), 2000);
