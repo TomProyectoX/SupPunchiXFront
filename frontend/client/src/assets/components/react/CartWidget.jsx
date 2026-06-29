@@ -6,6 +6,7 @@ import { closeCart } from '../../../../redux/cartWidgetSlice';
 import { fetchOrdenEnCurso } from '../../../../redux/ordenSlice';
 import CartHeader from './cart/CartHeader';
 import CartItemCard from './cart/CartItemCard';
+import CuponItemCard from './cart/CuponItemCard';
 import OrdenPendienteCard from './cart/OrdenPendienteCard';
 import CartSummaryFooter from './cart/CartSummaryFooter';
 import DeleteConfirmModal from './cart/DeleteConfirmModal';
@@ -33,6 +34,7 @@ const CartWidget = () => {
   const { items: cartItems } = useSelector((state) => state.carrito);
   const { isOpen } = useSelector((state) => state.cartWidget);
   const { orden } = useSelector((state) => state.orden);
+  const cupon = useSelector((state) => state.carrito.cupon);
 
   const [itemAEliminar, setItemAEliminar] = useState(null);
 
@@ -78,7 +80,8 @@ const CartWidget = () => {
 
   const handleCloseCart = () => dispatch(closeCart());
 
-  const hayAlgo = cartItems.length > 0 || itemsOrden.length > 0;
+  const productosCupon = cupon?.productos ?? [];
+  const hayAlgo = cartItems.length > 0 || itemsOrden.length > 0 || productosCupon.length > 0;
 
   return (
     <>
@@ -118,6 +121,23 @@ const CartWidget = () => {
                   <div className="space-y-3">
                     {itemsOrden.map((item) => (
                       <OrdenPendienteCard key={`orden-${item.idDetalle}`} item={item} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* PRODUCTOS DE CUPON */}
+              {productosCupon.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-3 px-1">
+                    <span className="material-symbols-outlined text-[#CCFF00] text-sm">redeem</span>
+                    <p className="text-xs uppercase font-black tracking-widest text-[#CCFF00]">
+                      Cupon canjeado
+                    </p>
+                  </div>
+                  <div className="space-y-3">
+                    {productosCupon.map((pv) => (
+                      <CuponItemCard key={`cupon-${pv.id}`} producto={pv} />
                     ))}
                   </div>
                 </div>

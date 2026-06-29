@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const OrderSummary = ({ items, total, onDeleteDetail }) => {
+const OrderSummary = ({ items, total, cupon, onDeleteDetail }) => {
   const [detalleAEliminar, setDetalleAEliminar] = useState(null);
 
   const confirmarEliminar = () => {
@@ -73,6 +73,28 @@ const OrderSummary = ({ items, total, onDeleteDetail }) => {
 
             ))
 
+          )}
+
+          {cupon?.productos?.length > 0 && (
+            <div className="border-t border-[#CCFF00]/20 pt-3 mt-2">
+              <p className="text-xs uppercase tracking-[0.25em] text-[#CCFF00] mb-3">Cupon canjeado</p>
+              {cupon.productos.map((pv) => (
+                <div key={`cupon-${pv.id}`} className="flex items-center justify-between mb-2">
+                  <div className="min-w-0">
+                    <p className="text-sm font-black uppercase">{pv.producto?.nombre || 'Producto'}</p>
+                    <p className="text-xs text-gray-500">{pv.sabor?.nombre || 'Sin sabor'}</p>
+                  </div>
+                  <span className="text-sm font-black text-[#CCFF00]">$0</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {cupon?.descuento != null && (
+            <div className="flex items-center justify-between border-t border-[#CCFF00]/20 pt-3 mt-2 text-sm text-[#CCFF00]">
+              <span>Cupon ({cupon.descuento}% OFF)</span>
+              <span>-${Math.round((total || 0) * (cupon.descuento / 100)).toLocaleString('es-AR')}</span>
+            </div>
           )}
 
           <div className="flex items-center justify-between pt-2">

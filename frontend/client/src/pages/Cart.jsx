@@ -9,7 +9,7 @@ const Cart = () => {
   const dispatch = useDispatch();
 
   const { token } = useSelector((state) => state.auth);
-  const { items: cartItems } = useSelector((state) => state.carrito);
+  const { items: cartItems, cupon } = useSelector((state) => state.carrito);
 
   useEffect(() => {
     if (token) {
@@ -20,6 +20,13 @@ const Cart = () => {
   const subtotal = useMemo(() => {
     return cartItems.reduce((acc, item) => acc + (item.precio || 0) * (item.cantidad || 0), 0);
   }, [cartItems]);
+
+  const descuentoCupon = useMemo(() => {
+    if (cupon?.descuento == null) return 0;
+    return Math.round(subtotal * (cupon.descuento / 100));
+  }, [cupon, subtotal]);
+
+  const total = subtotal - descuentoCupon;
 
   const handleEdit = (item, newCantidad) => {
     dispatch(updateCarritoStock({ idproductcart: item.idCartItem, nuevoStock: newCantidad, token }));
@@ -97,6 +104,57 @@ const Cart = () => {
                 ))
               )}
             </div>
+
+            {/* PRODUCTOS DE CUPON */}
+            {cupon?.productos?.length > 0 && (
+              <div className="mt-8">
+                <div className="flex items-baseline gap-3">
+                  <h2 className="text-2xl font-black uppercase">Cupon canjeado</h2>
+                  <span className="text-gray-500 text-sm">({cupon.productos.length})</span>
+                </div>
+
+                <div className="mt-4 space-y-4">
+                  {cupon.productos.map((pv) => (
+                    <div
+                      key={`cupon-${pv.id}`}
+                      className="rounded-2xl border border-[#CCFF00]/20 bg-[#111111] p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="h-16 w-16 bg-[#141414] border border-[#CCFF00]/20" />
+                        <div>
+                          <p className="text-[10px] uppercase text-gray-400">
+                            {pv.sabor?.nombre || 'Sin sabor'}
+                          </p>
+                          <h3 className="text-lg font-black uppercase">
+                            {pv.producto?.nombre || 'Producto'}
+                          </h3>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-4">
+                        <span className="text-xs uppercase font-black bg-[#CCFF00]/10 text-[#CCFF00] px-3 py-1 rounded-full">
+                          Gratis
+                        </span>
+                        <span className="text-lg font-black text-[#CCFF00]">$0</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* DESCUENTO DE CUPON */}
+            {cupon?.descuento != null && (
+              <div className="mt-8">
+                <div className="rounded-2xl border border-[#CCFF00]/20 bg-[#111111] p-5 flex items-center justify-between">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.25em] text-[#CCFF00]">Cupon aplicado</p>
+                    <p className="text-xl font-black mt-1">{cupon.descuento}% OFF en tu orden</p>
+                  </div>
+                  <span className="text-2xl font-black text-[#CCFF00]">-{cupon.descuento}%</span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* RIGHT: summary */}
@@ -108,6 +166,14 @@ const Cart = () => {
                   <span className="text-gray-400">Subtotal</span>
                   <span>${subtotal.toLocaleString('es-AR')}</span>
                 </div>
+
+                {descuentoCupon > 0 && (
+                  <div className="flex items-center justify-between text-[#CCFF00]">
+                    <span>Cupon ({cupon.descuento}% OFF)</span>
+                    <span>-${descuentoCupon.toLocaleString('es-AR')}</span>
+                  </div>
+                )}
+
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Envío</span>
                   <span className="text-[#CCFF00]">Gratis</span>
@@ -115,7 +181,7 @@ const Cart = () => {
               </div>
               <div className="mt-5 border-t border-[#262626] pt-4 flex items-center justify-between">
                 <span className="text-sm text-gray-400">Total</span>
-                <span className="text-2xl font-black text-[#CCFF00]">${subtotal.toLocaleString('es-AR')}</span>
+                <span className="text-2xl font-black text-[#CCFF00]">${total.toLocaleString('es-AR')}</span>
               </div>
               <button
                 onClick={() => navigate('/checkout')}

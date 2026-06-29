@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchCupones, fetchMisPuntos, canjearCupon, cancelarCupon, clearCuponesError } from "../../redux/cuponesSlice";
-import { fetchCarrito } from "../../redux/carritoSlice";
 import Navbar from "./Navbar";
 
 const CanjearCupones = () => {
@@ -11,6 +10,9 @@ const CanjearCupones = () => {
 
   const { token } = useSelector((state) => state.auth);
   const { cupones, cuponActivo, puntos, error, loading } = useSelector((state) => state.cupones);
+  const cuponEnCarrito = useSelector((state) => state.carrito.cupon);
+  const cuponEnOrden = useSelector((state) => state.orden.orden?.cupon);
+  const yaTieneCupon = cuponEnCarrito != null || cuponEnOrden != null;
 
   useEffect(() => {
     if (token) {
@@ -26,18 +28,12 @@ const CanjearCupones = () => {
     }
   }, [error, dispatch]);
 
-  const handleCanjear = async (cuponId) => {
-    const result = await dispatch(canjearCupon({ id: cuponId, token }));
-    if (!result.error) {
-      dispatch(fetchCarrito(token));
-    }
+  const handleCanjear = (cuponId) => {
+    dispatch(canjearCupon({ id: cuponId, token }));
   };
 
-  const handleCancelar = async (cuponId) => {
-    const result = await dispatch(cancelarCupon({ id: cuponId, token }));
-    if (!result.error) {
-      dispatch(fetchCarrito(token));
-    }
+  const handleCancelar = (cuponId) => {
+    dispatch(cancelarCupon({ id: cuponId, token }));
   };
 
   return (
@@ -101,11 +97,14 @@ const CanjearCupones = () => {
                 cupones.map((cupon) => {
                   const alcanza = puntos >= cupon.costo;
                   const estaActivo = cuponActivo?.id === cupon.id;
+                  const bloqueado = yaTieneCupon && !estaActivo;
 
                   return (
                     <div
                       key={cupon.id}
-                      className="rounded-2xl border border-[#262626] bg-[#111111] p-6 flex flex-col justify-between"
+                      className={`rounded-2xl border bg-[#111111] p-6 flex flex-col justify-between ${
+                        bloqueado ? "border-[#262626] opacity-50" : "border-[#262626]"
+                      }`}
                     >
                       <div>
                         <p className="text-2xl font-black text-[#CCFF00]">
@@ -134,20 +133,24 @@ const CanjearCupones = () => {
 
                       <button
                         onClick={() => handleCanjear(cupon.id)}
-                        disabled={!alcanza || estaActivo}
+                        disabled={!alcanza || estaActivo || bloqueado}
                         className={`mt-6 w-full rounded-lg py-3 font-black uppercase transition-colors ${
                           estaActivo
                             ? "bg-gray-600 text-gray-400 cursor-not-allowed"
-                            : alcanza
-                              ? "bg-[#CCFF00] text-black hover:bg-white"
-                              : "bg-gray-700 text-gray-500 cursor-not-allowed"
+                            : bloqueado
+                              ? "bg-gray-700 text-gray-500 cursor-not-allowed"
+                              : alcanza
+                                ? "bg-[#CCFF00] text-black hover:bg-white"
+                                : "bg-gray-700 text-gray-500 cursor-not-allowed"
                         }`}
                       >
                         {estaActivo
                           ? "Canjeado"
-                          : alcanza
-                            ? "Canjear"
-                            : "Puntos insuficientes"}
+                          : bloqueado
+                            ? "Ya tenes un cupon activo"
+                            : alcanza
+                              ? "Canjear"
+                              : "Puntos insuficientes"}
                       </button>
                     </div>
                   );

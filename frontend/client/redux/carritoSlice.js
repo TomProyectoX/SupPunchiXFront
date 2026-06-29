@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { createOrden } from './ordenSlice';
+import { canjearCupon, cancelarCupon } from './cuponesSlice';
 
 
 const authHeaders = (token) => ({
@@ -63,6 +64,7 @@ const carritoSlice = createSlice({
   name: 'carrito',
   initialState: {
     items: [],
+    cupon: null,
     total: 0,
     error: null,
     loading: false,
@@ -81,6 +83,7 @@ const carritoSlice = createSlice({
         state.loading = false;
         const productos = action.payload.productos ?? [];
         state.items = productos.map(normalizeItem);
+        state.cupon = action.payload.cupon ?? null;
         state.total = action.payload.total ?? 0;
       })
       .addCase(fetchCarrito.rejected, (state, action) => {
@@ -120,10 +123,19 @@ const carritoSlice = createSlice({
       .addCase(removeFromCarrito.fulfilled, (state, action) => {
         state.items = state.items.filter((i) => i.idCartItem !== action.payload);
       })
-      // CREAR ORDEN => vaciar carrito
+      // CREAR ORDEN => vaciar carrito y cupon
       .addCase(createOrden.fulfilled, (state) => {
         state.items = [];
+        state.cupon = null;
         state.total = 0;
+      })
+      // CANJEAR CUPON => guardar en carrito
+      .addCase(canjearCupon.fulfilled, (state, action) => {
+        state.cupon = action.payload;
+      })
+      // CANCELAR CUPON => quitar del carrito
+      .addCase(cancelarCupon.fulfilled, (state) => {
+        state.cupon = null;
       });
   },
 });

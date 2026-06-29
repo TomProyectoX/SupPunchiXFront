@@ -29,7 +29,7 @@ const Checkout = () => {
 
   const { token } = useSelector((state) => state.auth);
   const { orden, loading } = useSelector((state) => state.orden);
-  const { items: cartItems } = useSelector((state) => state.carrito);
+  const { items: cartItems, cupon } = useSelector((state) => state.carrito);
 
   const [errorCheckout, setErrorCheckout] = useState("");
 
@@ -92,7 +92,7 @@ const Checkout = () => {
   };
 
   const handleActualizarOrdenConCarrito = async () => {
-    if (!orden?.direccion || cartItems.length === 0) return;
+    if (!orden?.direccion || (cartItems.length === 0 && cupon == null)) return;
 
     setErrorCheckout("");
 
@@ -201,11 +201,16 @@ const Checkout = () => {
         </div>
 
         {/* AVISO DE PRODUCTOS NUEVOS EN EL CARRITO, FUERA DE LA ORDEN */}
-        {hasOrdenEnCurso && cartItems.length > 0 && (
+        {hasOrdenEnCurso && (cartItems.length > 0 || cupon != null) && (
           <div className="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-[#CCFF00]/30 bg-[#CCFF00]/5 p-4">
-            <p className="text-sm text-[#CCFF00] font-bold">
-              Tenés {cartItems.length} producto(s) nuevo(s) en el carrito que todavía no están en tu orden.
-            </p>
+            <div className="text-sm text-[#CCFF00] font-bold">
+              {cartItems.length > 0 && (
+                <p>Tenés {cartItems.length} producto(s) nuevo(s) en el carrito que todavía no están en tu orden.</p>
+              )}
+              {cupon != null && (
+                <p>Tenés un cupón activo que no se aplicó a tu orden.</p>
+              )}
+            </div>
             <button
               onClick={handleActualizarOrdenConCarrito}
               className="bg-[#CCFF00] text-black px-4 py-2 rounded-lg text-xs font-black uppercase whitespace-nowrap hover:bg-white transition"
@@ -244,6 +249,7 @@ const Checkout = () => {
             <OrderSummary
               items={resumenOrden}
               total={totalOrden}
+              cupon={orden?.cupon}
               onDeleteDetail={handleDeleteOrderDetail}
             />
           </div>
