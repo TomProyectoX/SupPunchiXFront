@@ -126,12 +126,12 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
   };
 
   return (
-    <form id="product-form" onSubmit={handleSubmit} className="w-full max-w-none rounded-2xl border border-emerald-400/20 bg-[#050505] p-8 shadow-[0_0_0_1px_rgba(163,230,53,0.08),0_0_40px_rgba(163,230,53,0.08)]">
-      <div className="mb-6 border-b border-gray-700/80 pb-5">
+    <form id="product-form" onSubmit={handleSubmit} className="w-full rounded-2xl border border-emerald-400/20 bg-[#050505] p-5 sm:p-6 shadow-[0_0_0_1px_rgba(163,230,53,0.08),0_0_40px_rgba(163,230,53,0.08)]">
+      <div className="mb-4 border-b border-gray-700/80 pb-4">
         <p className="text-xs font-semibold uppercase tracking-[0.35em] text-gray-500">
           {isEditing ? "Editar producto" : "Nuevo producto"}
         </p>
-        <h3 className="mt-2 text-3xl font-black tracking-tight text-white">
+        <h3 className="mt-1 text-2xl font-black tracking-tight text-white">
           {isEditing ? producto?.nombre : "Agregar Producto"}
         </h3>
         <p className="mt-2 text-sm text-gray-400">

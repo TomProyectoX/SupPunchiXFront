@@ -79,16 +79,16 @@ export default function Products() {
         <ProductsTable productos={productos} handleEdit={handleEdit} handleDelete={handleDelete} />
 
         {isEditing && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm px-4">
-            <div className="relative w-full max-w-2xl">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-6">
+            <div className="relative w-full max-w-xl">
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
-                className="absolute -top-10 right-0 text-sm text-gray-300 hover:text-white"
+                className="absolute -top-11 right-0 rounded-lg border border-gray-700 bg-[#141414] px-4 py-2 text-xs font-black uppercase text-gray-300 hover:border-[#CCFF00] hover:text-[#CCFF00]"
               >
                 Cerrar
               </button>
-              <div className="rounded-2xl border border-gray-700 bg-[#0A0A0A] shadow-[0_0_60px_rgba(0,0,0,0.65)]">
+              <div className="max-h-[82vh] overflow-y-auto rounded-2xl border border-gray-700 bg-[#0A0A0A] shadow-[0_0_60px_rgba(0,0,0,0.65)]">
                 <UpdateProductForm
                   producto={productoEditando}
                   marcas={marcas}
@@ -102,16 +102,16 @@ export default function Products() {
         )}
 
         {isAdding && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm px-4">
-            <div className="relative w-full max-w-2xl">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-6">
+            <div className="relative w-full max-w-xl">
               <button
                 type="button"
                 onClick={() => setIsAdding(false)}
-                className="absolute -top-10 right-0 text-sm text-gray-300 hover:text-white"
+                className="absolute -top-11 right-0 rounded-lg border border-gray-700 bg-[#141414] px-4 py-2 text-xs font-black uppercase text-gray-300 hover:border-[#CCFF00] hover:text-[#CCFF00]"
               >
                 Cerrar
               </button>
-              <div className="rounded-2xl border border-gray-700 bg-[#0A0A0A] shadow-[0_0_60px_rgba(0,0,0,0.65)]">
+              <div className="max-h-[82vh] overflow-y-auto rounded-2xl border border-gray-700 bg-[#0A0A0A] shadow-[0_0_60px_rgba(0,0,0,0.65)]">
                 <UpdateProductForm
                   marcas={marcas}
                   categorias={categorias}
