@@ -10,14 +10,16 @@ export const postlogin = createAsyncThunk('auth/postlogin', async (credentials) 
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
-    token: localStorage.getItem('jwtToken') || null,
+    token: null,
+    role: null,
     error: null,
     loading: false,
   },
   reducers: {
     logout: (state) => {
       state.token = null;
-      localStorage.removeItem('jwtToken');
+      state.role = null;
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
@@ -31,7 +33,7 @@ const authSlice = createSlice({
         const raw = action.payload;
         const jwt = typeof raw === 'string' ? raw : raw.token || raw.jwtToken || raw.accessToken || raw.access_token || raw.jwt;
         state.token = jwt;
-        localStorage.setItem('jwtToken', jwt);
+        state.role = typeof raw === 'object' ? (raw.role || 'USER') : 'USER';
       })
       .addCase(postlogin.rejected, (state, action) => {
         state.loading = false;

@@ -34,7 +34,7 @@ const getImageSrc = (imageValue) => {
   return `data:image/jpeg;base64,${imageValue}`;
 };
 
-const ProductoCard = ({ producto, featured = false }) => {
+const ProductoCard = ({ producto }) => {
   if (!producto) return null;
 
   // ===== PROMO =====

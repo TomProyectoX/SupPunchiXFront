@@ -1,8 +1,10 @@
 import { useLocation } from 'react-router-dom';
 import CartWidget from './CartWidget';
+import { useSelector } from 'react-redux';
 
 const ConditionalCartWidget = () => {
   const location = useLocation();
+  const role = useSelector((state) => state.auth.role);
 
   // Páginas donde NO debe aparecer CartWidget
   const hiddenRoutes = ['/login', '/register', '/checkout', '/admin/products', '/admin/inventory', '/admin/catalog'];
@@ -12,7 +14,7 @@ const ConditionalCartWidget = () => {
   const isHiddenRoute = hiddenRoutes.some(route => location.pathname.startsWith(route));
 
   // No mostrar en rutas ocultas
-  if (isHiddenRoute || isAdminRoute) {
+  if (isHiddenRoute || isAdminRoute || role === 'ADMIN') {
     return null;
   }
 

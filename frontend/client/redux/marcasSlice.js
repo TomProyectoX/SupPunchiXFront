@@ -9,7 +9,7 @@ const authHeaders = (token) => ({
 export const fetchMarcas = createAsyncThunk('marcas/fetchMarcas', async (token) => {
     const { data } = await axios.get('http://localhost:4002/marcas', authHeaders(token));
     return data;
-});
+}, { condition: (_, { getState }) => getState().marcas.status === 'idle' });
 
 export const addMarca = createAsyncThunk('marcas/addMarca', async ({ body, token }) => {
     const { data } = await axios.post('http://localhost:4002/marcas', body, authHeaders(token));
@@ -32,6 +32,7 @@ const marcasSlice = createSlice({
     marcas: [],
     error: null,
     loading: false,
+    status: 'idle',
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -39,14 +40,17 @@ const marcasSlice = createSlice({
       // FETCH
       .addCase(fetchMarcas.pending, (state) => {
         state.loading = true;
+        state.status = 'loading';
         state.error = null;
       })
       .addCase(fetchMarcas.fulfilled, (state, action) => {
         state.loading = false;
+        state.status = 'succeeded';
         state.marcas = action.payload;
       })
       .addCase(fetchMarcas.rejected, (state, action) => {
         state.loading = false;
+        state.status = 'failed';
         state.error = action.error.message;
       })
       // ADD

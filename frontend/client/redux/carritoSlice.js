@@ -2,6 +2,7 @@ import axios from 'axios';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { createOrden } from './ordenSlice';
 import { canjearCupon, cancelarCupon } from './cuponesSlice';
+import { logout } from './authSlice';
 
 
 const authHeaders = (token) => ({
@@ -30,7 +31,7 @@ const normalizeItem = (item) => {
 export const fetchCarrito = createAsyncThunk('carrito/fetchCarrito', async (token) => {
     const { data } = await axios.get('http://localhost:4002/carritos', authHeaders(token));
     return data;
-});
+}, { condition: (_, { getState }) => getState().carrito.status === 'idle' });
 
 export const addToCarrito = createAsyncThunk('carrito/addToCarrito', async ({ body, token }, thunkAPI) => {
     try {
@@ -68,6 +69,7 @@ const carritoSlice = createSlice({
     total: 0,
     error: null,
     loading: false,
+    status: 'idle',
   },
   reducers: {
     clearCarritoError: (state) => { state.error = null; },
@@ -77,10 +79,12 @@ const carritoSlice = createSlice({
       // FETCH
       .addCase(fetchCarrito.pending, (state) => {
         state.loading = true;
+        state.status = 'loading';
         state.error = null;
       })
       .addCase(fetchCarrito.fulfilled, (state, action) => {
         state.loading = false;
+        state.status = 'succeeded';
         const productos = action.payload.productos ?? [];
         state.items = productos.map(normalizeItem);
         state.cupon = action.payload.cupon ?? null;
@@ -88,6 +92,7 @@ const carritoSlice = createSlice({
       })
       .addCase(fetchCarrito.rejected, (state, action) => {
         state.loading = false;
+        state.status = 'failed';
         state.error = action.error.message;
       })
       // ADD
@@ -136,6 +141,13 @@ const carritoSlice = createSlice({
       // CANCELAR CUPON => quitar del carrito
       .addCase(cancelarCupon.fulfilled, (state) => {
         state.cupon = null;
+      })
+      .addCase(logout, (state) => {
+        state.items = [];
+        state.cupon = null;
+        state.total = 0;
+        state.error = null;
+        state.status = 'idle';
       });
   },
 });

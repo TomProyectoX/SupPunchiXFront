@@ -18,7 +18,7 @@ export const fetchMisPuntos = createAsyncThunk('cupones/fetchMisPuntos', async (
 export const fetchCupones = createAsyncThunk('cupones/fetchCupones', async (token) => {
   const { data } = await axios.get(BASE_URL, authHeaders(token));
   return data;
-});
+}, { condition: (_, { getState }) => getState().cupones.status === 'idle' });
 
 export const createCupon = createAsyncThunk('cupones/createCupon', async ({ body, token }, thunkAPI) => {
   try {
@@ -55,6 +55,7 @@ const cuponesSlice = createSlice({
     puntos: 0,
     error: null,
     loading: false,
+    status: 'idle',
   },
   reducers: {
     clearCuponActivo: (state) => {
@@ -73,14 +74,17 @@ const cuponesSlice = createSlice({
       // FETCH
       .addCase(fetchCupones.pending, (state) => {
         state.loading = true;
+        state.status = 'loading';
         state.error = null;
       })
       .addCase(fetchCupones.fulfilled, (state, action) => {
         state.loading = false;
+        state.status = 'succeeded';
         state.cupones = action.payload;
       })
       .addCase(fetchCupones.rejected, (state, action) => {
         state.loading = false;
+        state.status = 'failed';
         state.error = action.error.message;
       })
       // CREATE

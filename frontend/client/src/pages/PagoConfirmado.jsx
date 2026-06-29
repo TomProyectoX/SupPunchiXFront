@@ -26,6 +26,12 @@ const PagoConfirmado = () => {
             Volver al inicio
           </Link>
           <Link
+            to="/pedidos"
+            className="border-2 border-white text-white font-black uppercase py-4 px-8 rounded-lg hover:bg-white hover:text-black transition-colors"
+          >
+            Ver historial
+          </Link>
+          <Link
             to="/shop"
             className="border-2 border-[#CCFF00] text-[#CCFF00] font-black uppercase py-4 px-8 rounded-lg hover:bg-[#CCFF00]/10 transition-colors"
           >

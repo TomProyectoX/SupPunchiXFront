@@ -5,33 +5,39 @@ import Navbar from "./Navbar"
 import SortProducts from "../assets/components/react/sidebar/SortProducts"
 import { useDispatch, useSelector } from "react-redux"
 import { fetchProductos } from "../../redux/productosSlice"
+import { useSearchParams } from "react-router-dom"
 
 export default function ProductList() {
 
   const dispatch = useDispatch();
   const { productos, error, loading } = useSelector((state) => state.productos);
+  const [searchParams] = useSearchParams();
+  const search = (searchParams.get("search") || "").trim().toLocaleLowerCase("es");
 
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [productosFiltrados, setProductosFiltrados] = useState([]);
+  const [productosFiltrados, setProductosFiltrados] = useState(null);
   const [ordenPrecio, setOrdenPrecio] = useState("default");
 
   useEffect(() => {
     dispatch(fetchProductos());
   }, [dispatch]);
 
-  useEffect(() => {
-    if (productosFiltrados.length === 0 && productos.length > 0) {
-      setProductosFiltrados(productos);
-    }
-  }, [productos]);
-
   const handleFilteredProductos = (filtrados) => {
     setProductosFiltrados(filtrados);
   };
 
   const productosOrdenados = useMemo(() => {
-    const copia = [...productosFiltrados];
+    const copia = (productosFiltrados ?? productos).filter((producto) => {
+      if (!search) return true;
+      return [
+        producto.nombre,
+        producto.descripcion,
+        producto.marca?.nombre,
+        producto.categoria?.description,
+        ...(producto.variantes?.map((v) => v.sabor?.nombre) || []),
+      ].some((value) => String(value || "").toLocaleLowerCase("es").includes(search));
+    });
 
     if (ordenPrecio === "menor-mayor") {
       copia.sort((a, b) => a.precio - b.precio);
@@ -40,7 +46,7 @@ export default function ProductList() {
     }
 
     return copia;
-  }, [productosFiltrados, ordenPrecio]);
+  }, [productosFiltrados, ordenPrecio, search]);
 
   if (loading) {
     return (
@@ -77,6 +83,7 @@ export default function ProductList() {
           <h1 className="text-xl md:text-2xl font-black uppercase italic tracking-tighter text-white">
             Nuestro <span className="text-[#CCFF00]">Catálogo</span>
           </h1>
+          {search && <p className="mt-2 text-sm text-gray-400">Resultados para “{searchParams.get("search")}”</p>}
         </div>
 
         <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row gap-6">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './register.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -51,13 +51,17 @@ function Register() {
         password: password,
       };
 
-      try {
-        await dispatch(postregister(body)).unwrap();
-        await dispatch(postlogin({ email, password })).unwrap();
+      const registerResult = await dispatch(postregister(body));
+      if (postregister.rejected.match(registerResult)) {
+        setRegisterError(registerResult.payload || registerResult.error?.message || 'Error al registrarse');
+        return;
+      }
+
+      const loginResult = await dispatch(postlogin({ email, password }));
+      if (postlogin.fulfilled.match(loginResult)) {
         navigate('/home');
-      } catch (e) {
-        const msg = typeof e === 'string' ? e : e?.message || 'Error al registrarse';
-        setRegisterError(msg);
+      } else {
+        setRegisterError(loginResult.payload || loginResult.error?.message || 'La cuenta fue creada, pero no se pudo iniciar sesión');
       }
     }
   };

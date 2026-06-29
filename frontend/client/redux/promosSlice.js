@@ -12,7 +12,7 @@ const authHeaders = (token) => ({
 export const fetchPromos = createAsyncThunk('promos/fetchPromos', async (token) => {
     const { data } = await axios.get('http://localhost:4002/promos', authHeaders(token));
     return data;
-});
+}, { condition: (_, { getState }) => getState().promos.status === 'idle' });
 
 export const addPromo = createAsyncThunk('promos/addPromo', async ({ body, token }, thunkAPI) => {
     try {
@@ -47,20 +47,24 @@ const promosSlice = createSlice({
     promos: [],
     error: null,
     loading: false,
+    status: 'idle',
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchPromos.pending, (state) => {
         state.loading = true;
+        state.status = 'loading';
         state.error = null;
       })
       .addCase(fetchPromos.fulfilled, (state, action) => {
         state.loading = false;
+        state.status = 'succeeded';
         state.promos = action.payload;
       })
       .addCase(fetchPromos.rejected, (state, action) => {
         state.loading = false;
+        state.status = 'failed';
         state.error = action.error.message;
       })
       .addCase(addPromo.fulfilled, (state, action) => {

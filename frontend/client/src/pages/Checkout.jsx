@@ -118,7 +118,17 @@ const Checkout = () => {
     dispatch(deleteDetalleOrden({ id: detalle.idDetalle, cantidad: detalle.cantidad, token }));
   };
 
-  const resumenOrden = useMemo(() => mapOrdenToResumenItems(orden), [orden]);
+  const resumenOrden = useMemo(() => {
+    if (orden) return mapOrdenToResumenItems(orden);
+    return cartItems.map((item) => ({
+      idDetalle: item.idCartItem,
+      idProducto: item.idProducto,
+      nombre: item.nombre,
+      sabor: item.sabor,
+      cantidad: item.cantidad,
+      precio: item.precio,
+    }));
+  }, [orden, cartItems]);
 
   const totalOrden = useMemo(
     () => resumenOrden.reduce((acc, item) => acc + (Number(item.precio) || 0) * (Number(item.cantidad) || 0), 0),
@@ -249,8 +259,8 @@ const Checkout = () => {
             <OrderSummary
               items={resumenOrden}
               total={totalOrden}
-              cupon={orden?.cupon}
-              onDeleteDetail={handleDeleteOrderDetail}
+              cupon={orden?.cupon || cupon}
+              onDeleteDetail={orden ? handleDeleteOrderDetail : undefined}
             />
           </div>
 

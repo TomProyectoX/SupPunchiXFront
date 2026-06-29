@@ -2,12 +2,18 @@ import { NavLink, useNavigate } from "react-router-dom"
 import SearchBar from "../assets/components/react/SearchBar"
 import { useSelector, useDispatch } from "react-redux"
 import { logout } from "../../redux/authSlice"
+import { useState } from "react"
 
 const Navbar = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const { token } = useSelector((state) => state.auth)
-  const handleLogout = () => dispatch(logout())
+  const { token, role } = useSelector((state) => state.auth)
+  const [showLogout, setShowLogout] = useState(false)
+  const handleLogout = () => {
+    dispatch(logout())
+    setShowLogout(false)
+    navigate('/home')
+  }
 
   const navStyle = ({ isActive }) =>
     isActive
@@ -54,9 +60,19 @@ const Navbar = () => {
         {/* DERECHA: Login */}
         <div className="flex justify-end items-center gap-6">
           
+          {role === 'ADMIN' && (
+            <button onClick={() => navigate('/admin/products')} className="bg-[#CCFF00] text-black px-4 py-2 text-xs uppercase font-black">
+              Panel admin
+            </button>
+          )}
+          {token && role !== 'ADMIN' && (
+            <button onClick={() => navigate('/pedidos')} className="text-white hover:text-[#CCFF00] text-xs uppercase font-black tracking-widest">
+              Mis pedidos
+            </button>
+          )}
           {token ? (
             <button
-              onClick={handleLogout}
+              onClick={() => setShowLogout(true)}
               className="text-white hover:text-[#CCFF00] transition-colors text-xs uppercase font-black tracking-widest"
             >
               Cerrar Sesión
@@ -73,6 +89,17 @@ const Navbar = () => {
         </div>
 
       </div>
+      {showLogout && (
+        <div className="fixed inset-0 z-[300] bg-black/80 flex items-center justify-center p-4" onClick={() => setShowLogout(false)}>
+          <div className="w-full max-w-sm bg-[#141414] border border-[#333] rounded-2xl p-7 text-center" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-white text-xl font-black">¿Seguro querés cerrar sesión?</h2>
+            <div className="flex gap-3 mt-7">
+              <button onClick={() => setShowLogout(false)} className="flex-1 border border-[#444] text-white py-3 rounded-lg font-black uppercase">No</button>
+              <button onClick={handleLogout} className="flex-1 bg-[#CCFF00] text-black py-3 rounded-lg font-black uppercase">Sí</button>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   )
 }

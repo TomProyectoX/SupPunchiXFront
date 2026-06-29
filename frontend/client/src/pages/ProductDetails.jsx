@@ -16,7 +16,7 @@ const ProductDetails = () => {
   const { id } = useParams()
 
   const { productoporid: productoDetalle } = useSelector((state) => state.productos)
-  const { token } = useSelector((state) => state.auth)
+  const { token, role } = useSelector((state) => state.auth)
 
   const [varianteSeleccionada, setVarianteSeleccionada] = useState(null)
   const [cantidad, setCantidad] = useState(1)
@@ -34,6 +34,14 @@ const ProductDetails = () => {
   }, [productoDetalle])
 
   const handleAddToCart = async () => {
+    if (role === "ADMIN") {
+      navigate("/admin/products");
+      return;
+    }
+    if (!token) {
+      navigate("/login");
+      return;
+    }
     if (!productoDetalle) return;
 
     const body = {
@@ -149,7 +157,11 @@ const ProductDetails = () => {
                 onSelect={setVarianteSeleccionada}
               />
 
-              <ProductQuantitySelector
+              {role === "ADMIN" ? (
+                <button onClick={() => navigate("/admin/products")} className="w-full bg-[#CCFF00] text-black font-black uppercase py-4 rounded-lg">
+                  Administrar productos
+                </button>
+              ) : <ProductQuantitySelector
                 cantidad={cantidad}
                 setCantidad={setCantidad}
                 stock={varianteSeleccionada?.stock}
@@ -158,7 +170,7 @@ const ProductDetails = () => {
                 agregado={agregado}
                 errorCarrito={errorCarrito}
                 onAddToCart={handleAddToCart}
-              />
+              />}
             </div>
 
             <ProductFeatures producto={productoDetalle} />

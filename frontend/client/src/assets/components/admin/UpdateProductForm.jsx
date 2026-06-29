@@ -67,15 +67,16 @@ export default function UpdateProductForm({ producto, marcas, categorias, sabore
 
     console.log("[DEBUG] bodyData enviado:", bodyData);
 
-    try {
-      if (isEditing) {
-        await dispatch(updateProducto({ id: producto.idProducto, body: bodyData, token })).unwrap();
-      } else {
-        await dispatch(addProducto({ body: bodyData, token })).unwrap();
-      }
+    const result = isEditing
+      ? await dispatch(updateProducto({ id: producto.idProducto, body: bodyData, token }))
+      : await dispatch(addProducto({ body: bodyData, token }));
+
+    const succeeded = isEditing
+      ? updateProducto.fulfilled.match(result)
+      : addProducto.fulfilled.match(result);
+
+    if (succeeded) {
       onClose?.();
-    } catch (e) {
-      console.error("[ERROR] handleSubmit error:", e);
     }
   };
 

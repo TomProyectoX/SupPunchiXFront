@@ -9,7 +9,7 @@ const authHeaders = (token) => ({
 export const fetchSabores = createAsyncThunk('sabores/fetchSabores', async (token) => {
     const { data } = await axios.get('http://localhost:4002/sabores', authHeaders(token));
     return data;
-});
+}, { condition: (_, { getState }) => getState().sabores.status === 'idle' });
 
 export const addSabor = createAsyncThunk('sabores/addSabor', async ({ body, token }) => {
     const { data } = await axios.post('http://localhost:4002/sabores', body, authHeaders(token));
@@ -32,6 +32,7 @@ const saboresSlice = createSlice({
     sabores: [],
     error: null,
     loading: false,
+    status: 'idle',
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -39,14 +40,17 @@ const saboresSlice = createSlice({
       // FETCH
       .addCase(fetchSabores.pending, (state) => {
         state.loading = true;
+        state.status = 'loading';
         state.error = null;
       })
       .addCase(fetchSabores.fulfilled, (state, action) => {
         state.loading = false;
+        state.status = 'succeeded';
         state.sabores = action.payload;
       })
       .addCase(fetchSabores.rejected, (state, action) => {
         state.loading = false;
+        state.status = 'failed';
         state.error = action.error.message;
       })
       // ADD

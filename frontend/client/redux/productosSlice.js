@@ -13,11 +13,19 @@ const authHeaders = (token) => ({
 export const fetchProductos = createAsyncThunk('productos/fetchProductos', async () => {
     const { data } = await axios.get('http://localhost:4002/productos');
     return data;
+}, {
+  condition: (_, { getState }) => getState().productos.status === 'idle',
 });
 
 export const fetchProductoById = createAsyncThunk('productos/fetchProductoById', async (id) => {
     const { data } = await axios.get(`http://localhost:4002/productos/${id}`);
     return data;
+}, {
+  condition: (id, { getState }) => {
+    const state = getState().productos;
+    return state.detailStatus !== 'loading' &&
+      String(state.productoporid?.idProducto) !== String(id);
+  },
 });
 
 export const addProducto = createAsyncThunk('productos/addProducto', async ({ body, token }) => {
@@ -41,6 +49,8 @@ const productosSlice = createSlice({
     productos: [],
     error: null,
     loading: false,
+    status: 'idle',
+    detailStatus: 'idle',
     productoporid: null,
   },
   reducers: {},
@@ -49,14 +59,17 @@ const productosSlice = createSlice({
       // FETCH
       .addCase(fetchProductos.pending, (state) => {
         state.loading = true;
+        state.status = 'loading';
         state.error = null;
       })
       .addCase(fetchProductos.fulfilled, (state, action) => {
         state.loading = false;
+        state.status = 'succeeded';
         state.productos = action.payload;
       })
       .addCase(fetchProductos.rejected, (state, action) => {
         state.loading = false;
+        state.status = 'failed';
         state.error = action.error.message;
       })
       // ADD
@@ -95,6 +108,15 @@ const productosSlice = createSlice({
       })
       .addCase(fetchProductoById.fulfilled, (state, action) => {
         state.productoporid = action.payload;
+        const index = state.productos.findIndex((p) => p.idProducto === action.payload.idProducto);
+        if (index >= 0) state.productos[index] = action.payload;
+        state.detailStatus = 'succeeded';
+      })
+      .addCase(fetchProductoById.pending, (state) => {
+        state.detailStatus = 'loading';
+      })
+      .addCase(fetchProductoById.rejected, (state) => {
+        state.detailStatus = 'failed';
       });
   },
 });

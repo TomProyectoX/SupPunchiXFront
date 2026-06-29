@@ -28,11 +28,9 @@ function Login() {
   };
 
   const handleLogin = async () => {
-    try {
-      await dispatch(postlogin({ email, password })).unwrap();
+    const result = await dispatch(postlogin({ email, password }));
+    if (postlogin.fulfilled.match(result)) {
       navigate('/home');
-    } catch (loginError) {
-      console.error(loginError);
     }
   };
 

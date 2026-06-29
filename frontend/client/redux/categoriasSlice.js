@@ -2,15 +2,14 @@ import axios from 'axios';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 
-const authHeaders = (token) => (
-  console.log('authHeaders called with token:', token) || {
+const authHeaders = (token) => ({
   headers: { Authorization: `Bearer ${token}` },
 });
 
 export const fetchCategorias = createAsyncThunk('categorias/fetchCategorias', async (token) => {
     const { data } = await axios.get('http://localhost:4002/categories', authHeaders(token));
     return data;
-});
+}, { condition: (_, { getState }) => getState().categorias.status === 'idle' });
 
 export const addCategoria = createAsyncThunk('categorias/addCategoria', async ({ body, token }) => {
     const { data } = await axios.post('http://localhost:4002/categories', body, authHeaders(token));
@@ -33,6 +32,7 @@ const categoriasSlice = createSlice({
     categorias: [],
     error: null,
     loading: false,
+    status: 'idle',
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -40,14 +40,17 @@ const categoriasSlice = createSlice({
       // FETCH
       .addCase(fetchCategorias.pending, (state) => {
         state.loading = true;
+        state.status = 'loading';
         state.error = null;
       })
       .addCase(fetchCategorias.fulfilled, (state, action) => {
         state.loading = false;
+        state.status = 'succeeded';
         state.categorias = action.payload;
       })
       .addCase(fetchCategorias.rejected, (state, action) => {
         state.loading = false;
+        state.status = 'failed';
         state.error = action.error.message;
       })
       // ADD

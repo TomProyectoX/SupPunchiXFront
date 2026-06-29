@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const OrderSummary = ({ items, total, cupon, onDeleteDetail }) => {
@@ -54,13 +54,13 @@ const OrderSummary = ({ items, total, cupon, onDeleteDetail }) => {
                       Cantidad: {item.cantidad || 0}
                     </p>
 
-                    <button
+                    {onDeleteDetail && <button
                       type="button"
                       onClick={() => setDetalleAEliminar(item)}
                       className="text-[10px] uppercase font-black tracking-wide text-red-400 hover:text-red-300 transition"
                     >
                       Eliminar detalle
-                    </button>
+                    </button>}
                   </div>
 
                 </div>

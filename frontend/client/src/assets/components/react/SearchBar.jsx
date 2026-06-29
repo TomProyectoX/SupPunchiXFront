@@ -3,16 +3,14 @@ import { useNavigate } from "react-router-dom"
 
 const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState("")
-  const [isOpen, setIsOpen] = useState(false)
   const navigate = useNavigate()
 
   const handleSearchSubmit = (e) => {
     e.preventDefault()
     if (searchQuery.trim()) {
       // Redirige a la página de productos con parámetro de búsqueda
-      navigate(`/Shop?search=${encodeURIComponent(searchQuery.trim())}`)
+      navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`)
       setSearchQuery("")
-      setIsOpen(false)
     }
   }
 
@@ -35,7 +33,6 @@ const SearchBar = () => {
           placeholder="¿Qué estás buscando?..."
           value={searchQuery}
           onChange={handleInputChange}
-          onFocus={() => setIsOpen(true)}
           className="w-full bg-[#141414] text-xs text-white pl-4 pr-10 py-2.5 rounded-none border border-[#262626] focus:outline-none focus:border-[#CCFF00] transition-colors uppercase font-black placeholder-gray-500"
         />
         

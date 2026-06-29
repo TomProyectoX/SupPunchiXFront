@@ -8,6 +8,7 @@ const CartToggleButton = () => {
   const dispatch = useDispatch();
 
   const { items: cartItems } = useSelector((state) => state.carrito);
+  const role = useSelector((state) => state.auth.role);
 
   const totalItems = useMemo(() => {
     return cartItems.reduce((acc, item) => acc + (item.cantidad || 0), 0);
@@ -17,7 +18,7 @@ const CartToggleButton = () => {
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isHiddenRoute = hiddenRoutes.some(route => location.pathname.startsWith(route));
 
-  if (isHiddenRoute || isAdminRoute) {
+  if (isHiddenRoute || isAdminRoute || role === 'ADMIN') {
     return null;
   }
 
