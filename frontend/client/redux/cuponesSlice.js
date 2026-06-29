@@ -10,6 +10,11 @@ const authHeaders = (token) => ({
 
 const BASE_URL = 'http://localhost:4002/cupones';
 
+export const fetchMisPuntos = createAsyncThunk('cupones/fetchMisPuntos', async (token) => {
+  const { data } = await axios.get(`${BASE_URL}/mis-puntos`, authHeaders(token));
+  return data;
+});
+
 export const fetchCupones = createAsyncThunk('cupones/fetchCupones', async (token) => {
   const { data } = await axios.get(BASE_URL, authHeaders(token));
   return data;
@@ -47,6 +52,7 @@ const cuponesSlice = createSlice({
   initialState: {
     cupones: [],
     cuponActivo: null,
+    puntos: 0,
     error: null,
     loading: false,
   },
@@ -60,6 +66,10 @@ const cuponesSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // MIS PUNTOS
+      .addCase(fetchMisPuntos.fulfilled, (state, action) => {
+        state.puntos = action.payload.puntos;
+      })
       // FETCH
       .addCase(fetchCupones.pending, (state) => {
         state.loading = true;
@@ -83,13 +93,15 @@ const cuponesSlice = createSlice({
       // CANJEAR
       .addCase(canjearCupon.fulfilled, (state, action) => {
         state.cuponActivo = action.payload;
+        state.puntos -= action.payload.costo;
         state.error = null;
       })
       .addCase(canjearCupon.rejected, (state, action) => {
         state.error = action.payload || action.error.message;
       })
       // CANCELAR
-      .addCase(cancelarCupon.fulfilled, (state) => {
+      .addCase(cancelarCupon.fulfilled, (state, action) => {
+        state.puntos += action.payload.costo;
         state.cuponActivo = null;
         state.error = null;
       })

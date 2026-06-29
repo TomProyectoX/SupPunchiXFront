@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchCupones, canjearCupon, cancelarCupon, clearCuponesError } from "../../redux/cuponesSlice";
+import { fetchCupones, fetchMisPuntos, canjearCupon, cancelarCupon, clearCuponesError } from "../../redux/cuponesSlice";
 import { fetchCarrito } from "../../redux/carritoSlice";
 import Navbar from "./Navbar";
 
@@ -10,12 +10,12 @@ const CanjearCupones = () => {
   const dispatch = useDispatch();
 
   const { token } = useSelector((state) => state.auth);
-  const { cupones, cuponActivo, error, loading } = useSelector((state) => state.cupones);
-  const puntosActuales = useSelector((state) => state.puntos?.puntosActuales ?? 0);
+  const { cupones, cuponActivo, puntos, error, loading } = useSelector((state) => state.cupones);
 
   useEffect(() => {
     if (token) {
       dispatch(fetchCupones(token));
+      dispatch(fetchMisPuntos(token));
     }
   }, [dispatch, token]);
 
@@ -60,7 +60,7 @@ const CanjearCupones = () => {
             </div>
             <div className="rounded-2xl border border-[#CCFF00]/30 bg-[#111111] px-6 py-4">
               <p className="text-xs uppercase tracking-[0.25em] text-gray-400">Tus puntos</p>
-              <p className="text-3xl font-black text-[#CCFF00]">{puntosActuales}</p>
+              <p className="text-3xl font-black text-[#CCFF00]">{puntos}</p>
             </div>
           </div>
 
@@ -99,7 +99,7 @@ const CanjearCupones = () => {
                 <p className="text-gray-400">No hay cupones disponibles.</p>
               ) : (
                 cupones.map((cupon) => {
-                  const alcanza = puntosActuales >= cupon.costo;
+                  const alcanza = puntos >= cupon.costo;
                   const estaActivo = cuponActivo?.id === cupon.id;
 
                   return (
