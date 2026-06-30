@@ -94,6 +94,8 @@ const ordenSlice = createSlice({
       // PAGO
       .addCase(procesarPago.fulfilled, (state) => {
         state.orden = null;
+        state.status = 'idle';
+        state.historyStatus = 'idle';
       })
       .addCase(fetchHistorialOrdenes.fulfilled, (state, action) => {
         state.historial = action.payload || [];
