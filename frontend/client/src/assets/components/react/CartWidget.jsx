@@ -34,7 +34,7 @@ const CartWidget = () => {
   const { items: cartItems } = useSelector((state) => state.carrito);
   const { isOpen } = useSelector((state) => state.cartWidget);
   const { orden } = useSelector((state) => state.orden);
-  const cupon = useSelector((state) => state.carrito.cupon);
+  const cupon = useSelector((state) => state.orden.orden?.cupon || state.carrito.cupon);
 
   const [itemAEliminar, setItemAEliminar] = useState(null);
 
@@ -56,6 +56,10 @@ const CartWidget = () => {
   }, [itemsOrden]);
 
   const subtotal = subtotalCarrito + subtotalOrden;
+  const descuentoCupon = cupon?.descuento != null
+    ? subtotal * (Number(cupon.descuento) || 0) / 100
+    : 0;
+  const total = Math.max(subtotal - descuentoCupon, 0);
 
   const totalItems = useMemo(() => {
     const enCarrito = cartItems.reduce((acc, item) => acc + (item.cantidad || 0), 0);
@@ -174,6 +178,8 @@ const CartWidget = () => {
         {hayAlgo && (
           <CartSummaryFooter
             subtotal={subtotal}
+            descuento={descuentoCupon}
+            total={total}
             onCheckout={() => {
               navigate('/checkout');
               handleCloseCart();

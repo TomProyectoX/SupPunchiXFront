@@ -18,7 +18,7 @@ export const fetchMisPuntos = createAsyncThunk('cupones/fetchMisPuntos', async (
 export const fetchCupones = createAsyncThunk('cupones/fetchCupones', async (token) => {
   const { data } = await axios.get(BASE_URL, authHeaders(token));
   return data;
-}, { condition: (_, { getState }) => getState().cupones.status === 'idle' });
+});
 
 export const createCupon = createAsyncThunk('cupones/createCupon', async ({ body, token }, thunkAPI) => {
   try {
@@ -98,6 +98,7 @@ const cuponesSlice = createSlice({
       .addCase(canjearCupon.fulfilled, (state, action) => {
         state.cuponActivo = action.payload;
         state.puntos -= action.payload.costo;
+        state.cupones = state.cupones.filter((cupon) => cupon.id !== action.payload.id);
         state.error = null;
       })
       .addCase(canjearCupon.rejected, (state, action) => {

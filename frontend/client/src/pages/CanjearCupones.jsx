@@ -13,6 +13,8 @@ const CanjearCupones = () => {
   const cuponEnCarrito = useSelector((state) => state.carrito.cupon);
   const cuponEnOrden = useSelector((state) => state.orden.orden?.cupon);
   const yaTieneCupon = cuponEnCarrito != null || cuponEnOrden != null;
+  const cuponCancelable = cuponEnCarrito || cuponEnOrden;
+  const cuponMostradoComoActivo = cuponCancelable || cuponActivo;
 
   useEffect(() => {
     if (token) {
@@ -66,19 +68,19 @@ const CanjearCupones = () => {
             </div>
           )}
 
-          {cuponActivo && (
+          {cuponCancelable && (
             <div className="mb-8 rounded-2xl border border-[#CCFF00]/50 bg-[#111111] p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs uppercase tracking-[0.25em] text-[#CCFF00] mb-2">Cupon activo</p>
                   <p className="text-xl font-black">
-                    {cuponActivo.descuento != null
-                      ? `${cuponActivo.descuento}% OFF en tu orden`
+                    {cuponCancelable.descuento != null
+                      ? `${cuponCancelable.descuento}% OFF en tu orden`
                       : "Productos agregados a tu carrito"}
                   </p>
                 </div>
                 <button
-                  onClick={() => handleCancelar(cuponActivo.id)}
+                  onClick={() => handleCancelar(cuponCancelable.id)}
                   className="rounded-lg border border-red-500 px-5 py-3 text-sm font-black uppercase text-red-400 hover:bg-red-500 hover:text-white transition-colors"
                 >
                   Cancelar cupon
@@ -96,7 +98,7 @@ const CanjearCupones = () => {
               ) : (
                 cupones.map((cupon) => {
                   const alcanza = puntos >= cupon.costo;
-                  const estaActivo = cuponActivo?.id === cupon.id;
+                  const estaActivo = cuponMostradoComoActivo?.id === cupon.id;
                   const bloqueado = yaTieneCupon && !estaActivo;
 
                   return (

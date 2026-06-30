@@ -26,7 +26,7 @@ const Cart = () => {
     return Math.round(subtotal * (cupon.descuento / 100));
   }, [cupon, subtotal]);
 
-  const total = subtotal - descuentoCupon;
+  const total = Math.max(subtotal - descuentoCupon, 0);
 
   const handleEdit = (item, newCantidad) => {
     dispatch(updateCarritoStock({ idproductcart: item.idCartItem, nuevoStock: newCantidad, token }));

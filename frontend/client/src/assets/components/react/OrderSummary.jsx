@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const OrderSummary = ({ items, total, cupon, onDeleteDetail }) => {
+const OrderSummary = ({ items, subtotal, descuentoCupon, total, cupon, onDeleteDetail }) => {
   const [detalleAEliminar, setDetalleAEliminar] = useState(null);
+  const subtotalSeguro = Number(subtotal ?? total ?? 0);
+  const descuentoSeguro = Number(descuentoCupon ?? 0);
+  const totalSeguro = Number(total ?? Math.max(subtotalSeguro - descuentoSeguro, 0));
 
   const confirmarEliminar = () => {
     if (detalleAEliminar) {
@@ -93,7 +96,7 @@ const OrderSummary = ({ items, total, cupon, onDeleteDetail }) => {
           {cupon?.descuento != null && (
             <div className="flex items-center justify-between border-t border-[#CCFF00]/20 pt-3 mt-2 text-sm text-[#CCFF00]">
               <span>Cupon ({cupon.descuento}% OFF)</span>
-              <span>-${Math.round((total || 0) * (cupon.descuento / 100)).toLocaleString('es-AR')}</span>
+              <span>-${descuentoSeguro.toLocaleString('es-AR')}</span>
             </div>
           )}
 
@@ -104,7 +107,7 @@ const OrderSummary = ({ items, total, cupon, onDeleteDetail }) => {
             </span>
 
             <span className="text-2xl font-black text-[#CCFF00]">
-              ${Number(total || 0).toLocaleString('es-AR')}
+              ${totalSeguro.toLocaleString('es-AR')}
             </span>
 
           </div>

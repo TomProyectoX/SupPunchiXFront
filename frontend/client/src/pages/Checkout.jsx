@@ -18,7 +18,7 @@ const mapOrdenToResumenItems = (orden) =>
           nombre: productoRef?.nombre ?? '',
           sabor: saborRef?.nombre ?? '',
           cantidad: detalle.cantidad ?? 0,
-          precio: productoRef?.precioFinal ?? detalle.precioUnitario ?? productoRef?.precio ?? 0,
+          precio: detalle.precioUnitario ?? productoRef?.precioFinal ?? productoRef?.precio ?? 0,
         };
       })
     : [];
@@ -130,10 +130,18 @@ const Checkout = () => {
     }));
   }, [orden, cartItems]);
 
-  const totalOrden = useMemo(
+  const subtotalOrden = useMemo(
     () => resumenOrden.reduce((acc, item) => acc + (Number(item.precio) || 0) * (Number(item.cantidad) || 0), 0),
     [resumenOrden]
   );
+
+  const descuentoCupon = useMemo(() => {
+    const cuponActivo = orden?.cupon || cupon;
+    if (cuponActivo?.descuento == null) return 0;
+    return subtotalOrden * (Number(cuponActivo.descuento) || 0) / 100;
+  }, [orden?.cupon, cupon, subtotalOrden]);
+
+  const totalOrden = Math.max(subtotalOrden - descuentoCupon, 0);
 
   const hasOrdenEnCurso = Boolean(orden);
 
@@ -258,6 +266,8 @@ const Checkout = () => {
           <div className="lg:col-span-5">
             <OrderSummary
               items={resumenOrden}
+              subtotal={subtotalOrden}
+              descuentoCupon={descuentoCupon}
               total={totalOrden}
               cupon={orden?.cupon || cupon}
               onDeleteDetail={orden ? handleDeleteOrderDetail : undefined}
