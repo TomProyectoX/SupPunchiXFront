@@ -12,6 +12,7 @@ import Checkout from './pages/Checkout.jsx';
 import ProductDetails from './pages/ProductDetails.jsx';
 import ConditionalCartWidget from './assets/components/react/ConditionalCartWidget.jsx';
 import CartToggleButton from './assets/components/react/CartToggleButton.jsx';
+import ConditionalChatbotWidget from './assets/components/react/ConditionalChatbotWidget.jsx';
 import Promos from './pages/admin/Promos.jsx';
 import Cupones from './pages/admin/Cupones.jsx';
 import CanjearCupones from './pages/CanjearCupones.jsx';
@@ -54,6 +55,7 @@ function App() {
             </Routes>
             <ConditionalCartWidget />
             <CartToggleButton />
+            <ConditionalChatbotWidget />
 
     </BrowserRouter>
   )

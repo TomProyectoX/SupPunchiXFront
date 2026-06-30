@@ -17,8 +17,9 @@ const CartToggleButton = () => {
   const hiddenRoutes = ['/login', '/register', '/checkout'];
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isHiddenRoute = hiddenRoutes.some(route => location.pathname.startsWith(route));
+  const isHomeRoute = location.pathname === '/' || location.pathname === '/home';
 
-  if (isHiddenRoute || isAdminRoute || role === 'ADMIN') {
+  if (isHiddenRoute || isAdminRoute || isHomeRoute || role === 'ADMIN') {
     return null;
   }
 

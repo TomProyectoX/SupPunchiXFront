@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { logout } from './authSlice';
+import { cancelarCupon } from './cuponesSlice';
 
 
 const authHeaders = (token) => ({
@@ -89,6 +90,12 @@ const ordenSlice = createSlice({
       .addCase(deleteDetalleOrden.fulfilled, (state, action) => {
         if (state.orden) {
           state.orden.detalles = (state.orden.detalles || []).filter((d) => d.id !== action.payload);
+        }
+      })
+      // CANCELAR CUPON => quitar de la orden en curso
+      .addCase(cancelarCupon.fulfilled, (state) => {
+        if (state.orden) {
+          state.orden.cupon = null;
         }
       })
       // PAGO
