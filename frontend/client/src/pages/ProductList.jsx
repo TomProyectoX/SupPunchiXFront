@@ -13,6 +13,8 @@ export default function ProductList() {
   const { productos, error, loading } = useSelector((state) => state.productos);
   const [searchParams] = useSearchParams();
   const search = (searchParams.get("search") || "").trim().toLocaleLowerCase("es");
+  const brand = (searchParams.get("brand") || "").trim();
+  const category = (searchParams.get("category") || "").trim();
 
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -22,6 +24,28 @@ export default function ProductList() {
   useEffect(() => {
     dispatch(fetchProductos());
   }, [dispatch]);
+
+  useEffect(() => {
+    const normalize = (value) =>
+      String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .toLocaleLowerCase("es");
+
+    const brandId = brand
+      ? productos.find((producto) => normalize(producto.marca?.nombre) === normalize(brand))
+          ?.marca?.idMarca
+      : null;
+    const categoryId = category
+      ? productos.find(
+          (producto) => normalize(producto.categoria?.description) === normalize(category)
+        )?.categoria?.id
+      : null;
+
+    setSelectedBrands(brandId != null ? [brandId] : []);
+    setSelectedCategories(categoryId != null ? [categoryId] : []);
+  }, [brand, category, productos]);
 
   const handleFilteredProductos = (filtrados) => {
     setProductosFiltrados(filtrados);
