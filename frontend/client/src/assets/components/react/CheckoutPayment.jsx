@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { procesarPago } from "../../../../redux/ordenSlice";
+import { clearOrden } from "../../../../redux/ordenSlice";
+import { createPago } from "../../../../redux/pagosSlice";
 import DeliveryAddressCard from "./DeliveryAddressCard";
 import CardPaymentForm from "./CardPaymentForm";
 
@@ -9,6 +10,7 @@ const CheckoutPayment = ({ orden, onBack }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { token } = useSelector((state) => state.auth);
+  const { status: pagoStatus } = useSelector((state) => state.pagos);
 
   const [tarjeta, setTarjeta] = useState("");
   const [expiracion, setExpiracion] = useState("");
@@ -32,9 +34,10 @@ const CheckoutPayment = ({ orden, onBack }) => {
       metodoPago: "TARJETA",
     };
 
-    const result = await dispatch(procesarPago({ body, token }));
+    const result = await dispatch(createPago({ body, token }));
 
-    if (procesarPago.fulfilled.match(result)) {
+    if (createPago.fulfilled.match(result)) {
+      dispatch(clearOrden());
       navigate('/pago-confirmado');
     } else {
       console.error('Error procesando pago:', result.error);
@@ -84,15 +87,15 @@ const CheckoutPayment = ({ orden, onBack }) => {
         )}
 
         <button
-          disabled={!tieneProductos}
+          disabled={!tieneProductos || pagoStatus === 'loading'}
           className={`w-full font-black uppercase rounded-2xl py-5 mt-4 transition ${
-            tieneProductos
+            tieneProductos && pagoStatus !== 'loading'
               ? "bg-[#CCFF00] text-black hover:scale-[1.01]"
               : "bg-gray-700 text-gray-500 cursor-not-allowed"
           }`}
           onClick={handleConfirmarPago}
         >
-          Confirmar pago
+          {pagoStatus === 'loading' ? 'Procesando pago...' : 'Confirmar pago'}
         </button>
       </div>
     </div>

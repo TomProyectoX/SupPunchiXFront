@@ -3,9 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const OrderSummary = ({ items, subtotal, descuentoCupon, total, cupon, onDeleteDetail }) => {
   const [detalleAEliminar, setDetalleAEliminar] = useState(null);
+  const itemsResumen = items ?? [];
   const subtotalSeguro = Number(subtotal ?? total ?? 0);
   const descuentoSeguro = Number(descuentoCupon ?? 0);
   const totalSeguro = Number(total ?? Math.max(subtotalSeguro - descuentoSeguro, 0));
+  const productosCuponPendientes = (cupon?.productos ?? []).filter((pv) =>
+    !itemsResumen.some((item) => item.idVariante === pv.id && Number(item.precio || 0) === 0)
+  );
 
   const confirmarEliminar = () => {
     if (detalleAEliminar) {
@@ -24,7 +28,7 @@ const OrderSummary = ({ items, subtotal, descuentoCupon, total, cupon, onDeleteD
 
         <div className="mt-4 space-y-4">
 
-          {items.length === 0 ? (
+          {itemsResumen.length === 0 && productosCuponPendientes.length === 0 ? (
 
             <div className="text-center py-8">
               <span className="material-symbols-outlined text-gray-600 text-3xl mb-2 block">shopping_bag</span>
@@ -35,7 +39,7 @@ const OrderSummary = ({ items, subtotal, descuentoCupon, total, cupon, onDeleteD
 
           ) : (
 
-            items.map((item) => (
+            itemsResumen.map((item) => (
 
               <div
                 key={`${item.idDetalle ?? item.idProducto}-${item.idSabor ?? 0}`}
@@ -57,7 +61,7 @@ const OrderSummary = ({ items, subtotal, descuentoCupon, total, cupon, onDeleteD
                       Cantidad: {item.cantidad || 0}
                     </p>
 
-                    {onDeleteDetail && <button
+                    {onDeleteDetail && !item.esGratis && <button
                       type="button"
                       onClick={() => setDetalleAEliminar(item)}
                       className="text-[10px] uppercase font-black tracking-wide text-red-400 hover:text-red-300 transition"
@@ -69,7 +73,7 @@ const OrderSummary = ({ items, subtotal, descuentoCupon, total, cupon, onDeleteD
                 </div>
 
                 <span className="text-sm font-black text-[#CCFF00]">
-                  ${Number(item.precio || 0).toLocaleString('es-AR')}
+                  {item.esGratis ? 'Gratis' : `$${Number(item.precio || 0).toLocaleString('es-AR')}`}
                 </span>
 
               </div>
@@ -78,10 +82,10 @@ const OrderSummary = ({ items, subtotal, descuentoCupon, total, cupon, onDeleteD
 
           )}
 
-          {cupon?.productos?.length > 0 && (
+          {productosCuponPendientes.length > 0 && (
             <div className="border-t border-[#CCFF00]/20 pt-3 mt-2">
               <p className="text-xs uppercase tracking-[0.25em] text-[#CCFF00] mb-3">Cupon canjeado</p>
-              {cupon.productos.map((pv) => (
+              {productosCuponPendientes.map((pv) => (
                 <div key={`cupon-${pv.id}`} className="flex items-center justify-between mb-2">
                   <div className="min-w-0">
                     <p className="text-sm font-black uppercase">{pv.producto?.nombre || 'Producto'}</p>

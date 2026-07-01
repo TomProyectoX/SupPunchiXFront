@@ -17,7 +17,7 @@ const OrdenPendienteCard = ({ item }) => {
       <div className="flex items-center justify-between">
         <p className="text-xs text-gray-500">Cantidad: {item.cantidad}</p>
         <span className="text-sm font-black text-[#CCFF00]">
-          ${(Number(item.precio || 0) * (item.cantidad || 0)).toLocaleString('es-AR')}
+          {item.esGratis ? 'Gratis' : `$${(Number(item.precio || 0) * (item.cantidad || 0)).toLocaleString('es-AR')}`}
         </span>
       </div>
     </div>

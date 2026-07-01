@@ -14,11 +14,13 @@ const mapOrdenToResumenItems = (orden) =>
 
         return {
           idDetalle: detalle.id,
+          idVariante: detalle.productoVariante?.id ?? null,
           idProducto: productoRef?.idProducto ?? null,
           nombre: productoRef?.nombre ?? '',
           sabor: saborRef?.nombre ?? '',
           cantidad: detalle.cantidad ?? 0,
           precio: detalle.precioUnitario ?? productoRef?.precioFinal ?? productoRef?.precio ?? 0,
+          esGratis: Number(detalle.precioUnitario ?? productoRef?.precioFinal ?? productoRef?.precio ?? 0) === 0,
         };
       })
     : [];
@@ -122,11 +124,13 @@ const Checkout = () => {
     if (orden) return mapOrdenToResumenItems(orden);
     return cartItems.map((item) => ({
       idDetalle: item.idCartItem,
+      idVariante: item.idVariante ?? null,
       idProducto: item.idProducto,
       nombre: item.nombre,
       sabor: item.sabor,
       cantidad: item.cantidad,
       precio: item.precio,
+      esGratis: Number(item.precio || 0) === 0,
     }));
   }, [orden, cartItems]);
 

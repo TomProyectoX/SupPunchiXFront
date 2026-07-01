@@ -3,6 +3,7 @@ import { Link, Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Navbar from "./Navbar";
 import { fetchHistorialOrdenes } from "../../redux/ordenSlice";
+import { fetchPagoByOrden } from "../../redux/pagosSlice";
 
 const money = (value) => Number(value || 0).toLocaleString("es-AR");
 
@@ -23,10 +24,20 @@ export default function OrderHistory() {
   const dispatch = useDispatch();
   const { token, role } = useSelector((state) => state.auth);
   const { historial } = useSelector((state) => state.orden);
+  const { pagosPorOrden } = useSelector((state) => state.pagos);
 
   useEffect(() => {
     if (token && role !== "ADMIN") dispatch(fetchHistorialOrdenes(token));
   }, [dispatch, token, role]);
+
+  useEffect(() => {
+    if (!token || role === "ADMIN") return;
+    historial.forEach((orden) => {
+      if (orden.id && pagosPorOrden[orden.id] === undefined) {
+        dispatch(fetchPagoByOrden({ ordenId: orden.id, token }));
+      }
+    });
+  }, [dispatch, historial, token, role, pagosPorOrden]);
 
   if (!token) return <Navigate to="/login" replace />;
   if (role === "ADMIN") return <Navigate to="/admin/products" replace />;
@@ -56,6 +67,7 @@ export default function OrderHistory() {
             const subtotal = calcularSubtotal(orden);
             const descuentoCupon = calcularDescuento(orden, subtotal);
             const total = orden.total ?? Math.max(subtotal - descuentoCupon, 0);
+            const pago = pagosPorOrden[orden.id];
 
             return (
               <article key={orden.id} className="border border-[#262626] bg-[#111] rounded-2xl p-6">
@@ -72,6 +84,13 @@ export default function OrderHistory() {
                     <p className="text-xs text-gray-500 uppercase">Estado</p>
                     <p className="text-[#CCFF00] font-black">{String(orden.estado).replaceAll("_", " ")}</p>
                   </div>
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase">Pago</p>
+                    <p className="text-[#CCFF00] font-black">
+                      {pago?.estado || "Pendiente"}
+                      {pago?.metodoPago ? ` - ${pago.metodoPago}` : ""}
+                    </p>
+                  </div>
                   <div className="text-right">
                     <p className="text-xs text-gray-500 uppercase">Total</p>
                     <p className="text-xl text-[#CCFF00] font-black">${money(total)}</p>
@@ -79,12 +98,22 @@ export default function OrderHistory() {
                 </div>
 
                 <div className="pt-4 space-y-2">
-                  {(orden.detalles || []).map((detalle) => (
-                    <div key={detalle.id} className="flex justify-between text-sm">
-                      <span>{detalle.productoVariante?.producto?.nombre} x {detalle.cantidad}</span>
-                      <span>${money(Number(detalle.precioUnitario) * Number(detalle.cantidad))}</span>
-                    </div>
-                  ))}
+                  {(orden.detalles || []).map((detalle) => {
+                    const esGratis = Number(detalle.precioUnitario || 0) === 0;
+                    const sabor = detalle.productoVariante?.sabor?.nombre;
+
+                    return (
+                      <div key={detalle.id} className="flex justify-between gap-4 text-sm">
+                        <span>
+                          {detalle.productoVariante?.producto?.nombre} {sabor ? `- ${sabor}` : ""} x {detalle.cantidad}
+                          {esGratis && <span className="ml-2 text-[#CCFF00] font-black uppercase">Gratis</span>}
+                        </span>
+                        <span className={esGratis ? "text-[#CCFF00] font-black" : ""}>
+                          {esGratis ? "Gratis" : `$${money(Number(detalle.precioUnitario) * Number(detalle.cantidad))}`}
+                        </span>
+                      </div>
+                    );
+                  })}
 
                   {descuentoCupon > 0 && (
                     <>

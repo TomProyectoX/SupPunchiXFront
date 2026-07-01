@@ -11,6 +11,7 @@ import variantesSlice from './variantesSlice';
 import carritoSlice from './carritoSlice';
 import cartWidgetSlice from './cartWidgetSlice';
 import ordenSlice from './ordenSlice';
+import pagosSlice from './pagosSlice';
 import promosSlice from './promosSlice';
 import cuponesSlice from './cuponesSlice';
 
@@ -37,6 +38,7 @@ const rootReducer = combineReducers({
     carrito: carritoSlice,
     cartWidget: cartWidgetSlice,
     orden: ordenSlice,
+    pagos: pagosSlice,
     promos: promosSlice,
     cupones: cuponesSlice,
 });

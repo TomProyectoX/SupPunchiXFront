@@ -18,10 +18,12 @@ const mapOrdenToItems = (orden) =>
         const saborRef = detalle.productoVariante?.sabor;
         return {
           idDetalle: detalle.id,
+          idVariante: detalle.productoVariante?.id ?? null,
           nombre: productoRef?.nombre ?? 'Producto',
           sabor: saborRef?.nombre ?? '',
           cantidad: detalle.cantidad ?? 0,
           precio: detalle.precioUnitario ?? productoRef?.precioFinal ?? productoRef?.precio ?? 0,
+          esGratis: Number(detalle.precioUnitario ?? productoRef?.precioFinal ?? productoRef?.precio ?? 0) === 0,
         };
       })
     : [];
@@ -84,7 +86,9 @@ const CartWidget = () => {
 
   const handleCloseCart = () => dispatch(closeCart());
 
-  const productosCupon = cupon?.productos ?? [];
+  const productosCupon = (cupon?.productos ?? []).filter((pv) =>
+    !itemsOrden.some((item) => item.idVariante === pv.id && Number(item.precio || 0) === 0)
+  );
   const hayAlgo = cartItems.length > 0 || itemsOrden.length > 0 || productosCupon.length > 0;
 
   return (

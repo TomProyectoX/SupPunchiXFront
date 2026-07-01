@@ -11,10 +11,12 @@ const authHeaders = (token) => ({
   },
 });
 
-export const fetchOrdenEnCurso = createAsyncThunk('orden/fetchOrdenEnCurso', async (token) => {
-    const response = await axios.get('http://localhost:4002/Ordenes/en-curso', authHeaders(token));
+const getToken = (payload) => typeof payload === 'string' ? payload : payload?.token;
+
+export const fetchOrdenEnCurso = createAsyncThunk('orden/fetchOrdenEnCurso', async (payload) => {
+    const response = await axios.get('http://localhost:4002/Ordenes/en-curso', authHeaders(getToken(payload)));
     return response.data;
-}, { condition: (_, { getState }) => getState().orden.status === 'idle' });
+}, { condition: (payload, { getState }) => payload?.force || getState().orden.status === 'idle' });
 
 export const fetchHistorialOrdenes = createAsyncThunk('orden/fetchHistorialOrdenes', async (token) => {
     const { data } = await axios.get('http://localhost:4002/Ordenes/mis-ordenes', authHeaders(token));
@@ -39,11 +41,6 @@ export const deleteDetalleOrden = createAsyncThunk('orden/deleteDetalleOrden', a
     return id;
 });
 
-export const procesarPago = createAsyncThunk('orden/procesarPago', async ({ body, token }) => {
-    const { data } = await axios.post('http://localhost:4002/pagos', body, authHeaders(token));
-    return data;
-});
-
 const ordenSlice = createSlice({
   name: 'orden',
   initialState: {
@@ -57,6 +54,8 @@ const ordenSlice = createSlice({
   reducers: {
     clearOrden: (state) => {
       state.orden = null;
+      state.status = 'idle';
+      state.historyStatus = 'idle';
     },
   },
   extraReducers: (builder) => {
@@ -97,12 +96,6 @@ const ordenSlice = createSlice({
         if (state.orden) {
           state.orden.cupon = null;
         }
-      })
-      // PAGO
-      .addCase(procesarPago.fulfilled, (state) => {
-        state.orden = null;
-        state.status = 'idle';
-        state.historyStatus = 'idle';
       })
       .addCase(fetchHistorialOrdenes.fulfilled, (state, action) => {
         state.historial = action.payload || [];
