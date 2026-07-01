@@ -12,6 +12,8 @@ const authHeaders = (token) => ({
   },
 });
 
+const getToken = (payload) => typeof payload === 'string' ? payload : payload?.token;
+
 const normalizeItem = (item) => {
   const producto = item.productoVariante?.producto;
   const sabor = item.productoVariante?.sabor;
@@ -28,10 +30,10 @@ const normalizeItem = (item) => {
   };
 };
 
-export const fetchCarrito = createAsyncThunk('carrito/fetchCarrito', async (token) => {
-    const { data } = await axios.get('http://localhost:4002/carritos', authHeaders(token));
+export const fetchCarrito = createAsyncThunk('carrito/fetchCarrito', async (payload) => {
+    const { data } = await axios.get('http://localhost:4002/carritos', authHeaders(getToken(payload)));
     return data;
-}, { condition: (_, { getState }) => getState().carrito.status === 'idle' });
+}, { condition: (payload, { getState }) => payload?.force || getState().carrito.status === 'idle' });
 
 export const addToCarrito = createAsyncThunk('carrito/addToCarrito', async ({ body, token }, thunkAPI) => {
     try {

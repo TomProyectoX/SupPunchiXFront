@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchCupones, fetchMisPuntos, canjearCupon, cancelarCupon, clearCuponesError } from "../../redux/cuponesSlice";
+import { fetchCarrito } from "../../redux/carritoSlice";
 import { fetchOrdenEnCurso } from "../../redux/ordenSlice";
 import Navbar from "./Navbar";
 
@@ -10,12 +11,13 @@ const CanjearCupones = () => {
   const dispatch = useDispatch();
 
   const { token } = useSelector((state) => state.auth);
-  const { cupones, cuponActivo, puntos, error, loading } = useSelector((state) => state.cupones);
+  const { cupones, cuponActivo, puntos, error, loading, canjeandoId, cancelandoId } = useSelector((state) => state.cupones);
   const cuponEnCarrito = useSelector((state) => state.carrito.cupon);
   const cuponEnOrden = useSelector((state) => state.orden.orden?.cupon);
   const yaTieneCupon = cuponEnCarrito != null || cuponEnOrden != null;
   const cuponCancelable = cuponEnCarrito || cuponEnOrden;
   const cuponMostradoComoActivo = cuponCancelable || cuponActivo;
+  const operacionCuponEnCurso = canjeandoId != null || cancelandoId != null;
 
   useEffect(() => {
     if (token) {
@@ -32,13 +34,18 @@ const CanjearCupones = () => {
   }, [error, dispatch]);
 
   const handleCanjear = (cuponId) => {
+    if (operacionCuponEnCurso) return;
     dispatch(canjearCupon({ id: cuponId, token }));
   };
 
   const handleCancelar = async (cuponId) => {
+    if (operacionCuponEnCurso) return;
     const result = await dispatch(cancelarCupon({ id: cuponId, token }));
-    if (cancelarCupon.fulfilled.match(result)) {
+    if (cancelarCupon.fulfilled.match(result) || cancelarCupon.rejected.match(result)) {
+      dispatch(fetchCarrito({ token, force: true }));
       dispatch(fetchOrdenEnCurso({ token, force: true }));
+      dispatch(fetchCupones(token));
+      dispatch(fetchMisPuntos(token));
     }
   };
 
@@ -85,9 +92,14 @@ const CanjearCupones = () => {
                 </div>
                 <button
                   onClick={() => handleCancelar(cuponCancelable.id)}
-                  className="rounded-lg border border-red-500 px-5 py-3 text-sm font-black uppercase text-red-400 hover:bg-red-500 hover:text-white transition-colors"
+                  disabled={operacionCuponEnCurso}
+                  className={`rounded-lg border border-red-500 px-5 py-3 text-sm font-black uppercase transition-colors ${
+                    operacionCuponEnCurso
+                      ? "cursor-not-allowed opacity-60 text-red-400"
+                      : "text-red-400 hover:bg-red-500 hover:text-white"
+                  }`}
                 >
-                  Cancelar cupon
+                  {cancelandoId != null ? "Cancelando..." : "Cancelar cupon"}
                 </button>
               </div>
             </div>
@@ -139,9 +151,11 @@ const CanjearCupones = () => {
 
                       <button
                         onClick={() => handleCanjear(cupon.id)}
-                        disabled={!alcanza || estaActivo || bloqueado}
+                        disabled={!alcanza || estaActivo || bloqueado || operacionCuponEnCurso}
                         className={`mt-6 w-full rounded-lg py-3 font-black uppercase transition-colors ${
-                          estaActivo
+                          operacionCuponEnCurso
+                            ? "bg-gray-700 text-gray-500 cursor-not-allowed"
+                            : estaActivo
                             ? "bg-gray-600 text-gray-400 cursor-not-allowed"
                             : bloqueado
                               ? "bg-gray-700 text-gray-500 cursor-not-allowed"
@@ -150,7 +164,9 @@ const CanjearCupones = () => {
                                 : "bg-gray-700 text-gray-500 cursor-not-allowed"
                         }`}
                       >
-                        {estaActivo
+                        {canjeandoId === cupon.id
+                          ? "Canjeando..."
+                          : estaActivo
                           ? "Canjeado"
                           : bloqueado
                             ? "Ya tenes un cupon activo"

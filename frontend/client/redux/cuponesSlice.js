@@ -36,6 +36,8 @@ export const canjearCupon = createAsyncThunk('cupones/canjearCupon', async ({ id
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data || error.message);
   }
+}, {
+  condition: (_, { getState }) => !getState().cupones.canjeandoId && !getState().cupones.cancelandoId,
 });
 
 export const cancelarCupon = createAsyncThunk('cupones/cancelarCupon', async ({ id, token }, thunkAPI) => {
@@ -45,6 +47,8 @@ export const cancelarCupon = createAsyncThunk('cupones/cancelarCupon', async ({ 
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data || error.message);
   }
+}, {
+  condition: (_, { getState }) => !getState().cupones.cancelandoId && !getState().cupones.canjeandoId,
 });
 
 const cuponesSlice = createSlice({
@@ -56,6 +60,8 @@ const cuponesSlice = createSlice({
     error: null,
     loading: false,
     status: 'idle',
+    canjeandoId: null,
+    cancelandoId: null,
   },
   reducers: {
     clearCuponActivo: (state) => {
@@ -95,22 +101,37 @@ const cuponesSlice = createSlice({
         state.error = action.payload || action.error.message;
       })
       // CANJEAR
+      .addCase(canjearCupon.pending, (state, action) => {
+        state.canjeandoId = action.meta.arg.id;
+        state.error = null;
+      })
       .addCase(canjearCupon.fulfilled, (state, action) => {
+        state.canjeandoId = null;
         state.cuponActivo = action.payload;
         state.puntos -= action.payload.costo;
         state.cupones = state.cupones.filter((cupon) => cupon.id !== action.payload.id);
         state.error = null;
       })
       .addCase(canjearCupon.rejected, (state, action) => {
+        state.canjeandoId = null;
         state.error = action.payload || action.error.message;
       })
       // CANCELAR
+      .addCase(cancelarCupon.pending, (state, action) => {
+        state.cancelandoId = action.meta.arg.id;
+        state.error = null;
+      })
       .addCase(cancelarCupon.fulfilled, (state, action) => {
+        state.cancelandoId = null;
         state.puntos += action.payload.costo;
         state.cuponActivo = null;
+        if (!state.cupones.some((cupon) => cupon.id === action.payload.id)) {
+          state.cupones.push(action.payload);
+        }
         state.error = null;
       })
       .addCase(cancelarCupon.rejected, (state, action) => {
+        state.cancelandoId = null;
         state.error = action.payload || action.error.message;
       });
   },
