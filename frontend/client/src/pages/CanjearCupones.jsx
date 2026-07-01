@@ -2,8 +2,6 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchCupones, fetchMisPuntos, canjearCupon, cancelarCupon, clearCuponesError } from "../../redux/cuponesSlice";
-import { fetchCarrito } from "../../redux/carritoSlice";
-import { fetchOrdenEnCurso } from "../../redux/ordenSlice";
 import Navbar from "./Navbar";
 
 const CanjearCupones = () => {
@@ -38,15 +36,9 @@ const CanjearCupones = () => {
     dispatch(canjearCupon({ id: cuponId, token }));
   };
 
-  const handleCancelar = async (cuponId) => {
+  const handleCancelar = (cuponId) => {
     if (operacionCuponEnCurso) return;
-    const result = await dispatch(cancelarCupon({ id: cuponId, token }));
-    if (cancelarCupon.fulfilled.match(result) || cancelarCupon.rejected.match(result)) {
-      dispatch(fetchCarrito({ token, force: true }));
-      dispatch(fetchOrdenEnCurso({ token, force: true }));
-      dispatch(fetchCupones(token));
-      dispatch(fetchMisPuntos(token));
-    }
+    dispatch(cancelarCupon({ id: cuponId, token }));
   };
 
   return (

@@ -20,33 +20,21 @@ export const fetchCupones = createAsyncThunk('cupones/fetchCupones', async (toke
   return data;
 });
 
-export const createCupon = createAsyncThunk('cupones/createCupon', async ({ body, token }, thunkAPI) => {
-  try {
+export const createCupon = createAsyncThunk('cupones/createCupon', async ({ body, token }) => {
     const { data } = await axios.post(BASE_URL, body, authHeaders(token));
     return data;
-  } catch (error) {
-    return thunkAPI.rejectWithValue(error.response?.data || error.message);
-  }
 });
 
-export const canjearCupon = createAsyncThunk('cupones/canjearCupon', async ({ id, token }, thunkAPI) => {
-  try {
+export const canjearCupon = createAsyncThunk('cupones/canjearCupon', async ({ id, token }) => {
     const { data } = await axios.post(`${BASE_URL}/${id}`, {}, authHeaders(token));
     return data;
-  } catch (error) {
-    return thunkAPI.rejectWithValue(error.response?.data || error.message);
-  }
 }, {
   condition: (_, { getState }) => !getState().cupones.canjeandoId && !getState().cupones.cancelandoId,
 });
 
-export const cancelarCupon = createAsyncThunk('cupones/cancelarCupon', async ({ id, token }, thunkAPI) => {
-  try {
+export const cancelarCupon = createAsyncThunk('cupones/cancelarCupon', async ({ id, token }) => {
     const { data } = await axios.delete(`${BASE_URL}/${id}`, authHeaders(token));
     return data;
-  } catch (error) {
-    return thunkAPI.rejectWithValue(error.response?.data || error.message);
-  }
 }, {
   condition: (_, { getState }) => !getState().cupones.cancelandoId && !getState().cupones.canjeandoId,
 });

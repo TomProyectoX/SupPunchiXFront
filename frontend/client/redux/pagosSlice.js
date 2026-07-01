@@ -26,13 +26,9 @@ export const fetchPagoByOrden = createAsyncThunk('pagos/fetchPagoByOrden', async
   return data;
 });
 
-export const createPago = createAsyncThunk('pagos/createPago', async ({ body, token }, thunkAPI) => {
-  try {
+export const createPago = createAsyncThunk('pagos/createPago', async ({ body, token }) => {
     const { data } = await axios.post(BASE_URL, body, authHeaders(token));
     return data;
-  } catch (error) {
-    return thunkAPI.rejectWithValue(error.response?.data || error.message);
-  }
 });
 
 const pagosSlice = createSlice({

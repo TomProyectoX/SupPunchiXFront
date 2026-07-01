@@ -14,31 +14,19 @@ export const fetchPromos = createAsyncThunk('promos/fetchPromos', async (token) 
     return data;
 }, { condition: (_, { getState }) => getState().promos.status === 'idle' });
 
-export const addPromo = createAsyncThunk('promos/addPromo', async ({ body, token }, thunkAPI) => {
-    try {
-      const { data } = await axios.post('http://localhost:4002/promos', body, authHeaders(token));
-      return data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data || error.message);
-    }
+export const addPromo = createAsyncThunk('promos/addPromo', async ({ body, token }) => {
+    const { data } = await axios.post('http://localhost:4002/promos', body, authHeaders(token));
+    return data;
 });
 
-export const updatePromo = createAsyncThunk('promos/updatePromo', async ({ id, body, token }, thunkAPI) => {
-    try {
-      const { data } = await axios.put(`http://localhost:4002/promos/${id}`, body, authHeaders(token));
-      return data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data || error.message);
-    }
+export const updatePromo = createAsyncThunk('promos/updatePromo', async ({ id, body, token }) => {
+    const { data } = await axios.put(`http://localhost:4002/promos/${id}`, body, authHeaders(token));
+    return data;
 });
 
-export const deletePromo = createAsyncThunk('promos/deletePromo', async ({ id, token }, thunkAPI) => {
-    try {
-      await axios.delete(`http://localhost:4002/promos/${id}`, authHeaders(token));
-      return id;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data || error.message);
-    }
+export const deletePromo = createAsyncThunk('promos/deletePromo', async ({ id, token }) => {
+    await axios.delete(`http://localhost:4002/promos/${id}`, authHeaders(token));
+    return id;
 });
 
 const promosSlice = createSlice({

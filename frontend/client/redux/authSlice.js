@@ -2,18 +2,9 @@ import axios from 'axios';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 
-export const postlogin = createAsyncThunk('auth/postlogin', async (credentials, { rejectWithValue }) => {  
-  /// las credenciales se transforman en el objeto credenciales
-  /// rejectwithvalue es una utilidad para manejar los errores
-    try {
-        const { data } = await axios.post('http://localhost:4002/auth/authenticate', credentials);
-        return data;
-    } catch (err) {
-        const status = err.response?.status;
-        if (status === 401 || status === 403) return rejectWithValue('Usuario o contraseña incorrectos.');
-        if (status === 404) return rejectWithValue('No se encontró ningún usuario con ese email.');
-        return rejectWithValue('No se pudo iniciar sesión. Intentá de nuevo.');
-    }
+export const postlogin = createAsyncThunk('auth/postlogin', async (credentials) => {
+    const { data } = await axios.post('http://localhost:4002/auth/authenticate', credentials);
+    return data;
 });
 
 const authSlice = createSlice({

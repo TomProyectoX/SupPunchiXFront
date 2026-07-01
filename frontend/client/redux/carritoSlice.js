@@ -40,24 +40,14 @@ export const fetchCarrito = createAsyncThunk('carrito/fetchCarrito', async (payl
 /// solo le hace el fetch al carrito si el status es idle (osea si es la primera vez y no hay nada)
 /// o si alguien verdaderamente necesite fetchear al carrito (casi nunca, por ejemplo los cupones)
 /// payload.force
-export const addToCarrito = createAsyncThunk('carrito/addToCarrito', async ({ body, token }, thunkAPI) => {
-    try {
-      const { data } = await axios.post('http://localhost:4002/carritos', body, authHeaders(token));
-      return data;
-    } catch (error) {
-      const mensaje = error.response?.data || error.message;
-      return thunkAPI.rejectWithValue(mensaje);
-    }
+export const addToCarrito = createAsyncThunk('carrito/addToCarrito', async ({ body, token }) => {
+    const { data } = await axios.post('http://localhost:4002/carritos', body, authHeaders(token));
+    return data;
 });
 
-export const updateCarritoStock = createAsyncThunk('carrito/updateCarritoStock', async ({ idproductcart, nuevoStock, token }, thunkAPI) => {
-    try {
-      await axios.put('http://localhost:4002/carritos/stock', { idproductcart, nuevoStock }, authHeaders(token));
-      return { idproductcart, nuevoStock };
-    } catch (error) {
-      const mensaje = error.response?.data || error.message;
-      return thunkAPI.rejectWithValue(mensaje);
-    }
+export const updateCarritoStock = createAsyncThunk('carrito/updateCarritoStock', async ({ idproductcart, nuevoStock, token }) => {
+    await axios.put('http://localhost:4002/carritos/stock', { idproductcart, nuevoStock }, authHeaders(token));
+    return { idproductcart, nuevoStock };
 });
 
 export const removeFromCarrito = createAsyncThunk('carrito/removeFromCarrito', async ({ idproductcart, stock, token }) => {
