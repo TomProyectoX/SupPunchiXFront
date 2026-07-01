@@ -23,8 +23,8 @@ export const fetchProductoById = createAsyncThunk('productos/fetchProductoById',
 }, {
   condition: (id, { getState }) => {
     const state = getState().productos;
-    return state.detailStatus !== 'loading' &&
-      String(state.productoporid?.idProducto) !== String(id);
+    return state.detailStatus !== 'loading' && /// un producto cargandose a la vez
+      String(state.productoporid?.idProducto) !== String(id); /// si entras y salis del mismo productdetails no vuelve a cargar el mismo (chetado)
   },
 });
 

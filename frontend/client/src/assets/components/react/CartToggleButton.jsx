@@ -25,7 +25,7 @@ const CartToggleButton = () => {
 
   return (
     <button
-      onClick={() => dispatch(toggleCart())}
+      onClick={() => dispatch(toggleCart())} /// esto es lo que dispara el cambio de estado del widget y ejecuta despues todo lo que esta en cartwidget
       className="fixed right-6 bottom-6 z-30 w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-[#CCFF00] to-[#E8FF66] text-black font-black flex items-center justify-center rounded-full shadow-xl shadow-[#CCFF00]/50 hover:shadow-2xl hover:shadow-[#CCFF00]/70 active:scale-95 transition-all duration-200 group"
     >
       <div className="relative flex items-center justify-center">

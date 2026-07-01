@@ -34,7 +34,7 @@ const CartWidget = () => {
 
   const { token } = useSelector((state) => state.auth);
   const { items: cartItems } = useSelector((state) => state.carrito);
-  const { isOpen } = useSelector((state) => state.cartWidget);
+  const { isOpen } = useSelector((state) => state.cartWidget); 
   const { orden } = useSelector((state) => state.orden);
   const cupon = useSelector((state) => state.orden.orden?.cupon || state.carrito.cupon);
 
@@ -93,7 +93,7 @@ const CartWidget = () => {
 
   return (
     <>
-      {isOpen && (
+      {isOpen && ( /// si esta abierto, que muestre todo este html
         <div
           onClick={handleCloseCart}
           className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm"

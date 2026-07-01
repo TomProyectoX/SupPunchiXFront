@@ -12,13 +12,16 @@ const authHeaders = (token) => ({
   },
 });
 
-const getToken = (payload) => typeof payload === 'string' ? payload : payload?.token;
 
+// esto lo hicimos pq al principio teniamos problemas para poner bien el token en el 
+// header, pusimos esta linea que lo normaliza y quedo asi (si funciona no lo tocamos)
+const getToken = (payload) => typeof payload === 'string' ? payload : payload?.token;
+// es str lo devuelvo de una si es un objeto lo agarro y devuelvo
 const normalizeItem = (item) => {
   const producto = item.productoVariante?.producto;
   const sabor = item.productoVariante?.sabor;
 
-  return {
+  return { 
     idCartItem: item.id,
     idProducto: producto?.idProducto ?? null,
     nombre: producto?.nombre ?? '',
@@ -34,7 +37,9 @@ export const fetchCarrito = createAsyncThunk('carrito/fetchCarrito', async (payl
     const { data } = await axios.get('http://localhost:4002/carritos', authHeaders(getToken(payload)));
     return data;
 }, { condition: (payload, { getState }) => payload?.force || getState().carrito.status === 'idle' });
-
+/// solo le hace el fetch al carrito si el status es idle (osea si es la primera vez y no hay nada)
+/// o si alguien verdaderamente necesite fetchear al carrito (casi nunca, por ejemplo los cupones)
+/// payload.force
 export const addToCarrito = createAsyncThunk('carrito/addToCarrito', async ({ body, token }, thunkAPI) => {
     try {
       const { data } = await axios.post('http://localhost:4002/carritos', body, authHeaders(token));

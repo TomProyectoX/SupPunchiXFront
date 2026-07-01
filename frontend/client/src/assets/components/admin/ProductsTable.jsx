@@ -2,8 +2,8 @@ import ProductsRow from "./ProductsRow";
 
 export default function ProductsTable({ productos, handleEdit, handleDelete }) {
   return (
-    <div className="border border-gray-700 rounded overflow-hidden">
-      <table className="w-full">
+    <div className="border border-gray-700 rounded overflow-hidden overflow-x-auto">
+      <table className="w-full min-w-[700px]">
         <thead>
           <tr className="border-b border-gray-700 bg-gray-900">
             <th className="px-6 py-4 text-left text-xs font-black text-gray-300 uppercase tracking-wide">Nombre</th>

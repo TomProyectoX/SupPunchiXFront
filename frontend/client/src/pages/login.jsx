@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
-import { postlogin } from '../../redux/authSlice';
+import { postlogin, clearError } from '../../redux/authSlice';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -12,7 +12,7 @@ function Login() {
   const [emailError, setEmailError] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { error } = useSelector((state) => state.auth);
+  const { error, loading } = useSelector((state) => state.auth);
 
   const checkemail = () => {
     if (email.trim() === '') {
@@ -116,8 +116,8 @@ function Login() {
                     type="email"
                     placeholder="tu@email.com"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    error={emailError || error}
+                    onChange={(e) => { setEmail(e.target.value); if (error) dispatch(clearError()); }}
+                    error={emailError}
                   />
                 </div>
 
@@ -129,13 +129,21 @@ function Login() {
                     type="password"
                     placeholder="••••••••"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => { setPassword(e.target.value); if (error) dispatch(clearError()); }}
                   />
                 </div>
 
+                {error && (
+                  <div className="flex items-center gap-3 bg-red-500/10 border border-red-500/40 rounded-lg px-4 py-3">
+                    <span className="material-symbols-outlined text-red-400 text-base shrink-0">error</span>
+                    <p className="text-sm text-red-400 font-semibold">{error}</p>
+                  </div>
+                )}
+
                 <div className="pt-2 space-y-5">
                   <button
-                    className="w-full bg-[#CCFF00] text-black font-black py-4 rounded-lg uppercase tracking-[0.15em] hover:bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 group text-sm"
+                    disabled={loading}
+                    className="w-full bg-[#CCFF00] text-black font-black py-4 rounded-lg uppercase tracking-[0.15em] hover:bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 group text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     type="submit"
                   >
                     Iniciar Sesión
