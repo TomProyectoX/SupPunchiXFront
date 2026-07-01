@@ -33,12 +33,16 @@ export const createOrden = createAsyncThunk('orden/createOrden', async ({ body, 
     }
 });
 
-export const deleteDetalleOrden = createAsyncThunk('orden/deleteDetalleOrden', async ({ id, cantidad, token }) => {
-    await axios.delete(`http://localhost:4002/Ordenes/${id}`, {
-      ...authHeaders(token),
-      data: { cantidad },
-    });
-    return id;
+export const deleteDetalleOrden = createAsyncThunk('orden/deleteDetalleOrden', async ({ id, cantidad, token }, thunkAPI) => {
+    try {
+      await axios.delete(`http://localhost:4002/Ordenes/${id}`, {
+        ...authHeaders(token),
+        data: { cantidad },
+      });
+      return id;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || error.message);
+    }
 });
 
 const ordenSlice = createSlice({
@@ -87,9 +91,13 @@ const ordenSlice = createSlice({
       })
       // DELETE DETALLE
       .addCase(deleteDetalleOrden.fulfilled, (state, action) => {
+        state.error = null;
         if (state.orden) {
           state.orden.detalles = (state.orden.detalles || []).filter((d) => d.id !== action.payload);
         }
+      })
+      .addCase(deleteDetalleOrden.rejected, (state, action) => {
+        state.error = action.payload || action.error.message;
       })
       // CANCELAR CUPON => quitar de la orden en curso
       .addCase(cancelarCupon.fulfilled, (state) => {

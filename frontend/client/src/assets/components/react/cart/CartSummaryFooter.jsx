@@ -24,7 +24,7 @@ const CartSummaryFooter = ({ subtotal, descuento = 0, total = subtotal, onChecko
         onClick={onCheckout}
         className="w-full bg-gradient-to-r from-[#CCFF00] to-[#E8FF66] text-black font-black uppercase py-3 rounded-lg hover:shadow-lg hover:shadow-[#CCFF00]/50 active:scale-95 transition transform"
       >
-        Ir a Checkout
+        Ir a finalizar compra
       </button>
 
       <button

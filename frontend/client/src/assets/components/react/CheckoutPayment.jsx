@@ -6,6 +6,24 @@ import { createPago } from "../../../../redux/pagosSlice";
 import DeliveryAddressCard from "./DeliveryAddressCard";
 import CardPaymentForm from "./CardPaymentForm";
 
+const validateExpiration = (expiration) => {
+  const match = expiration.match(/^(\d{2})\/(\d{2})$/);
+  if (!match) return "Ingresá la expiración con el formato MM/AA.";
+
+  const month = Number(match[1]);
+  const year = 2000 + Number(match[2]);
+  if (month < 1 || month > 12) return "El mes de expiración no es válido.";
+
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+  if (year < currentYear || (year === currentYear && month < currentMonth)) {
+    return "La tarjeta está vencida.";
+  }
+
+  return null;
+};
+
 const CheckoutPayment = ({ orden, onBack }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -26,6 +44,12 @@ const CheckoutPayment = ({ orden, onBack }) => {
       setError("Completá todos los campos de pago.");
       return;
     }
+    const expirationError = validateExpiration(expiracion);
+    if (expirationError) {
+      setError(expirationError);
+      return;
+    }
+
     setError("");
 
     const body = {

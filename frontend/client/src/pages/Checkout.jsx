@@ -116,8 +116,14 @@ const Checkout = () => {
     }
   };
 
-  const handleDeleteOrderDetail = (detalle) => {
-    dispatch(deleteDetalleOrden({ id: detalle.idDetalle, cantidad: detalle.cantidad, token }));
+  const handleDeleteOrderDetail = async (detalle) => {
+    setErrorCheckout("");
+    const result = await dispatch(
+      deleteDetalleOrden({ id: detalle.idDetalle, cantidad: detalle.cantidad, token })
+    );
+    if (!deleteDetalleOrden.fulfilled.match(result)) {
+      setErrorCheckout(result.payload || result.error?.message || "No se pudo eliminar el producto de la orden");
+    }
   };
 
   const resumenOrden = useMemo(() => {
